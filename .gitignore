@@ -1,0 +1,15 @@
+geckodriver.log
+.spyproject
+backend/db/*.db
+__pycache__
+source/__pycache__*
+app/__pycache__*
+process.yml
+logs/
+bin/
+.env
+celerybeat-schedule.*
+htmlcov/
+.coverage*
+.env
+venv/

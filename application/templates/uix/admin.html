@@ -1,0 +1,97 @@
+{% extends "uix/layout/base.html" %}
+
+{% block area %}
+<div class="main-container">
+  <section class="bg-white space-sm pb-4">
+    <div class="container">
+      <div class="row justify-content-between align-items-center">
+        <div class="col-auto">
+          <h1 class="h2">Admin Panel</h1>
+        </div>
+        <!--end of col-->
+      </div>
+      <!--end of row-->
+    </div>
+    <!--end of container-->
+  </section>
+  <!--end of section-->
+  <section class="flush-with-above space-0">
+    <div class="bg-white">
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" id="controls-tab" data-toggle="tab" href="#site-controls" role="tab" aria-selected="true">Site Controls</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="admin-flask" data-toggle="tab" href="#flask-admin" role="tab" aria-selected="false">Flask-Admin</a>
+              </li>
+            </ul>
+          </div>
+          <!--end of col-->
+        </div>
+        <!--end of row-->
+      </div>
+      <!--end of container-->
+    </div>
+  </section>
+
+
+  <section class="flush-with-above height-80 d-block">
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="site-controls" role="tabpanel">
+        <div class="container">
+          <!--end of row-->
+          <div class="container align-self-start">
+            <div class="row justify-content-center">
+              <div class="col-25 col-md-12 order-md-1">
+                {% include 'admin/controls.html' %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--end of tab pane-->
+      <div class="tab-pane fade" id="flask-admin" role="tabpanel">
+
+        <div class="container align-self-start">
+          <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-7">
+              <div class="card card-lg text-center">
+                <div class="card-body">
+                  <div class="mb-4">
+                    <h2 class="mb-2">Flask Admin Portal</h2>
+                  </div>
+                  <div class="row no-gutters justify-content-center">
+                    <button type="submit" id="admin-portal-button" class="btn btn-primary btn-block">Click <i class="icon-export h4"></i></button>
+                  </div>
+                  <!--end of row-->
+                </div>
+              </div>
+            </div>
+            <!--end of col-->
+          </div>
+          <!--end of row-->
+        </div>
+        <!--end of container-->
+
+      </div>
+      <!--end of tab pane-->
+    </div>
+    <!--end of tabs content-->
+  </section>
+</div>
+<script>
+
+  var DOMAIN = window.location.origin;
+  
+  document
+    .getElementById("admin-portal-button")
+    .addEventListener("click", function (evt) {
+        console.log('got here')
+      window.location.href = DOMAIN + "/app/flask_admin";
+  });
+
+</script>
+{% endblock %}

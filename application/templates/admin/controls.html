@@ -1,0 +1,124 @@
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<!-- Modal -->
+<div class="modal fade" id="newMessageModal" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="message-title">Send User A Message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+              <form action="{{url_for('protected.admin_submit_direct_message')}}" method="post">
+                {{message.csrf_token}}
+                <div class="form-group">
+                  {{message.recipient_id.label}}
+                  {{message.recipient_id(class="form-control", id="message-recipient-id", placeholder="Recipient User ID")}}
+                </div>
+                <div class="form-group">
+                  {{message.subject.label}}
+                  {{message.subject(class="form-control", placeholder="Message from Admin.")}}
+                </div>
+                <div class="form-group">
+                  {{message.message.label}}
+                  {{message.message(class="form-control", placeholder="Enter your message here...")}}
+                </div>
+                <div class="form-group">
+                  {{message.send(class="form-control btn btn-primary")}}
+                </div>
+              </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="accordion" id="accordion-1" data-children=".accordion-item">
+    <div class="accordion-item">
+      <a data-toggle="collapse" data-parent="#accordion-1" href="#accordion-panel-1" aria-expanded="false" aria-controls="accordion-1">
+        <h5>Message All Users:</h5>
+        <i class="h5 icon-chevron-small-right"></i>
+      </a>
+      <div id="accordion-panel-1" class="collapse" role="tabpanel">
+        <form action="{{url_for('protected.admin_submit_global_message')}}" method="post">
+          {{global_message.csrf_token}}
+          <div class="form-group">
+            {{global_message.subject.label}}
+            {{global_message.subject(class="form-control", placeholder="Message from Admin.")}}
+          </div>
+          <div class="form-group">
+            {{global_message.message.label}}
+            {{global_message.message(class="form-control", placeholder="Enter your message here...")}}
+          </div>
+          <div class="form-group">
+            {{global_message.send(class="form-control btn btn-primary")}}
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <a data-toggle="collapse" data-parent="#accordion-1" href="#accordion-panel-2" aria-expanded="false" aria-controls="accordion-1">
+        <h5>Message Specific Users</h5>
+        <i class="h5 icon-chevron-small-right"></i>
+      </a>
+      <div id="accordion-panel-2" class="collapse" role="tabpanel">
+        <table class="table table-borderless table-hover align-items-center" id="user-message-table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col" style="width: 5%;">ID</th>
+                    <th scope="col" style="width: 5%;">Username</th>
+                    <th scope="col" style="width: 15%;">Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="table-divider">
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                {% for user in all_users %}
+                    <tr class="bg-white" onclick="showMessageModal(this)">
+                        <td id="user-id">{{user['user_id']}}</td>
+                        <td id="username">{{user['username']}}</td>
+                        <td id="user-email">{{user['email']}}</td>
+                    </tr>
+                    <tr class="table-divider">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+      </div>
+    </div>
+</div>
+
+  <script>
+    
+    let table = new DataTable('#user-message-table', {}); 
+
+    function showMessageModal(row){
+        var cells = row.getElementsByTagName('td');
+        username = "";
+        user_id = "";
+        email = "";
+        title = "Send User Message"
+        for(i = 0; i < cells.length; ++i){
+            var cell = cells[i];
+            if(cell.id == "username"){
+              username = cell.innerText;
+            }
+            if(cell.id == "user-id"){
+              user_id = cell.innerText;
+            }
+            if(cell.id == "user-email"){
+                email = cell.innerText;
+            }
+        }
+        $('#message-recipient-id')[0].value = user_id
+        $('#newMessageModal').modal('show')
+    }
+  </script>

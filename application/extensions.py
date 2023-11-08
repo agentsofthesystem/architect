@@ -1,0 +1,17 @@
+from celery import Celery
+from flask_admin import Admin
+from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
+
+task_modules = ["application.api.workers.email"]
+
+ADMIN = Admin(template_mode="bootstrap3")
+
+CELERY = Celery("celery_worker", include=task_modules)
+
+CSRF = CSRFProtect()
+
+DATABASE = SQLAlchemy()
+
+LOGIN_MANAGER = LoginManager()

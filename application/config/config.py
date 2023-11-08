@@ -1,0 +1,111 @@
+# -*- coding: utf-8 -*-
+import os
+
+from datetime import timedelta
+
+from application.common import logger
+from application.common.constants import _DeployTypes
+
+
+class DefaultConfig:
+    ######################################################################
+    # Configurable Settings
+    # These must still be present here but user may change later
+    ######################################################################
+
+    # App name and secret
+    APP_DOMAIN = "REPLACEME.com"
+    APP_NAME = "REPLACEME"
+    APP_WEBSITE = f"www.{APP_DOMAIN}"
+    APP_PRETTY_NAME = "REPLACEME"
+    SECRET_KEY = "super-secret-key-be-sure-to-change-me"
+    DEPLOYMENT_TYPE = "docker_compose"  # also supports kubernetes
+
+    # Top-level App Controls
+    APP_ENABLE_PAYMENTS = False
+    APP_ENABLE_EMAIL = False
+
+    # Email Settings
+    AWS_REGION = "us-east-1"
+    DEFAULT_MAIL_SENDER = f"{APP_NAME} <no-reply>@{APP_DOMAIN}"
+    AWS_ACCESS_KEY_ID = ""
+    AWS_SECRET_ACCESS_KEY = ""
+
+    ######################################################################
+    # Non - Re-Configurable Settings
+    ######################################################################
+
+    # Flask specific configs
+    DEBUG = True
+    ENV = "development"
+    FLASK_RUN_HOST = "0.0.0.0"
+    FLASK_RUN_PORT = "3000"
+    WTF_CSRF_ENABLED = True
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
+    IS_SEEDED = True
+
+    # Celery Settings
+    CELERY_BROKER = "redis://redis:6379"
+    CELERY_BACKEND = "redis://redis:6379"
+
+    # SQL Database Settings
+    SQL_DATABASE_USER = "admin"
+    SQL_DATABASE_PASS = "REPLACEME"
+    SQL_DATABASE_SERVER = "mariadb"
+    # SQL_DATABASE_SERVER = "localhost"
+    SQL_DATABASE_PORT = "3306"
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{SQL_DATABASE_USER}:{SQL_DATABASE_PASS}@{SQL_DATABASE_SERVER}:{SQL_DATABASE_PORT}/app"  # noqa: E501
+
+    # Stripe Payment configs
+    # This is a test key. Okay to expose.
+    STRIPE_PUBLISHABLE_KEY = "pk_test1"
+    STRIPE_SECRET_KEY = "pk_test2"
+    STRIPE_MONTHLY_PRICE_ID = "price_id1"
+    STRIPE_ANNUAL_PRICE_ID = "price_id2"
+    STRIPE_WEBHOOK_SECRET = "whsec_abc123"
+
+    # Admin Stuff
+    ADMIN_USER = "Global Admin"
+    ADMIN_PASSWORD = "password"  # Default password
+    DEFAULT_ADMIN_EMAIL = f"admin@{APP_DOMAIN}"
+    FLASK_ADMIN_SWATCH = "cosmo"  # See https://bootswatch.com/3/ for swatches
+
+    def __init__(self, deploy_type):
+        configuration_options = [el.value for el in _DeployTypes]
+
+        if deploy_type not in configuration_options:
+            logger.info(
+                f"Configuration: {deploy_type} is not a valid configuration type, "
+                f"which are: {configuration_options}"
+            )
+            raise RuntimeError
+
+        self.DEPLOYMENT_TYPE = deploy_type
+
+    @classmethod
+    def get(cls, attribute, default_value=None):
+        if hasattr(cls, attribute):
+            return getattr(cls, attribute)
+        else:
+            return default_value
+
+    @classmethod
+    def obtain_environment_variables(cls):
+        for var in cls.__dict__.keys():
+            if var[:1] != "_" and var != "obtain_environment_variables":
+                if var in os.environ:
+                    value = os.environ[var].lower()
+                    if value == "true" or value == "True" or value == "TRUE":
+                        setattr(cls, var, True)
+                    elif value == "false" or value == "False" or value == "FALSE":
+                        setattr(cls, var, False)
+                    else:
+                        setattr(cls, var, os.environ[var])
+
+    @classmethod
+    def __str__(cls):
+        print_str = ""
+        for var in cls.__dict__.keys():
+            if var[:1] != "_" and var != "obtain_environment_variables":
+                print_str += f"VAR: {var} set to: {getattr(cls,var)}\n"
+        return print_str

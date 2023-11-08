@@ -1,0 +1,35 @@
+<section class="space-sm">
+    <div class="container align-self-start">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-7">
+          <div class="card card-lg text-center">
+            <div class="card-body">
+              <div class="mb-4">
+                <h2 class="mb-2">Customer Portal</h2>
+              </div>
+              <div class="row no-gutters justify-content-center">
+                <button type="submit" id="portal-button" class="btn btn-primary btn-block">Click <i class="icon-export h4"></i></button>
+              </div>
+              <!--end of row-->
+            </div>
+          </div>
+        </div>
+        <!--end of col-->
+      </div>
+      <!--end of row-->
+    </div>
+    <!--end of container-->
+</section>
+
+<script>
+
+    var DOMAIN = window.location.origin;
+    
+    document
+      .getElementById("portal-button")
+      .addEventListener("click", function (evt) {
+          console.log('got here')
+        window.location.href = DOMAIN + "/app/customer_portal";
+    });
+    
+</script>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+
+  {% include 'uix/layout/head.html' %}
+
+  <body>
+
+    <div class="navbar-container">
+    </div>
+    <div class="main-container">
+      <section class="height-100 bg-dark">
+        <div class="container">
+          <div class="row">
+            <div class="col text-center">
+              <i class="icon-compass display-4"></i>
+              <h1 class="h2">Uhoh, page not found (404)</h1>
+              <span>The page you requested couldn't be found. <a href="{{url_for('public.index')}}" class="text-white">Go back home</a> or <a href="{{url_for('public.support')}}" class="text-white">Contact us</a> if you think this might be a mistake.</span>
+            </div>
+            <!--end of col-->
+          </div>
+          <!--end of row-->
+        </div>
+      </section>
+
+    </div>
+
+    {% include 'uix/layout/scripts.html' %}
+
+  </body>
+
+</html>

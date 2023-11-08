@@ -1,0 +1,11 @@
+
+.js-hidden {
+    display: none;
+}
+.btn-outline-secondary {
+    color: #28a745;
+    border-color: #28a745;
+}
+.btn-outline-secondary:hover {
+    background: #28a745;
+}

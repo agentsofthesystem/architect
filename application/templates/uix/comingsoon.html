@@ -1,0 +1,66 @@
+
+<!doctype html>
+<html lang="en">
+  {% include 'uix/layout/scripts.html' %}
+  <body>
+    <div class="main-container">
+      <section class="space-sm">
+        <div class="container">
+          <div class="row">
+            <div class="col text-center">
+              <img alt="Image" src="{{ url_for('static', filename='uix/assets/img/logo-gray.svg') }}" />
+            </div>
+            <!--end of col-->
+          </div>
+          <!--end of row-->
+        </div>
+        <!--end of container-->
+      </section>
+      <section class="height-80 flush-with-above">
+        <div class="container">
+          <div class="row justify-content-between align-items-center">
+            <div class="col-12 col-md-6 mb-4">
+              <img alt="Image" src="{{ url_for('static', filename='uix/assets/img/graphic-woman-writing.svg') }}"" class="w-100" />
+            </div>
+            <!--end of col-->
+            <div class="col-12 col-md-7 col-lg-5 mb-4 text-center text-md-left">
+              <h1 class="display-3">A new way launching soon</h1>
+              <h2 class="lead">Forget everything you know about the old way, the new way is coming.</h2>
+              <div>
+                <a href="#" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#video-modal"><i class="icon-controller-play"></i> Play Trailer</a>
+                <a href="#" class="btn btn-link">Request beta access</a>
+              </div>
+            </div>
+            <!--end of col-->
+          </div>
+          <!--end of row-->
+        </div>
+        <!--end of container-->
+      </section>
+      <!--end of section-->
+      <section class="space-sm flush-with-above">
+        <div class="container">
+          <div class="row">
+            <div class="col text-center">
+              <span class="text-muted text-small">Made with ☕ in Melbourne 🇦🇺</span>
+            </div>
+            <!--end of col-->
+          </div>
+          <!--end of row-->
+        </div>
+        <!--end of container-->
+      </section>
+    </div>
+
+    <div class="modal fade" id="video-modal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-center-viewport">
+        <div class="modal-content">
+          <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" data-src=_global.iframeSrc allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% include 'uix/layout/scripts.html' %}
+  </body>
+</html>

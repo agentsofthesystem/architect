@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+
+  {% block head%}
+    {% include '/uix/layout/head.html' %}
+  {% endblock %}
+
+  <body>
+
+    {% block navigation %}
+      {% include '/uix/layout/app_topbar.html' %}
+    {% endblock %}
+
+    {% block content %}
+    <main id="displayArea" role="main"> <!--mx-auto flex-column align-items-center justify-content-center">-->
+        {% include '/uix/layout/flash_message.html' %}
+        {% block area %}
+        
+        {% endblock %}
+    </main>
+    {% endblock %}
+
+    {% block scripts %}
+      {% include '/uix/layout/scripts.html' %}
+    {% endblock %}
+
+  </body>
+
+</html>

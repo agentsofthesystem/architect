@@ -1,0 +1,45 @@
+<form class="password-strength row no-gutters" action="{{url_for('protected.update_account_password')}}" method="post">
+    {{ update_password_form.csrf_token }}
+    {{ update_password_form.verified(value=verified) }}
+    {{ update_password_form.hidden_email(value=current_user.email) }}
+    <div class="col-12">
+        <div class="form-group">     
+            {{ update_password_form.current_password(class="form-control form-control-lg", type="password", id="current-password", value="", placeholder="Current Password") }}
+        </div> 
+    </div>
+
+    <div class="col-12">
+        <div class="form-group">            
+            <div class="input-group">
+                {{ update_password_form.new_password(class="form-control form-control-lg password-strength__input", type="password", id="password-input", placeholder="New Password") }}
+                <div class="input-group-append">
+                    <button class="password-strength__visibility btn btn-outline-secondary" type="button"><span class="password-strength__visibility-icon" data-visible="hidden"><i class="fas fa-eye-slash"></i></span><span class="password-strength__visibility-icon js-hidden" data-visible="visible"><i class="fas fa-eye"></i></span></button>
+                </div>
+            </div>
+            <small class="password-strength__error text-danger js-hidden">This symbol is not allowed!</small>
+            <small class="form-text text-muted mt-2" id="passwordHelp">Add 9 characters or more, lowercase letters, uppercase letters, numbers and symbols to make the password really strong!</small>
+        </div> 
+    </div>
+    
+    <div class="col-12">
+        <div class="form-group">
+            <div class="password-strength__bar-block progress">
+                <div class="password-strength__bar progress-bar bg-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0"aria-valuemax="100">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="form-group"> 
+            {{ update_password_form.repeat_password(class="form-control form-control-lg", type="password", id="repeat-password", value="", placeholder="Confirm Password") }}
+        </div>
+    </div>
+    
+    <div class="col-12">
+        <div class="form-group">
+            <button class="btn btn-success password-strength__submit" type="submit" disabled="disabled">Update password</button>
+        </div>
+    </div>
+
+  </form>

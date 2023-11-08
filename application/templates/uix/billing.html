@@ -1,0 +1,72 @@
+<div class="container">
+    <div class="row justify-content-center">
+           
+            <!--end of col-->
+            <div class="col-md-6 col-lg-5">
+              <div class="card pricing card-lg">
+                <div class="card-body">
+                  <h5>Pro Monthly</h5>
+                  <span class="display-3">$20</span>
+                  <span class="text-small">per / month</span>
+                  <span class="h6">Includes:</span>
+                  <ul class="list-unstyled">
+                    <li>
+                      1 Active project
+                    </li>
+                    <li>
+                      2 Repositories
+                    </li>
+                    <li>
+                      2 Collaborators
+                    </li>
+                  </ul>
+                  <button id="pro-monthly-btn" class="btn btn-lg btn-outline-primary">Purchase</button>
+                </div>
+              </div>
+              <!--end card-->
+            </div>
+            <!--end of col-->
+            <div class="col-md-6 col-lg-5">
+              <div class="card pricing card-lg">
+                <div class="card-body">
+                  <h5>Pro Annual</h5>
+                  <span class="display-3">$200</span>
+                  <span class="text-small">per / year</span>
+                  <span class="h6">Includes:</span>
+                  <ul class="list-unstyled">
+                    <li>
+                        1 Active project
+                      </li>
+                      <li>
+                        2 Repositories
+                      </li>
+                      <li>
+                        2 Collaborators
+                      </li>
+                  </ul>
+                  <button id="pro-annual-btn" class="btn btn-lg btn-outline-primary">Purchase</button>
+                </div>
+              </div>
+              <!--end card-->
+            </div>
+            <!--end of col-->
+          </div>
+</div>
+
+<script>
+
+    document
+      .getElementById("pro-monthly-btn")
+      .addEventListener("click", function (evt) {
+        //redirectToCheckout(SUBSCRIPTION_PRO_MONTHLY_PRICE_ID);
+        window.location.href = '/app/create-checkout-session?price_type=MONTHLY'
+      });
+
+    document
+      .getElementById("pro-annual-btn")
+      .addEventListener("click", function (evt) {
+        //redirectToCheckout(SUBSCRIPTION_PRO_ANNUAL_PRICE_ID);
+        window.location.href = '/app/create-checkout-session?price_type=ANNUAL'
+      });
+      
+  </script>

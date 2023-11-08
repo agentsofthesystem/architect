@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+    {% block head %}
+
+    <meta charset="utf-8">
+
+ 
+
+    <!-- Disable IE compatability mode -->
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+ 
+
+    {% endblock %}
+
+ 
+
+    <table style="align:center; border: 1px solid #e3ebf6; height: 100%; width: 800px; margin-right: auto; margin-left: auto; background: #f9fbfd;" cellpadding="30">
+
+        <tbody>
+
+            <tr><td align="center" >
+
+                <h1> {{pretty_name}} </h1>
+
+            </td></tr>
+
+            <tr style="border: 1px solid #e3ebf6;">
+
+                <td style="font-family:Calibri; font-size:.9375rem; text-align: center; height: 100px; background: #f9fbfd;">
+
+                   <div style="padding:30px;">
+
+                        <table width="100%"><tr><td style="margin: 36px; border: 1px solid #e3ebf6; border-radius: 5px; background-color: #fff; box-shadow: 0 .75rem 1.5rem rgba(18,38,63,.03);"style="padding:30px; font-family:Calibri; font-size:.9375rem; text-align: center; height: 100px; background: #fff;">
+
+                   
+
+                       {% block content %}
+
+                       {% endblock %}
+
+                        </td></tr></table>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <td valign="top" style="font-family:Calibri; font-size:.9375rem; height: 100%; text-align: center;  background: #f9fbfd;">
+
+                    <footer>
+
+                        <p style="margin-bottom: 30;">This message came from {{pretty_name}}!<br />&nbsp;<a href="#">{{app_site}}</a></p>
+
+                    </footer>
+
+                </td>
+
+            </tr>
+
+        </tbody>
+
+</table>

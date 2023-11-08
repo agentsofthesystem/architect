@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+    {% include 'uix/layout/head.html' %}
+    <body>
+    {% include 'uix/layout/landing_topbar.html' %}
+
+    {% include 'uix/layout/flash_message.html' %}
+    
+    <div class="main-container">
+        <section class="space-sm">
+          <div class="container align-self-start">
+            <div class="row mb-5">
+              <div class="col text-center">
+                <a href="#">
+                  <img alt="Image" src="{{ url_for('static', filename='uix/assets/img/logo-gray.svg') }}" />
+                </a>
+              </div>
+              <!--end of col-->
+            </div>
+            <!--end of row-->
+            <div class="row justify-content-center">
+              <div class="col-12 col-md-8 col-lg-7">
+                <div class="card card-lg text-center">
+                  <div class="card-body">
+                    <div class="mb-4">
+                      <h2 class="mb-2">Reset password</h2>
+                      <span>Enter email address to reset password</span>
+                    </div>
+                    <div class="row no-gutters justify-content-center">
+                      <form class="text-left col-lg-8" action="{{url_for('public.forgot')}}" method="post">
+                        {{ form.csrf_token }}
+                        <div class="form-group">
+                          <label for="reset-email">Email Address</label>
+                          {{ form.email(class="form-control form-control-lg", type="email", id="reset-email", placeholder="Email Address") }}
+                        </div>
+                        <div class="text-center mb-4">
+                          <button type="submit" class="btn btn-primary btn-lg">Reset password</button>
+                        </div>
+                      </form>
+                    </div>
+                    <!--end of row-->
+                  </div>
+                </div>
+              </div>
+              <!--end of col-->
+            </div>
+            <!--end of row-->
+          </div>
+          <!--end of container-->
+        </section>
+        <!--end of section-->
+    </div>
+
+    {% include 'uix/layout/scripts.html' %}
+    </body>
+</html>

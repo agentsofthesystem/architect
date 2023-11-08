@@ -1,0 +1,70 @@
+version: "3.9"
+
+# NOTE - Docker Compose is STRICTLY Meant for develop purpose. Use Kubernetes/Helm for deployment.
+services:
+
+  web:
+    depends_on: 
+      - "tasks"
+      - "mariadb"
+    image: web-app:latest
+    restart: on-failure
+    build: 
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - "./application:/var/application"
+    ports:
+      - "3000:3000"
+    environment:
+      SQL_DATABASE_USER: admin 
+      SQL_DATABASE_PASS: REPLACEME
+      SQL_DATABASE_SERVER: mariadb
+      SQL_DATABASE_PORT: 3306
+
+  tasks:
+    depends_on: 
+      - "redis"
+      - "mariadb"
+    image: web-app:latest
+    restart: always
+    build: 
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - "./application:/var/application"
+    command: "celery -A application.wsgi_worker_compose:WORKER worker --beat -l INFO -c 2 -Q realtime,celery"   
+    environment:
+      SQL_DATABASE_USER: admin 
+      SQL_DATABASE_PASS: REPLACEME
+      SQL_DATABASE_SERVER: mariadb
+      SQL_DATABASE_PORT: 3306
+
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - 6379:6379
+
+  mariadb:
+    image: mariadb:11
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MARIADB_DATABASE: app
+      MARIADB_USER: admin
+      MARIADB_PASSWORD: REPLACEME
+      MARIADB_ROOT_PASSWORD: REPLACEME  # Change Me!
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  adminer:
+    depends_on: 
+      - "mariadb"
+    image: adminer:4.8.1-standalone
+    restart: always
+    ports:
+      - 8080:8080
+
+volumes:
+  mysql-data:

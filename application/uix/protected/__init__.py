@@ -1,0 +1,1 @@
+"""Define protected app views."""

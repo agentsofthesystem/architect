@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+{% include 'uix/layout/head.html' %}
+
+<body>
+    {% include 'uix/layout/landing_topbar.html' %}
+
+    <div class="main-container">
+        <section class="space-sm">
+          <div class="container align-self-start">
+            <div class="row mb-5">
+              <div class="col text-center">
+                <a href="#">
+                  <img alt="Image" src="{{ url_for('static', filename='uix/assets/img/logo-gray.svg') }}" />
+                </a>
+              </div>
+              <!--end of col-->
+            </div>
+            <!--end of row-->
+            <div class="row justify-content-center">
+              <div class="col-12 col-md-8 col-lg-7">
+                <div class="card card-lg text-center">
+                  <div class="card-body">
+                    <div class="mb-5">
+                      <h1 class="h2 mb-2">Get in touch</h1>
+                      <span>Need to flesh this out before.</span>
+                    </div>
+                    <div class="row no-gutters justify-content-center">
+                      <p>PUT SOMETHING HERE!</p>
+                    </div>
+                    <!--end of row-->
+                  </div>
+                </div>
+                <div class="text-center">
+                  <span class="text-small">Don't have an account yet? <a href="#">Create one</a>
+                  </span>
+                </div>
+              </div>
+              <!--end of col-->
+            </div>
+            <!--end of row-->
+          </div>
+          <!--end of container-->
+        </section>
+        <!--end of section-->
+    </div>
+
+    {% include 'uix/layout/footer.html' %}
+
+    {% include 'uix/layout/scripts.html' %}
+</body>
+
+</html>
