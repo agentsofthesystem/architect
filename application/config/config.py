@@ -14,10 +14,10 @@ class DefaultConfig:
     ######################################################################
 
     # App name and secret
-    APP_DOMAIN = "REPLACEME.com"
-    APP_NAME = "REPLACEME"
+    APP_DOMAIN = "agentsofthesystem.com"
+    APP_NAME = "TheArchitect"
     APP_WEBSITE = f"www.{APP_DOMAIN}"
-    APP_PRETTY_NAME = "REPLACEME"
+    APP_PRETTY_NAME = "The Architect"
     SECRET_KEY = "super-secret-key-be-sure-to-change-me"
     DEPLOYMENT_TYPE = "docker_compose"  # also supports kubernetes
 
