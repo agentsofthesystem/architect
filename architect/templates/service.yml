@@ -1,0 +1,42 @@
+# Primary Application
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: primary-service
+spec:
+  selector:
+    app: primary
+  ports:
+  - name: main-app-service
+    protocol: TCP
+    port: 3000
+    targetPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec:
+  selector:
+    app: redis
+  ports:
+  - name: redis-cache-service
+    protocol: TCP
+    port: 6379
+    targetPort: 6379
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb-service
+spec:
+  selector:
+    app: mariadb
+  ports:
+  - name: mariadb-db-service
+    protocol: TCP
+    port: 3306
+    targetPort: 3306

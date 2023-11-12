@@ -1,0 +1,4 @@
+
+enable_pull_secret: "True"
+pull_secret_name: regcred
+architect_image: jreed1701/agentsofthesystem:v0
