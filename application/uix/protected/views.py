@@ -41,24 +41,59 @@ def main():
     )
 
 
-@protected.route("/example/verified/page")
+@protected.route("/dashboard")
 @login_required
-@verified_required
-def example_verified_page():
+def dashboard():
     return render_template(
-        "uix/example_verified_page.html",
-        pretty_name=current_app.config["APP_PRETTY_NAME"],
+        "uix/dashboard.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
     )
 
 
-@protected.route("/example/paid/page")
+@protected.route("/system/agents")
 @login_required
 @verified_required
-@subscription_required
-def example_paid_page():
+def system_agents():
     return render_template(
-        "uix/example_paid_page.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
+        "uix/system_agents.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
     )
+
+
+@protected.route("/system/crews")
+@login_required
+@verified_required
+def system_crews():
+    return render_template(
+        "uix/system_crews.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
+    )
+
+
+@protected.route("/system/friends")
+@login_required
+@verified_required
+def system_friends():
+    return render_template(
+        "uix/system_friends.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
+    )
+
+
+# @protected.route("/example/verified/page")
+# @login_required
+# @verified_required
+# def example_verified_page():
+#     return render_template(
+#         "uix/example_verified_page.html",
+#         pretty_name=current_app.config["APP_PRETTY_NAME"],
+#     )
+
+
+# @protected.route("/example/paid/page")
+# @login_required
+# @verified_required
+# @subscription_required
+# def example_paid_page():
+#     return render_template(
+#         "uix/example_paid_page.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
+#     )
 
 
 @protected.route("/success")

@@ -4,7 +4,7 @@
     <div class="bg-dark navbar-dark" data-sticky="top">
         <div class="container">
         <nav class="navbar navbar-expand-lg">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="{{url_for('protected.dashboard')}}">
                 <img src="{{ url_for('static', filename='uix/assets/img/logo-white.svg') }}" />
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -13,14 +13,25 @@
             <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a href="{{url_for('protected.main')}}" class="nav-link">Home</a>
+                        <a href="{{url_for('protected.dashboard')}}" class="nav-link">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{url_for('protected.example_verified_page')}}" class="nav-link">Example Verified User Page</a>
+                        <a href="{{url_for('protected.system_agents')}}" class="nav-link">Agents</a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{url_for('protected.example_paid_page')}}" class="nav-link">Example Paid Page</a>
+                        <a href="{{url_for('protected.system_crews')}}" class="nav-link">Crews</a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{url_for('protected.system_friends')}}" class="nav-link">Friends</a>
+                    </li>
+                    <!--
+                    <li class="nav-item">
+                        <a href="{url_for('protected.example_verified_page')}" class="nav-link">Example Verified User Page</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{url_for('protected.example_paid_page')}" class="nav-link">Example Paid Page</a>
+                    </li>
+                    -->
                 </ul>
                 <ul class="navbar-nav">
                     {% if current_user.admin %}
