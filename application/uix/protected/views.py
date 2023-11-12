@@ -16,7 +16,6 @@ from application.api import users, messages
 from application.common import logger
 from application.common.tools import (
     verified_required,
-    subscription_required,
     admin_required,
     _get_setting,
 )
