@@ -44,11 +44,12 @@ def about():
     )
 
 
-@public.route("/pricing")
-def pricing():
-    return render_template(
-        "uix/pricing.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
-    )
+# TODO - Uncomment when ready
+# @public.route("/pricing")
+# def pricing():
+#     return render_template(
+#         "uix/pricing.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
+#     )
 
 
 @public.route("/support")
