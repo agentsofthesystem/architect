@@ -306,7 +306,7 @@ def forgot_password(request):
     reset_link = f"http://{origin_host}/reset?token={token}"
 
     """
-    static_path = str(url_for('static', filename='uix/assets/img/logo-white.svg'))
+    static_path = str(url_for('static', filename='uix/assets/img/app-logo.svg'))
     base_path = str(os.path.dirname(current_app.instance_path))
     full_path = os.path.join(base_path, 'application', static_path[1:])
 
