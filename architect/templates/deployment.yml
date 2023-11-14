@@ -16,6 +16,16 @@ spec:
         app: primary
     spec:
 
+      {{ if eq .Values.enable_pull_secret "True" | default "False"}}
+      imagePullSecrets:
+      - name: {{ .Values.pull_secret_name }}
+      {{ end }}
+
+      initContainers:
+      - name: wait-for-sql-server
+        image: busybox
+        command: ['sh', '-c', 'echo -e "Checking for the availability of MySQL Server deployment"; while ! nc -z mariadb-service 3306; do sleep 1; printf "-"; done; echo -e "  >> MySQL DB Server has started";']
+
       containers:
       # Main Application Container
       - name: main
@@ -25,11 +35,6 @@ spec:
         ports:
         - containerPort: 5000
           name: main-app-svc
-        {{ if eq .Values.enable_pull_secret "True" | default "False"}}
-        imagePullSecrets:
-        - name: {{ .Values.pull_secret_name }}
-        {{ end }}
-        env:
         env:
         - name: DEBUG
           valueFrom:
@@ -89,16 +94,23 @@ spec:
       labels:
         app: task
     spec:
+
+      {{ if eq .Values.enable_pull_secret "True" | default "False"}}
+      imagePullSecrets:
+      - name: {{ .Values.pull_secret_name }}
+      {{ end }}
+
+      initContainers:
+      - name: wait-for-sql-server
+        image: busybox
+        command: ['sh', '-c', 'echo -e "Checking for the availability of MySQL Server deployment"; while ! nc -z mariadb-service 3306; do sleep 1; printf "-"; done; echo -e "  >> MySQL DB Server has started";']
+
       containers:
       # This is the Status Application
       - name: task
         image: {{.Values.architect_image}}
         command: ["celery"]
         args: ["-A", "application.wsgi_worker_kubernetes:WORKER", "worker", "--beat", "-l", "INFO", "-c", "1"]
-        {{ if eq .Values.enable_pull_secret "True" | default "False"}}
-        imagePullSecrets:
-        - name: {{ .Values.pull_secret_name }}
-        {{ end }}
         env:
         - name: DEBUG
           valueFrom:

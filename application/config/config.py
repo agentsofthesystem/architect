@@ -27,7 +27,7 @@ class DefaultConfig:
 
     # Email Settings
     AWS_REGION = "us-east-1"
-    DEFAULT_MAIL_SENDER = f"{APP_NAME} <no-reply>@{APP_DOMAIN}"
+    DEFAULT_MAIL_SENDER = f"thearchitect@{APP_DOMAIN}"
     AWS_ACCESS_KEY_ID = ""
     AWS_SECRET_ACCESS_KEY = ""
 
@@ -45,13 +45,13 @@ class DefaultConfig:
     IS_SEEDED = True
 
     # Celery Settings
-    CELERY_BROKER = "redis://redis:6379"
-    CELERY_BACKEND = "redis://redis:6379"
+    CELERY_BROKER = "redis://redis-service:6379"
+    CELERY_BACKEND = "redis://redis-service:6379"
 
     # SQL Database Settings
     SQL_DATABASE_USER = "admin"
     SQL_DATABASE_PASS = "REPLACEME"
-    SQL_DATABASE_SERVER = "mariadb"
+    SQL_DATABASE_SERVER = "mariadb-service"
     # SQL_DATABASE_SERVER = "localhost"
     SQL_DATABASE_PORT = "3306"
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{SQL_DATABASE_USER}:{SQL_DATABASE_PASS}@{SQL_DATABASE_SERVER}:{SQL_DATABASE_PORT}/app"  # noqa: E501
