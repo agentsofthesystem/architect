@@ -17,16 +17,11 @@ Unless the image is public, an image pull secret is required.  This example will
 1. log into docker hub; docker login
 2. Create a kubectl secret (see example)
 
-Or, use this for reference: [Kubernetes Docs](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/).
+Or, use this for reference: [Kubernetes Docs](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line).
 
-Next, with the secret in place, run the helm install
+After that, make sure that the NGINX Ingress Controller is installed. Do that by following the
+[NGINX Docs](https://kubernetes.github.io/ingress-nginx/deploy/)
 
+Finally, with the secret and ingress controller in place, run the helm install
 
-### Kubectl secret for dockerhub
-
-```
-kubectl create secret generic regcred \
-    --from-file=.dockerconfigjson=$HOME/.docker/config.json \
-    --type=kubernetes.io/dockerconfigjson
-```
-
+1. helm install architect architect/

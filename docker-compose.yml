@@ -6,7 +6,7 @@ services:
   web:
     depends_on:
       - "tasks"
-      - "mariadb"
+      - "mariadb-service"
     image: agentsofthesystem:latest
     restart: on-failure
     build:
@@ -24,8 +24,8 @@ services:
 
   tasks:
     depends_on:
-      - "redis"
-      - "mariadb"
+      - "redis-service"
+      - "mariadb-service"
     image: agentsofthesystem:latest
     restart: always
     build:
@@ -37,15 +37,15 @@ services:
     environment:
       SQL_DATABASE_USER: admin
       SQL_DATABASE_PASS: REPLACEME
-      SQL_DATABASE_SERVER: mariadb
+      SQL_DATABASE_SERVER: mariadb-service
       SQL_DATABASE_PORT: 3306
 
-  redis:
+  redis-service:
     image: redis:7.2-alpine
     ports:
       - 6379:6379
 
-  mariadb:
+  mariadb-service:
     image: mariadb:11
     restart: always
     ports:
@@ -60,7 +60,7 @@ services:
 
   adminer:
     depends_on:
-      - "mariadb"
+      - "mariadb-service"
     image: adminer:4.8.1-standalone
     restart: always
     ports:
