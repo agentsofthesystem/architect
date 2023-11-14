@@ -16,10 +16,12 @@ spec:
         app: primary
     spec:
 
-      {{ if eq .Values.enable_pull_secret "True" | default "False"}}
+      {{- if .Values.image.pullSecrets }}
       imagePullSecrets:
-      - name: {{ .Values.pull_secret_name }}
-      {{ end }}
+        {{- range .Values.image.pullSecrets }}
+        - name: {{ . }}
+        {{- end }}
+      {{- end }}
 
       initContainers:
       - name: wait-for-sql-server
@@ -29,7 +31,7 @@ spec:
       containers:
       # Main Application Container
       - name: main
-        image: {{ .Values.architect_image }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         command: ["gunicorn"]
         args: ["-w", "1", "--access-logfile", "-", "-b", ":3000", "-t", "30", "--reload", "application.wsgi:start_app(deploy_as='kubernetes')"]
         ports:
@@ -95,10 +97,12 @@ spec:
         app: task
     spec:
 
-      {{ if eq .Values.enable_pull_secret "True" | default "False"}}
+      {{- if .Values.image.pullSecrets }}
       imagePullSecrets:
-      - name: {{ .Values.pull_secret_name }}
-      {{ end }}
+        {{- range .Values.image.pullSecrets }}
+        - name: {{ . }}
+        {{- end }}
+      {{- end }}
 
       initContainers:
       - name: wait-for-sql-server
@@ -108,7 +112,7 @@ spec:
       containers:
       # This is the Status Application
       - name: task
-        image: {{.Values.architect_image}}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         command: ["celery"]
         args: ["-A", "application.wsgi_worker_kubernetes:WORKER", "worker", "--beat", "-l", "INFO", "-c", "1"]
         env:
