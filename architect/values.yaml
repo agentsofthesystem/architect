@@ -1,5 +1,15 @@
+image:
+  repository: jreed1701/agentsofthesystem
+  tag: v0
+  pullPolicy: IfNotPresent
+  pullSecrets: [regcred]
 
-enable_pull_secret: "True"
-pull_secret_name: regcred
-architect_image: jreed1701/agentsofthesystem:v0
-hostname: localhost
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  }
+  tls: []
+  hosts: [localhost, agentsofthesystem.com]
+  path: /(.*)
