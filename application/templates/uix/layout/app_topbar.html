@@ -1,9 +1,9 @@
 {% set new_global_messages = current_user.new_global_messages() %}
 {% set new_direct_messages = current_user.new_direct_messages() %}
 <div class="navbar-container">
-    <div class="bg-dark navbar-dark" data-sticky="top">
+    <div class="" style="background-color: #204829;" data-sticky="top">
         <div class="container">
-        <nav class="navbar navbar-expand-lg">
+        <nav class="navbar navbar-dark navbar-expand-lg">
             <a class="navbar-brand" href="{{url_for('protected.dashboard')}}">
                 <img src="{{ url_for('static', filename='uix/assets/img/app-logo.svg') }}" />
             </a>

@@ -12,7 +12,7 @@
             <div class="row mb-5">
               <div class="col text-center">
                 <a href="#">
-                  <img alt="Image" src="{{ url_for('static', filename='uix/assets/img/logo-gray.svg') }}" />
+                  <img alt="Image" src="{{ url_for('static', filename='uix/assets/img/app-logo.svg') }}" />
                 </a>
               </div>
               <!--end of col-->
@@ -40,14 +40,14 @@
                             {% if email_enabled %}
                               <small>Forgot password? <a href="{{url_for('public.forgot')}}">Reset here</a> </small>
                             {% endif %}
-                            
+
                           </div>
                           <div class="form-check">
                             {{ form.remember(class="form-check0-input", type="checkbox", value="", id="check-remember") }}
                             <label class="form-check-label text-small" for="check-remember"> Remember me next time</label>
                           </div>
                           <div class="text-center mt-3">
-                            <button type="submit" class="btn btn-lg btn-primary">Log in</button>
+                            <button type="submit" class="btn btn-lg btn-success">Log in</button>
                           </div>
                         </form>
                       </div>
