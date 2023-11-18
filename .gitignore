@@ -7,9 +7,7 @@ app/__pycache__*
 process.yml
 logs/
 bin/
-.env
 celerybeat-schedule.*
 htmlcov/
 .coverage*
-.env
 venv/

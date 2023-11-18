@@ -1,5 +1,6 @@
 import os
 import sqlalchemy
+import sys
 import traceback
 
 from flask import (
@@ -13,6 +14,7 @@ from alembic import command
 from alembic.config import Config
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
+from kombu.utils.url import safequote
 from werkzeug.security import generate_password_hash
 
 from application.common import logger
@@ -38,6 +40,42 @@ STATIC_FOLDER = os.path.join(CURRENT_FOLDER, "static")
 TEMPLATE_FOLDER = os.path.join(CURRENT_FOLDER, "templates")
 ALEMBIC_FOLDER = os.path.join(CURRENT_FOLDER, "alembic")
 
+def _configure_celery(config: dict) -> None:
+
+    broker_url = config["CELERY_BROKER"]
+    aws_region = config["AWS_REGION"]
+    final_broker_url = broker_url
+
+    if "redis://" in broker_url:
+        logger.info("CONFIG CELERY: Using Redis")
+        CELERY.conf.update(
+            broker_url=final_broker_url,
+            result_backend=config["CELERY_BACKEND"],
+        )
+    elif "sqs://" in broker_url:
+
+        logger.info("CONFIG CELERY: Using SQS")
+
+        aws_access_key = config["AWS_ACCESS_KEY_ID"]
+        aws_secret_key = config["AWS_SECRET_ACCESS_KEY"]
+
+        if aws_access_key != "" and aws_access_key != "":
+            original_url = broker_url.split("sqs://")[-1]
+            final_broker_url = \
+                f"sqs://{safequote(aws_access_key)}:{safequote(aws_secret_key)}@{original_url}"
+
+        logger.debug(f"CONFIG CELERY: Final Broker URL: {final_broker_url}")
+
+        CELERY.conf.update(
+            broker_url=final_broker_url,
+            broker_transport_options={'region': aws_region}
+        )
+
+    else:
+        logger.critical(f"Error: Unsupported Broker URL Type: {broker_url}")
+        sys.exit(0)
+
+    CELERY.conf.update(config)
 
 def _handle_migrations(flask_app: Flask) -> None:
     alembic_init = os.path.join(ALEMBIC_FOLDER, "alembic.ini")
@@ -123,10 +161,8 @@ def create_app(config=None, init_db=True):
     # Set up debugging if the user asked for it.
     init_debugger(flask_app)
 
-    CELERY.conf.update(
-        broker_url=flask_app.config["CELERY_BROKER"],
-        result_backend=flask_app.config["CELERY_BACKEND"],
-    )
+    # Configure Celery Settings
+    _configure_celery(flask_app.config)
 
     # All the extension initializations go here
     LOGIN_MANAGER.login_view = "public.signin"
@@ -190,12 +226,9 @@ def create_app(config=None, init_db=True):
 
 
 def create_worker(flask_app):
-    CELERY.conf.update(
-        broker_url=flask_app.config["CELERY_BROKER"],
-        result_backend=flask_app.config["CELERY_BACKEND"],
-    )
 
-    CELERY.conf.update(flask_app.config)
+    # Configure Celery Settings
+    _configure_celery(flask_app.config)
 
     class ContextTask(CELERY.Task):
         def __call__(self, *args, **kwargs):

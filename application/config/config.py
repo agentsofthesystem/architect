@@ -25,11 +25,17 @@ class DefaultConfig:
     APP_ENABLE_PAYMENTS = False
     APP_ENABLE_EMAIL = False
 
-    # Email Settings
+    # AWS Settings
     AWS_REGION = "us-east-1"
-    DEFAULT_MAIL_SENDER = f"thearchitect@{APP_DOMAIN}"
     AWS_ACCESS_KEY_ID = ""
     AWS_SECRET_ACCESS_KEY = ""
+
+    # Email Settings
+    DEFAULT_MAIL_SENDER = f"architect@{APP_DOMAIN}"
+
+    # Celery Settings
+    CELERY_BROKER = "redis://redis-service:6379"
+    CELERY_BACKEND = "redis://redis-service:6379"
 
     ######################################################################
     # Non - Re-Configurable Settings
@@ -43,10 +49,6 @@ class DefaultConfig:
     WTF_CSRF_ENABLED = True
     PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
     IS_SEEDED = True
-
-    # Celery Settings
-    CELERY_BROKER = "redis://redis-service:6379"
-    CELERY_BACKEND = "redis://redis-service:6379"
 
     # SQL Database Settings
     SQL_DATABASE_USER = "admin"
