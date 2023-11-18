@@ -40,8 +40,8 @@ STATIC_FOLDER = os.path.join(CURRENT_FOLDER, "static")
 TEMPLATE_FOLDER = os.path.join(CURRENT_FOLDER, "templates")
 ALEMBIC_FOLDER = os.path.join(CURRENT_FOLDER, "alembic")
 
-def _configure_celery(config: dict) -> None:
 
+def _configure_celery(config: dict) -> None:
     broker_url = config["CELERY_BROKER"]
     aws_region = config["AWS_REGION"]
     final_broker_url = broker_url
@@ -53,7 +53,6 @@ def _configure_celery(config: dict) -> None:
             result_backend=config["CELERY_BACKEND"],
         )
     elif "sqs://" in broker_url:
-
         logger.info("CONFIG CELERY: Using SQS")
 
         aws_access_key = config["AWS_ACCESS_KEY_ID"]
@@ -61,14 +60,12 @@ def _configure_celery(config: dict) -> None:
 
         if aws_access_key != "" and aws_access_key != "":
             original_url = broker_url.split("sqs://")[-1]
-            final_broker_url = \
-                f"sqs://{safequote(aws_access_key)}:{safequote(aws_secret_key)}@{original_url}"
+            final_broker_url = f"sqs://{safequote(aws_access_key)}:{safequote(aws_secret_key)}@{original_url}"  # noqa: E501
 
         logger.debug(f"CONFIG CELERY: Final Broker URL: {final_broker_url}")
 
         CELERY.conf.update(
-            broker_url=final_broker_url,
-            broker_transport_options={'region': aws_region}
+            broker_url=final_broker_url, broker_transport_options={"region": aws_region}
         )
 
     else:
@@ -76,6 +73,7 @@ def _configure_celery(config: dict) -> None:
         sys.exit(0)
 
     CELERY.conf.update(config)
+
 
 def _handle_migrations(flask_app: Flask) -> None:
     alembic_init = os.path.join(ALEMBIC_FOLDER, "alembic.ini")
@@ -226,7 +224,6 @@ def create_app(config=None, init_db=True):
 
 
 def create_worker(flask_app):
-
     # Configure Celery Settings
     _configure_celery(flask_app.config)
 
