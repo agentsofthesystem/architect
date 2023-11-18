@@ -4,13 +4,12 @@ FROM python:3.11
 COPY requirements.txt /tmp/requirements.txt
 COPY ./application /var/application
 
+# Install requirements for pycurl package
+RUN apt update && apt install libcurl4-nss-dev libssl-dev -y
+
 # Run installer commands
 RUN pip install -U pip
 RUN pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r /tmp/requirements.txt
-
-# Manually install flask mail because master is ahead of version on pypi.
-# RUN git clone https://github.com/jreed1701/flask-mail.git /var/packages/flask-mail
-# RUN cd /var/packages/flask-mail && pip install -e .
 
 WORKDIR /var
 
