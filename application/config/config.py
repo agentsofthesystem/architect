@@ -56,7 +56,8 @@ class DefaultConfig:
     SQL_DATABASE_SERVER = "mariadb-service"
     # SQL_DATABASE_SERVER = "localhost"
     SQL_DATABASE_PORT = "3306"
-    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{SQL_DATABASE_USER}:{SQL_DATABASE_PASS}@{SQL_DATABASE_SERVER}:{SQL_DATABASE_PORT}/app"  # noqa: E501
+    SQL_DATABASE_NAME = "app"
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{SQL_DATABASE_USER}:{SQL_DATABASE_PASS}@{SQL_DATABASE_SERVER}:{SQL_DATABASE_PORT}/{SQL_DATABASE_NAME}"  # noqa: E501
 
     # Stripe Payment configs
     # This is a test key. Okay to expose.
@@ -104,6 +105,8 @@ class DefaultConfig:
                     else:
                         setattr(cls, var, os.environ[var])
 
+        cls.update_derived_variables()
+
     @classmethod
     def __str__(cls):
         print_str = ""
@@ -111,3 +114,9 @@ class DefaultConfig:
             if var[:1] != "_" and var != "obtain_environment_variables":
                 print_str += f"VAR: {var} set to: {getattr(cls,var)}\n"
         return print_str
+
+    @classmethod
+    def update_derived_variables(cls):
+        cls.SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{cls.SQL_DATABASE_USER}:{cls.SQL_DATABASE_PASS}@{cls.SQL_DATABASE_SERVER}:{cls.SQL_DATABASE_PORT}/{cls.SQL_DATABASE_NAME}"
+
+        cls.DEFAULT_MAIL_SENDER = f"architect@{cls.APP_DOMAIN}"

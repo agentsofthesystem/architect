@@ -44,6 +44,8 @@ ALEMBIC_FOLDER = os.path.join(CURRENT_FOLDER, "alembic")
 def _configure_celery(config: dict) -> None:
     broker_url = config["CELERY_BROKER"]
     aws_region = config["AWS_REGION"]
+    aws_access_key = config["AWS_ACCESS_KEY_ID"]
+    aws_secret_key = config["AWS_SECRET_ACCESS_KEY"]
     final_broker_url = broker_url
 
     if "redis://" in broker_url:
@@ -55,18 +57,28 @@ def _configure_celery(config: dict) -> None:
     elif "sqs://" in broker_url:
         logger.info("CONFIG CELERY: Using SQS")
 
-        aws_access_key = config["AWS_ACCESS_KEY_ID"]
-        aws_secret_key = config["AWS_SECRET_ACCESS_KEY"]
-
         if aws_access_key != "" and aws_access_key != "":
-            original_url = broker_url.split("sqs://")[-1]
-            final_broker_url = f"sqs://{safequote(aws_access_key)}:{safequote(aws_secret_key)}@{original_url}"  # noqa: E501
+            final_broker_url = f"sqs://{safequote(aws_access_key)}:{safequote(aws_secret_key)}@"  # noqa: E501
 
         logger.debug(f"CONFIG CELERY: Final Broker URL: {final_broker_url}")
 
         CELERY.conf.update(
             broker_url=final_broker_url, broker_transport_options={"region": aws_region}
         )
+    # elif "https://" in broker_url:
+    #     queue_name = broker_url.split('/')[-1]
+    #     broker_transport_options = {
+    #         'predefined_queues': {
+    #             'queue_name': {
+    #                 'url': broker_url,
+    #                 'access_key_id': safequote(aws_access_key),
+    #                 'secret_access_key': safequote(aws_secret_key),
+    #             }
+    #         }
+    #     }
+    #     CELERY.conf.update(
+    #         broker_transport_options=broker_transport_options
+    #     )
 
     else:
         logger.critical(f"Error: Unsupported Broker URL Type: {broker_url}")
