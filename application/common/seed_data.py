@@ -24,25 +24,14 @@ SYSTEM_SETTINGS = {
         "category": "name",
         "type": "str",
     },
-    # Email
+    # AWS
     "AWS_REGION": {
         "pretty": "Aws Region",
         "description": "Region to use for AWS.",
-        "category": "email",
+        "category": "aws",
         "type": "str",
     },
-    "AWS_ACCESS_KEY_ID": {
-        "pretty": "AWS API Access Key ID",
-        "description": "This is the Access key from IAM user with permission to send email.",
-        "category": "email",
-        "type": "str",
-    },
-    "AWS_SECRET_ACCESS_KEY": {
-        "pretty": "AWS API Access Secret",
-        "description": "Secret Key belonging to Access Key ID",
-        "category": "email",
-        "type": "str",
-    },
+    # Email
     "DEFAULT_MAIL_SENDER": {
         "pretty": "Email Default Sender",
         "description": "From email for all emails sent",

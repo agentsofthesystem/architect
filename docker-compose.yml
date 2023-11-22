@@ -2,12 +2,21 @@ version: "3.9"
 
 # NOTE - Docker Compose is STRICTLY Meant for develop purpose.
 
+x-common-variables: &common-variables
+  SQL_DATABASE_USER: admin
+  SQL_DATABASE_PASS: REPLACEME
+  SQL_DATABASE_SERVER: mariadb-service
+  SQL_DATABASE_PORT: 3306
+  CELERY_BACKED_BY: REDIS
+  AWS_ACCESS_KEY_ID: REPLACEME
+  AWS_SECRET_ACCESS_KEY: REPLACEME
+
 services:
 
   web:
+    profiles: ["dev", "deploy"]
     depends_on:
       - "tasks"
-      - "mariadb-service"
     image: architect:dev_test
     restart: on-failure
     build:
@@ -18,15 +27,11 @@ services:
     ports:
       - "3000:3000"
     environment:
-      SQL_DATABASE_USER: admin
-      SQL_DATABASE_PASS: REPLACEME
-      SQL_DATABASE_SERVER: mariadb-service
-      SQL_DATABASE_PORT: 3306
+      <<: *common-variables
+
 
   tasks:
-    depends_on:
-      - "redis-service"
-      - "mariadb-service"
+    profiles: ["dev", "deploy"]
     image: architect:dev_test
     restart: always
     build:
@@ -36,18 +41,17 @@ services:
       - "./application:/var/application"
     command: "celery -A application.wsgi_worker_compose:WORKER worker --beat -l INFO -c 2 -Q realtime,celery"
     environment:
-      SQL_DATABASE_USER: admin
-      SQL_DATABASE_PASS: REPLACEME
-      SQL_DATABASE_SERVER: mariadb-service
-      SQL_DATABASE_PORT: 3306
+      <<: *common-variables
 
   redis-service:
+    profiles: ["dev"]
     image: redis:7.2-alpine
     restart: always
     ports:
       - 6379:6379
 
   mariadb-service:
+    profiles: ["dev"]
     image: mariadb:11
     restart: always
     ports:
@@ -61,6 +65,7 @@ services:
       - mysql-data:/var/lib/mysql
 
   adminer:
+    profiles: ["dev"]
     depends_on:
       - "mariadb-service"
     image: adminer:4.8.1-standalone

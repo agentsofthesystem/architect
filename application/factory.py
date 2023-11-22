@@ -42,47 +42,40 @@ ALEMBIC_FOLDER = os.path.join(CURRENT_FOLDER, "alembic")
 
 
 def _configure_celery(config: dict) -> None:
+    celery_backed_by = config["CELERY_BACKED_BY"]
     broker_url = config["CELERY_BROKER"]
     aws_region = config["AWS_REGION"]
     aws_access_key = config["AWS_ACCESS_KEY_ID"]
     aws_secret_key = config["AWS_SECRET_ACCESS_KEY"]
-    final_broker_url = broker_url
 
-    if "redis://" in broker_url:
-        logger.info("CONFIG CELERY: Using Redis")
+    if celery_backed_by.lower() == "redis":
+        logger.debug("CONFIG CELERY: Using Redis")
+
         CELERY.conf.update(
-            broker_url=final_broker_url,
+            broker_url=broker_url,
             result_backend=config["CELERY_BACKEND"],
         )
-    elif "sqs://" in broker_url:
-        logger.info("CONFIG CELERY: Using SQS")
 
-        if aws_access_key != "" and aws_access_key != "":
-            final_broker_url = f"sqs://{safequote(aws_access_key)}:{safequote(aws_secret_key)}@"  # noqa: E501
+    elif celery_backed_by.lower() == "sqs":
+        logger.debug("CONFIG CELERY: Using SQS")
 
-        logger.debug(f"CONFIG CELERY: Final Broker URL: {final_broker_url}")
+        if aws_access_key == "":
+            logger.critical("CELERY CONFIG: Error - Missing AWS Access Key ID. ")
+            sys.exit(1)
+
+        if aws_secret_key == "":
+            logger.critical("CELERY CONFIG: Error - Missing AWS Access Secret. ")
+            sys.exit(1)
+
+        final_broker_url = f"sqs://{safequote(aws_access_key)}:{safequote(aws_secret_key)}@"
 
         CELERY.conf.update(
             broker_url=final_broker_url, broker_transport_options={"region": aws_region}
         )
-    # elif "https://" in broker_url:
-    #     queue_name = broker_url.split('/')[-1]
-    #     broker_transport_options = {
-    #         'predefined_queues': {
-    #             'queue_name': {
-    #                 'url': broker_url,
-    #                 'access_key_id': safequote(aws_access_key),
-    #                 'secret_access_key': safequote(aws_secret_key),
-    #             }
-    #         }
-    #     }
-    #     CELERY.conf.update(
-    #         broker_transport_options=broker_transport_options
-    #     )
 
     else:
-        logger.critical(f"Error: Unsupported Broker URL Type: {broker_url}")
-        sys.exit(0)
+        logger.critical(f"Error: Unsupported Celery Backed Type: {celery_backed_by}")
+        sys.exit(1)
 
     CELERY.conf.update(config)
 
@@ -113,9 +106,7 @@ def _handle_default_records(flask_app: Flask) -> None:
 
     # Setup an admin user.
     with flask_app.app_context():
-        user_obj = UserSql.query.filter_by(
-            username=flask_app.config["ADMIN_USER"]
-        ).first()
+        user_obj = UserSql.query.filter_by(username=flask_app.config["ADMIN_USER"]).first()
 
         if user_obj is None:
             new_admin_user = UserSql()
@@ -126,9 +117,7 @@ def _handle_default_records(flask_app: Flask) -> None:
             new_admin_user.subscribed = True
             new_admin_user.username = flask_app.config["ADMIN_USER"]
             new_admin_user.email = flask_app.config["DEFAULT_ADMIN_EMAIL"]
-            new_admin_user.password = generate_password_hash(
-                flask_app.config["ADMIN_PASSWORD"]
-            )
+            new_admin_user.password = generate_password_hash(flask_app.config["ADMIN_PASSWORD"])
             try:
                 DATABASE.session.add(new_admin_user)
                 DATABASE.session.commit()
@@ -204,9 +193,7 @@ def create_app(config=None, init_db=True):
     @flask_app.route("/favicon.ico")
     def favicon():
         favicon_path = os.path.join(STATIC_FOLDER, "images")
-        return send_from_directory(
-            favicon_path, "favicon.ico", mimetype="image/vnd.microsoft.icon"
-        )
+        return send_from_directory(favicon_path, "favicon.ico", mimetype="image/vnd.microsoft.icon")
 
     # Error Routes
     @flask_app.errorhandler(404)

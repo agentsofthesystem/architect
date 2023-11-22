@@ -32,16 +32,12 @@ public = Blueprint("public", __name__)
 # Public Routes
 @public.route("/")
 def index():
-    return render_template(
-        "uix/index.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
-    )
+    return render_template("uix/index.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 
 @public.route("/about")
 def about():
-    return render_template(
-        "uix/about.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
-    )
+    return render_template("uix/about.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 
 # TODO - Uncomment when ready
@@ -54,9 +50,7 @@ def about():
 
 @public.route("/support")
 def support():
-    return render_template(
-        "uix/support.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
-    )
+    return render_template("uix/support.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 
 # TODO - Add privacy policy page

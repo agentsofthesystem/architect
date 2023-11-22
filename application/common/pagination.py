@@ -92,7 +92,5 @@ class PaginatedApi(object):
     @classmethod
     def get_valid_columns(cls, column_names):
         return [
-            cls.__table__.columns[name]
-            for name in column_names
-            if name in cls.__table__.columns
+            cls.__table__.columns[name] for name in column_names if name in cls.__table__.columns
         ]

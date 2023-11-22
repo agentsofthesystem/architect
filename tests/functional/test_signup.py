@@ -26,9 +26,7 @@ class TestSignup:
         obj[0].delete()
 
     def test_good_signup_with_email_error(self, client, mocker):
-        mocker.patch.object(
-            emailer, "apply_async", return_value=None, side_effect=OperationalError
-        )
+        mocker.patch.object(emailer, "apply_async", return_value=None, side_effect=OperationalError)
 
         payload = {
             "username": "TEST",

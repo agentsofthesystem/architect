@@ -36,6 +36,7 @@ class DefaultConfig:
     # Celery Settings
     CELERY_BROKER = "redis://redis-service:6379"
     CELERY_BACKEND = "redis://redis-service:6379"
+    CELERY_BACKED_BY = "REDIS"
 
     ######################################################################
     # Non - Re-Configurable Settings
@@ -117,6 +118,7 @@ class DefaultConfig:
 
     @classmethod
     def update_derived_variables(cls):
-        cls.SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{cls.SQL_DATABASE_USER}:{cls.SQL_DATABASE_PASS}@{cls.SQL_DATABASE_SERVER}:{cls.SQL_DATABASE_PORT}/{cls.SQL_DATABASE_NAME}"
+        """Update Computed Configuration Variables."""
+        cls.SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{cls.SQL_DATABASE_USER}:{cls.SQL_DATABASE_PASS}@{cls.SQL_DATABASE_SERVER}:{cls.SQL_DATABASE_PORT}/{cls.SQL_DATABASE_NAME}"  # noqa: E501
 
         cls.DEFAULT_MAIL_SENDER = f"architect@{cls.APP_DOMAIN}"

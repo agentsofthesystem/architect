@@ -63,7 +63,5 @@ def get_global_messages():
     """Return unexpired & global notification types only."""
     last_read_time = current_user.last_message_read_time or datetime(1900, 1, 1)
     return (
-        Messages.query.filter_by(is_global=True)
-        .filter(Messages.timestamp > last_read_time)
-        .all()
+        Messages.query.filter_by(is_global=True).filter(Messages.timestamp > last_read_time).all()
     )

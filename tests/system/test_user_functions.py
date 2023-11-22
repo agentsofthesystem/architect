@@ -31,7 +31,9 @@ class Test_User_Signup(UserTest):
         form_last = '//*[@id="lastname"]'
         form_email = '//*[@id="email"]'
         form_pass = '//*[@id="password"]'
-        form_submit = "/html/body/div[3]/section/div/div[2]/div/div[1]/div/div[2]/form/div[5]/div/button"
+        form_submit = (
+            "/html/body/div[3]/section/div/div[2]/div/div[1]/div/div[2]/form/div[5]/div/button"
+        )
 
         banner = "/html/body/div[2]/div"
 
@@ -66,7 +68,9 @@ class Test_User_Signup(UserTest):
         form_last = '//*[@id="lastname"]'
         form_email = '//*[@id="email"]'
         form_pass = '//*[@id="password"]'
-        form_submit = "/html/body/div[3]/section/div/div[2]/div/div[1]/div/div[2]/form/div[5]/div/button"
+        form_submit = (
+            "/html/body/div[3]/section/div/div[2]/div/div[1]/div/div[2]/form/div[5]/div/button"
+        )
 
         self.driver.get(url)
 
@@ -107,15 +111,15 @@ class Test_User_Account(UserTest):
         signin_email = '//*[@id="email"]'
         signin_pass = '//*[@id="password"]'
         signign_remember = '//*[@id="check-remember"]'
-        signin_submit = "/html/body/div[3]/section/div/div[2]/div/div[1]/div/div[2]/form/div[4]/button"
+        signin_submit = (
+            "/html/body/div[3]/section/div/div[2]/div/div[1]/div/div[2]/form/div[4]/button"
+        )
 
         self.driver.get(url)
 
         time.sleep(5)
 
-        self.driver.find_element_by_xpath(signin_email).send_keys(
-            config.DEFAULT_ADMIN_EMAIL
-        )
+        self.driver.find_element_by_xpath(signin_email).send_keys(config.DEFAULT_ADMIN_EMAIL)
         self.driver.find_element_by_xpath(signin_pass).send_keys(config.ADMIN_PASSWORD)
         self.driver.find_element_by_xpath(signign_remember).click()
         self.driver.find_element_by_xpath(signin_submit).click()
@@ -127,10 +131,10 @@ class Test_User_Account(UserTest):
 
         time.sleep(2)
 
-        account_form_first = "/html/body/main/div[2]/section[3]/div/div/div/div[2]/div[2]/form/div[1]/div/input"
-        account_form_submit = (
-            '//*[@id="account"]/div/div[2]/div[2]/form/div[6]/div/button'
+        account_form_first = (
+            "/html/body/main/div[2]/section[3]/div/div/div/div[2]/div[2]/form/div[1]/div/input"
         )
+        account_form_submit = '//*[@id="account"]/div/div[2]/div[2]/form/div[6]/div/button'
 
         self.driver.find_element_by_xpath(account_form_first).clear()
         self.driver.find_element_by_xpath(account_form_first).send_keys("CHANGED")
