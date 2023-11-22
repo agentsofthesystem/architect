@@ -35,17 +35,13 @@ protected = Blueprint("protected", __name__, url_prefix="/app")
 @protected.route("/main")
 @login_required
 def main():
-    return render_template(
-        "uix/app.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
-    )
+    return render_template("uix/app.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 
 @protected.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template(
-        "uix/dashboard.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
-    )
+    return render_template("uix/dashboard.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 
 @protected.route("/system/agents")
@@ -149,14 +145,10 @@ def create_checkout_session():
     price_type = request.args.get("price_type", "NONE", str)
 
     if price_type == "MONTHLY":
-        settings_obj = SettingsSql.query.filter_by(
-            name="STRIPE_MONTHLY_PRICE_ID"
-        ).first()
+        settings_obj = SettingsSql.query.filter_by(name="STRIPE_MONTHLY_PRICE_ID").first()
         price_id = settings_obj.value
     elif price_type == "ANNUAL":
-        settings_obj = SettingsSql.query.filter_by(
-            name="STRIPE_ANNUAL_PRICE_ID"
-        ).first()
+        settings_obj = SettingsSql.query.filter_by(name="STRIPE_ANNUAL_PRICE_ID").first()
         price_id = settings_obj.value
     else:
         logger.critical("Error: Incorrect price type supplied for check out session.")
@@ -169,10 +161,7 @@ def create_checkout_session():
 
     http_mode = "http" if current_app.config["ENV"] == "development" else "https"
 
-    success_url = (
-        f"{http_mode}://{request.host}/app/success"
-        + "?session_id={CHECKOUT_SESSION_ID}"
-    )
+    success_url = f"{http_mode}://{request.host}/app/success" + "?session_id={CHECKOUT_SESSION_ID}"
     cancel_url = f"{http_mode}://{request.host}/app/account?tab=billing"
 
     logger.info(f"Success URL: {success_url}")
@@ -228,12 +217,8 @@ def customer_portal():
 
     stripe.api_key = stripe_secret_key
 
-    privacy_policy_url = url_for("public.privacy_policy", _external=True).replace(
-        "http", "https"
-    )
-    terms_url = url_for("public.terms_and_conditions", _external=True).replace(
-        "http", "https"
-    )
+    privacy_policy_url = url_for("public.privacy_policy", _external=True).replace("http", "https")
+    terms_url = url_for("public.terms_and_conditions", _external=True).replace("http", "https")
 
     # Build customer portal.
     # Reference API:
@@ -278,9 +263,7 @@ def admin_submit_global_message():
     global_message = GlobalMessageForm()
 
     if request.method == "POST" and global_message.validate_on_submit():
-        messages.create_global_message(
-            global_message.message.data, global_message.subject.data
-        )
+        messages.create_global_message(global_message.message.data, global_message.subject.data)
         global_message.message.data = ""
         global_message.subject.data = ""
 

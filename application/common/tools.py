@@ -46,10 +46,7 @@ def subscription_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
         # Only if payments are enabled and user subscribed.
-        if (
-            current_user.subscribed is False
-            and current_app.config["APP_ENABLE_PAYMENTS"]
-        ):
+        if current_user.subscribed is False and current_app.config["APP_ENABLE_PAYMENTS"]:
             flash("You must be a paying user to access this page!", "danger")
             return redirect(url_for("protected.account", tab="billing"))
         else:

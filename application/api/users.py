@@ -115,9 +115,7 @@ def signup(request):
         # However, since emails are disabled, email verification does not work upstream.
         # Mark user verified regardless.
         if not current_app.config["APP_ENABLE_EMAIL"]:
-            logger.info(
-                "Application emails are disabled - Marking this user verified by default."
-            )
+            logger.info("Application emails are disabled - Marking this user verified by default.")
             new_user_qry = UserSql.query.filter_by(email=email)
             new_user_qry.update({"verified": True})
             DATABASE.session.commit()
@@ -249,9 +247,7 @@ def update_profile(request):
             "sub": str(user_obj.user_id),
         }
 
-        token = jwt.encode(
-            payload, current_app.config.get("SECRET_KEY"), algorithm="HS256"
-        )
+        token = jwt.encode(payload, current_app.config.get("SECRET_KEY"), algorithm="HS256")
 
         subject = f"{current_app.config['APP_PRETTY_NAME']} - Verify Email."
         origin_host = request.host
@@ -293,8 +289,7 @@ def forgot_password(request):
         return False
 
     payload = {
-        "exp": datetime.utcnow()
-        + timedelta(minutes=15),  # This token gets a short lifespan
+        "exp": datetime.utcnow() + timedelta(minutes=15),  # This token gets a short lifespan
         "iat": datetime.utcnow(),
         "sub": str(user_obj.user_id),
     }
@@ -394,9 +389,7 @@ def reset_password(request):
 def verify_email(token):
     # Attempt to decode.
     try:
-        decoded_data = jwt.decode(
-            token, current_app.config.get("SECRET_KEY"), algorithms=["HS256"]
-        )
+        decoded_data = jwt.decode(token, current_app.config.get("SECRET_KEY"), algorithms=["HS256"])
     except Exception as error:
         logger.error("VERIFY EMAIL: Token invalid... user is not valid.")
         logger.debug(error)
