@@ -20,7 +20,7 @@ services:
     environment:
       SQL_DATABASE_USER: admin
       SQL_DATABASE_PASS: REPLACEME
-      SQL_DATABASE_SERVER: mariadb
+      SQL_DATABASE_SERVER: mariadb-service
       SQL_DATABASE_PORT: 3306
 
   tasks:
