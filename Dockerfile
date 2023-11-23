@@ -1,15 +1,13 @@
-FROM python:3.11
+FROM python:3.11-alpine
 
-# Copy requirements file.
+# Install requirements for pycurl package
+RUN apk update && apk add gcc libc-dev curl-dev openssl-dev
+
 COPY requirements.txt /tmp/requirements.txt
 COPY ./application /var/application
 
-# Install requirements for pycurl package
-RUN apt update && apt install libcurl4-nss-dev libssl-dev -y
-
-# Run installer commands
 RUN pip install -U pip
-RUN pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
 
 WORKDIR /var
 
