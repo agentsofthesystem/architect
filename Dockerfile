@@ -14,6 +14,7 @@ RUN pip install -U pip
 RUN pip install --prefix=/install -r /tmp/requirements.txt
 
 FROM base
+RUN apk add curl-dev
 COPY --from=builder /install /usr/local
 COPY ./application /var/application
 WORKDIR /var
