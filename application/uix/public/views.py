@@ -28,10 +28,12 @@ from application.uix.public.forms import (
 
 public = Blueprint("public", __name__)
 
+
 # Health Routes
 @public.route("/health")
 def health():
     return jsonify("Alive")
+
 
 # Public Routes
 @public.route("/")
