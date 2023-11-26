@@ -17,8 +17,6 @@ FROM base
 RUN apk add curl-dev
 COPY --from=builder /install /usr/local
 COPY ./application /var/application
-COPY ./startup.py /var
 WORKDIR /var
 
-CMD ["./startup.py"]
-#CMD ["gunicorn", "-w", "2", "--access-logfile", "-", "-b", ":3000", "-t", "60", "--keep-alive", "30", "--reload", "application.wsgi:start_app(deploy_as='docker_compose')"]
+CMD ["gunicorn", "-w", "3", "--access-logfile", "-", "-b", ":3000", "--reload", "application.wsgi:start_app(deploy_as='docker_compose')"]
