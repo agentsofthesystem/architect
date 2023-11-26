@@ -19,4 +19,4 @@ COPY --from=builder /install /usr/local
 COPY ./application /var/application
 WORKDIR /var
 
-CMD ["gunicorn", "-w", "1", "--access-logfile", "-", "-b", ":3000", "-t", "30", "--reload", "application.wsgi:start_app(deploy_as='docker_compose')"]
+CMD ["gunicorn", "-w", "2", "--access-logfile", "-", "-b", ":3000", "-t", "60", "--keep-alive", "30", "--reload", "application.wsgi:start_app(deploy_as='docker_compose')"]
