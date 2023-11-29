@@ -7,9 +7,10 @@ x-common-variables: &common-variables
   SQL_DATABASE_PASS: REPLACEME
   SQL_DATABASE_SERVER: mariadb-service
   SQL_DATABASE_NAME: app
-  CELERY_BACKED_BY: REDIS
-  AWS_ACCESS_KEY_ID: REPLACEME
-  AWS_SECRET_ACCESS_KEY: REPLACEME
+  CELERY_BACKED_BY: SQS
+  #AWS_ACCESS_KEY_ID: REPLACEME
+  #AWS_SECRET_ACCESS_KEY: REPLACEME
+  AWS_TASK_ROLE_NAME: AotsEcsTaskRole
 
 services:
 
@@ -18,7 +19,7 @@ services:
     depends_on:
       - "tasks"
     image: architect:dev_test
-    restart: on-failure
+    #restart: on-failure
     build:
       context: ./
       dockerfile: Dockerfile
@@ -33,13 +34,13 @@ services:
   tasks:
     profiles: ["dev", "deploy"]
     image: architect:dev_test
-    restart: always
+    #restart: always
     build:
       context: ./
       dockerfile: Dockerfile
     volumes:
       - "./application:/var/application"
-    command: "celery -A application.wsgi_worker_compose:WORKER worker --beat -l INFO -c 2 -Q realtime,celery"
+    command: "celery -A application.wsgi_worker_compose:WORKER worker --loglevel=debug --beat -l INFO -c 2 -Q realtime,celery"
     environment:
       <<: *common-variables
 
