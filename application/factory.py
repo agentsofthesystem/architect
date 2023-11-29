@@ -18,7 +18,7 @@ from kombu.utils.url import safequote
 from werkzeug.security import generate_password_hash
 
 from application.common import logger
-from application.common.aws import get_role, get_sts_credentials
+from application.common.aws import get_task_credentials
 from application.common.user_loader import load_user  # noqa: F401
 from application.common.tools import MyAdminIndexView, _get_application_path
 from application.common.seed_data import seed_system_settings, update_system_settings
@@ -46,11 +46,8 @@ def _configure_celery(config: dict) -> None:
     celery_backed_by = config["CELERY_BACKED_BY"]
     broker_url = config["CELERY_BROKER"]
     aws_region = config["AWS_REGION"]
-    aws_task_role_name = config["AWS_TASK_ROLE_NAME"]
     aws_access_key = config["AWS_ACCESS_KEY_ID"]
     aws_secret_key = config["AWS_SECRET_ACCESS_KEY"]
-
-    aws_task_role = None
 
     if celery_backed_by.lower() == "redis":
         logger.debug("CONFIG CELERY: Using Redis")
@@ -63,13 +60,11 @@ def _configure_celery(config: dict) -> None:
     elif celery_backed_by.lower() == "sqs":
         logger.debug("CONFIG CELERY: Using SQS")
 
-        if aws_task_role_name:
-            aws_task_role = get_role(aws_task_role_name)
+        task_credentials = get_task_credentials()
 
-        if aws_task_role:
-            credentials = get_sts_credentials(aws_task_role)
-            aws_access_key = credentials["AccessKeyId"]
-            aws_secret_key = credentials["SecretAccessKey"]
+        if task_credentials:
+            aws_access_key = task_credentials["AccessKeyId"]
+            aws_secret_key = task_credentials["SecretAccessKey"]
         else:
             if aws_access_key is None:
                 logger.critical("CELERY CONFIG: Error - Missing AWS Access Key ID. ")
