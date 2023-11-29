@@ -29,7 +29,6 @@ class DefaultConfig:
     AWS_REGION = "us-east-1"
     AWS_ACCESS_KEY_ID = None
     AWS_SECRET_ACCESS_KEY = None
-    AWS_TASK_ROLE_NAME = None
 
     # Email Settings
     DEFAULT_MAIL_SENDER = f"architect@{APP_DOMAIN}"

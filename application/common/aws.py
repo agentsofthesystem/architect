@@ -1,46 +1,26 @@
+import os
 import boto3
+import requests
 
 from botocore.exceptions import ClientError
 
 from application.common import logger
+from application.common.constants import FARGATE_CONTAINER_API_IP
 
 
-def get_role(role_name):
-    """
-    Gets a role by name.
-
-    :param role_name: The name of the role to retrieve.
-    :return: The specified role.
-    """
-    role = None
-    iam = boto3.resource("iam")
-
-    try:
-        role = iam.Role(role_name)
-        role.load()  # calls GetRole to load attributes
-        logger.info("Got role with arn %s.", role.arn)
-    except ClientError:
-        logger.exception("Couldn't get role named %s.", role_name)
-    else:
-        return role
-
-
-def get_sts_credentials(role):
-    """
-    Generate a set of temporary credentials.
-
-    :param role: AWS Role Object
-    :return: Dictionary of temp creds.
-    """
-    sts_client = boto3.client("sts")
+def get_task_credentials():
+    creds_uri = os.environ.get("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI", "")
     credentials = None
 
-    try:
-        assumed_role_object = sts_client.assume_role(
-            RoleArn=role.arn, RoleSessionName="AssumeRoleSession"
-        )
-        credentials = assumed_role_object["Credentials"]
-    except ClientError:
-        logger.exception("Couldn't get credentials with role arn: %s.", role.arn)
+    if creds_uri == "":
+        logger.error("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI is Not Set")
     else:
-        return credentials
+        resp = requests.get("http://{}{}".format(FARGATE_CONTAINER_API_IP, creds_uri))
+        if resp.status_code == 200:
+            credentials = resp.json()
+        else:
+            logger.error(
+                f"Unable to retrieve any information from API. Status Code: {resp.status_code}"
+            )
+
+    return credentials
