@@ -10,7 +10,6 @@ x-common-variables: &common-variables
   CELERY_BACKED_BY: SQS
   #AWS_ACCESS_KEY_ID: REPLACEME
   #AWS_SECRET_ACCESS_KEY: REPLACEME
-  AWS_TASK_ROLE_NAME: AotsEcsTaskRole
 
 services:
 

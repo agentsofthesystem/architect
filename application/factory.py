@@ -18,7 +18,7 @@ from kombu.utils.url import safequote
 from werkzeug.security import generate_password_hash
 
 from application.common import logger
-from application.common.aws import get_task_credentials
+from application.common.credentials import get_credentials
 from application.common.user_loader import load_user  # noqa: F401
 from application.common.tools import MyAdminIndexView, _get_application_path
 from application.common.seed_data import seed_system_settings, update_system_settings
@@ -60,19 +60,10 @@ def _configure_celery(config: dict) -> None:
     elif celery_backed_by.lower() == "sqs":
         logger.debug("CONFIG CELERY: Using SQS")
 
-        task_credentials = get_task_credentials()
+        task_credentials = get_credentials()
 
-        if task_credentials:
-            aws_access_key = task_credentials["AccessKeyId"]
-            aws_secret_key = task_credentials["SecretAccessKey"]
-        else:
-            if aws_access_key is None:
-                logger.critical("CELERY CONFIG: Error - Missing AWS Access Key ID. ")
-                sys.exit(1)
-
-            if aws_secret_key is None:
-                logger.critical("CELERY CONFIG: Error - Missing AWS Access Secret. ")
-                sys.exit(1)
+        aws_access_key = task_credentials["AccessKeyId"]
+        aws_secret_key = task_credentials["SecretAccessKey"]
 
         final_broker_url = f"sqs://{safequote(aws_access_key)}:{safequote(aws_secret_key)}@"
 
@@ -168,7 +159,8 @@ def create_app(config=None, init_db=True):
     init_debugger(flask_app)
 
     # Configure Celery Settings
-    _configure_celery(flask_app.config)
+    with flask_app.app_context():
+        _configure_celery(flask_app.config)
 
     # All the extension initializations go here
     LOGIN_MANAGER.login_view = "public.signin"
@@ -229,9 +221,10 @@ def create_app(config=None, init_db=True):
     return flask_app
 
 
-def create_worker(flask_app):
+def create_worker(flask_app: Flask):
     # Configure Celery Settings
-    _configure_celery(flask_app.config)
+    with flask_app.app_context():
+        _configure_celery(flask_app.config)
 
     class ContextTask(CELERY.Task):
         def __call__(self, *args, **kwargs):
