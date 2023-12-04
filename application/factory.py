@@ -71,7 +71,9 @@ def _configure_celery(config: dict) -> None:
 
         if "RoleArn" in task_credentials:
             logger.debug("CONFIG CELERY: RoleArn Present, updating transport options.")
-            final_transport_options.update({"sts_role_arn": task_credentials["RoleArn"]})
+            final_transport_options.update(
+                {"sts_role_arn": task_credentials["RoleArn"], "sts_token_timeout": 900}
+            )
 
         CELERY.conf.update(
             broker_url=final_broker_url, broker_transport_options=final_transport_options
