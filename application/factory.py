@@ -70,6 +70,7 @@ def _configure_celery(config: dict) -> None:
         final_transport_options = {"region": aws_region}
 
         if "RoleArn" in task_credentials:
+            logger.debug("CONFIG CELERY: RoleArn Present, updating transport options.")
             final_transport_options.update({"sts_role_arn": task_credentials["RoleArn"]})
 
         CELERY.conf.update(
