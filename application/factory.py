@@ -67,8 +67,13 @@ def _configure_celery(config: dict) -> None:
 
         final_broker_url = f"sqs://{safequote(aws_access_key)}:{safequote(aws_secret_key)}@"
 
+        final_transport_options = {"region": aws_region}
+
+        if "RoleArn" in task_credentials:
+            final_transport_options.update({"sts_role_arn": task_credentials["RoleArn"]})
+
         CELERY.conf.update(
-            broker_url=final_broker_url, broker_transport_options={"region": aws_region}
+            broker_url=final_broker_url, broker_transport_options=final_transport_options
         )
 
     else:
