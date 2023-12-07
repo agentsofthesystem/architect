@@ -7,7 +7,7 @@ x-common-variables: &common-variables
   SQL_DATABASE_PASS: REPLACEME
   SQL_DATABASE_SERVER: mariadb-service
   SQL_DATABASE_NAME: app
-  CELERY_BACKED_BY: SQS
+  CELERY_BACKED_BY: REDIS
 
   # Either use these two to supply User Access Key ID / Secret
   AWS_ACCESS_KEY_ID: REPLACEME
@@ -41,7 +41,7 @@ services:
   tasks:
     profiles: ["dev", "deploy"]
     image: architect:dev_test
-    #restart: on-failure
+    restart: on-failure
     build:
       context: ./
       dockerfile: Dockerfile

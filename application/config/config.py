@@ -60,6 +60,7 @@ class DefaultConfig:
     SQL_DATABASE_PORT = "3306"
     SQL_DATABASE_NAME = "app"
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{SQL_DATABASE_USER}:{SQL_DATABASE_PASS}@{SQL_DATABASE_SERVER}:{SQL_DATABASE_PORT}/{SQL_DATABASE_NAME}"  # noqa: E501
+    SQL_DEPLOY_SECRET = None
 
     # Stripe Payment configs
     # This is a test key. Okay to expose.
@@ -120,6 +121,15 @@ class DefaultConfig:
     @classmethod
     def update_derived_variables(cls):
         """Update Computed Configuration Variables."""
+
+        if cls.SQL_DEPLOY_SECRET:
+            logger.info("Configuration Alert!: Overriding DB URI with deploy secret!")
+            cls.SQL_DATABASE_USER = cls.SQL_DEPLOY_SECRET['username']
+            cls.SQL_DATABASE_PASS = cls.SQL_DEPLOY_SECRET['password']
+            cls.SQL_DATABASE_SERVER = cls.SQL_DEPLOY_SECRET['host']
+            cls.SQL_DATABASE_PORT = cls.SQL_DEPLOY_SECRET['port']
+            cls.SQL_DATABASE_NAME = cls.SQL_DEPLOY_SECRET['port']
+
         cls.SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{cls.SQL_DATABASE_USER}:{cls.SQL_DATABASE_PASS}@{cls.SQL_DATABASE_SERVER}:{cls.SQL_DATABASE_PORT}/{cls.SQL_DATABASE_NAME}"  # noqa: E501
 
         cls.DEFAULT_MAIL_SENDER = f"architect@{cls.APP_DOMAIN}"
