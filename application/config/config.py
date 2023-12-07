@@ -126,13 +126,12 @@ class DefaultConfig:
         if cls.SQL_DEPLOY_SECRET:
             logger.info("Configuration Alert!: Overriding DB URI with deploy secret!")
             unpack_string = json.loads(cls.SQL_DEPLOY_SECRET)
-            cls.SQL_DATABASE_USER = unpack_string['username']
-            cls.SQL_DATABASE_PASS = unpack_string['password']
-            cls.SQL_DATABASE_SERVER = unpack_string['host']
-            cls.SQL_DATABASE_PORT = unpack_string['port']
+            cls.SQL_DATABASE_USER = unpack_string["username"]
+            cls.SQL_DATABASE_PASS = unpack_string["password"]
+            cls.SQL_DATABASE_SERVER = unpack_string["host"]
+            cls.SQL_DATABASE_PORT = unpack_string["port"]
             cls.SQL_DATABASE_NAME = "innodb"
 
         cls.SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{cls.SQL_DATABASE_USER}:{cls.SQL_DATABASE_PASS}@{cls.SQL_DATABASE_SERVER}:{cls.SQL_DATABASE_PORT}/{cls.SQL_DATABASE_NAME}"  # noqa: E501
-
 
         cls.DEFAULT_MAIL_SENDER = f"architect@{cls.APP_DOMAIN}"

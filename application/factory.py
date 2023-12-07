@@ -167,7 +167,7 @@ def _handle_default_records(flask_app: Flask) -> None:
         flask_app.name = app_name.value
 
 
-def create_app(config=None, init_db=True):
+def create_app(config=None, init_db=True, init_celery=True):
     logger.info("Begin initialization.")
 
     if config is None:
@@ -192,8 +192,12 @@ def create_app(config=None, init_db=True):
     init_debugger(flask_app)
 
     # Configure Celery Settings
-    with flask_app.app_context():
-        _configure_celery(flask_app.config)
+    if init_celery:
+        logger.info("Initializing Celery")
+        with flask_app.app_context():
+            _configure_celery(flask_app.config)
+    else:
+        logger.info("SKIP: Initializing Celery")
 
     # All the extension initializations go here
     LOGIN_MANAGER.login_view = "public.signin"
