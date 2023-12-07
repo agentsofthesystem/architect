@@ -37,6 +37,7 @@ class DefaultConfig:
     CELERY_BROKER = "redis://redis-service:6379"
     CELERY_BACKEND = "redis://redis-service:6379"
     CELERY_BACKED_BY = "REDIS"
+    CELERY_SQS_PREDEFINED_QUEUE = None
 
     ######################################################################
     # Non - Re-Configurable Settings

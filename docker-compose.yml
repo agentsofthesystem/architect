@@ -8,8 +8,14 @@ x-common-variables: &common-variables
   SQL_DATABASE_SERVER: mariadb-service
   SQL_DATABASE_NAME: app
   CELERY_BACKED_BY: SQS
-  #AWS_ACCESS_KEY_ID: REPLACEME
-  #AWS_SECRET_ACCESS_KEY: REPLACEME
+
+  # Either use these two to supply User Access Key ID / Secret
+  AWS_ACCESS_KEY_ID: REPLACEME
+  AWS_SECRET_ACCESS_KEY: REPLACEME
+
+  # Or uncomment and use these two to simulate using STS Task IAM Role
+  #CELERY_SQS_PREDEFINED_QUEUE: REPLACEME
+  #AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: REPLACEME
 
 services:
 
@@ -18,7 +24,7 @@ services:
     depends_on:
       - "tasks"
     image: architect:dev_test
-    #restart: on-failure
+    restart: on-failure
     build:
       context: ./
       dockerfile: Dockerfile
@@ -28,20 +34,42 @@ services:
       - "3000:3000"
     environment:
       <<: *common-variables
-
+    networks:
+      credentials_network:
+        ipv4_address: "169.254.170.3"
 
   tasks:
     profiles: ["dev", "deploy"]
     image: architect:dev_test
-    #restart: always
+    #restart: on-failure
     build:
       context: ./
       dockerfile: Dockerfile
     volumes:
       - "./application:/var/application"
-    command: "celery -A application.wsgi_worker_compose:WORKER worker --loglevel=debug --beat -l INFO -c 2 -Q realtime,celery"
+    command: "celery -A application.wsgi_worker_compose:WORKER worker --loglevel=DEBUG --beat -l INFO -c 2"
     environment:
       <<: *common-variables
+    networks:
+      credentials_network:
+        ipv4_address: "169.254.170.4"
+
+  # Note - One must have aws cli installed and credentials set to user that has a trust relationship
+  # with the Task ECS Role associated with it.
+  ecs-local-endpoints:
+    profiles: ["dev"]
+    image: amazon/amazon-ecs-local-container-endpoints
+    volumes:
+      - /var/run:/var/run
+      - $HOME/.aws/:/home/.aws/
+    ports:
+      - "8888:80"  # Local debugging can use port 8888
+    environment:
+      HOME: "/home"
+      AWS_PROFILE: "default"
+    networks:
+      credentials_network:
+        ipv4_address: "169.254.170.2"
 
   redis-service:
     profiles: ["dev"]
@@ -49,6 +77,9 @@ services:
     restart: always
     ports:
       - 6379:6379
+    networks:
+      credentials_network:
+        ipv4_address: "169.254.170.5"
 
   mariadb-service:
     profiles: ["dev"]
@@ -63,6 +94,9 @@ services:
       MARIADB_ROOT_PASSWORD: REPLACEME  # Change Me!
     volumes:
       - mysql-data:/var/lib/mysql
+    networks:
+      credentials_network:
+        ipv4_address: "169.254.170.6"
 
   adminer:
     profiles: ["dev"]
@@ -72,6 +106,17 @@ services:
     restart: always
     ports:
       - 8080:8080
+    networks:
+      credentials_network:
+        ipv4_address: "169.254.170.7"
 
 volumes:
   mysql-data:
+
+networks:
+  credentials_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "169.254.170.0/24"
+          gateway: "169.254.170.1"

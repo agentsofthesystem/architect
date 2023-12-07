@@ -30,6 +30,10 @@ def emailer(self, sender: str, subject: str, recipient: str, html: str = "", tex
 
         aws_access_key = credentials["AccessKeyId"]
         aws_secret_key = credentials["SecretAccessKey"]
+        aws_session_token = None
+
+        if "Token" in credentials:
+            aws_session_token = credentials["Token"]
 
         # TODO - Go back and make the argument a list and update callers.
         recipients = [recipient]
@@ -44,6 +48,7 @@ def emailer(self, sender: str, subject: str, recipient: str, html: str = "", tex
             config=my_config,
             aws_access_key_id=aws_access_key,
             aws_secret_access_key=aws_secret_key,
+            aws_session_token=aws_session_token,
         )
 
         try:

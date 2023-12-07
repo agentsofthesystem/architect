@@ -6,6 +6,8 @@ from flask import current_app
 from application.common import logger
 from application.common.constants import FARGATE_CONTAINER_API_IP
 
+_LOCAL_DEBUG = False
+
 
 def get_credentials():
     task_credentials = get_task_credentials()
@@ -48,9 +50,16 @@ def get_task_credentials():
     credentials = None
 
     if creds_uri == "":
-        logger.error("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI is Not Set")
+        logger.warning("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI is Not Set")
     else:
-        resp = requests.get("http://{}{}".format(FARGATE_CONTAINER_API_IP, creds_uri))
+        # Don't want to configure this via env. It's just for local testing.
+        if _LOCAL_DEBUG:
+            endpoint_url = "http://{}{}".format("localhost:8888", creds_uri)
+        else:
+            endpoint_url = "http://{}{}".format(FARGATE_CONTAINER_API_IP, creds_uri)
+
+        logger.info(f"AWS Relative Endpoint: {endpoint_url}")
+        resp = requests.get(endpoint_url)
         if resp.status_code == 200:
             credentials = resp.json()
         else:

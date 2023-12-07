@@ -22,6 +22,34 @@
             ],
             "jinja": true,
             "justMyCode": false
-        }
+        },
+        {
+            "name": "Python: Launch Celery",
+            "type": "python",
+            "request": "launch",
+            "module": "celery",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI": "/role/AotsEcsTaskDebugRole",
+                "CELERY_SQS_PREDEFINED_QUEUE": "https://sqs.us-east-1.amazonaws.com/667229689063/celery-debug",
+                "CELERY_BACKED_BY": "SQS",
+                "SQL_DATABASE_SERVER": "localhost"
+            },
+            "args": [
+                "-A",
+                "application.wsgi_worker_compose:WORKER",
+                "worker",
+                "--loglevel=DEBUG",
+                "--beat",
+                "-l",
+                "INFO",
+                "-c",
+                "2",
+                "-Q",
+                "celery"
+            ],
+            "justMyCode": false,
+        },
     ]
 }

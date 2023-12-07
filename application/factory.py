@@ -45,6 +45,7 @@ ALEMBIC_FOLDER = os.path.join(CURRENT_FOLDER, "alembic")
 def _configure_celery(config: dict) -> None:
     celery_backed_by = config["CELERY_BACKED_BY"]
     broker_url = config["CELERY_BROKER"]
+    predefined_queue = config["CELERY_SQS_PREDEFINED_QUEUE"]
     aws_region = config["AWS_REGION"]
     aws_access_key = config["AWS_ACCESS_KEY_ID"]
     aws_secret_key = config["AWS_SECRET_ACCESS_KEY"]
@@ -62,17 +63,41 @@ def _configure_celery(config: dict) -> None:
 
         task_credentials = get_credentials()
 
+        # Also - AWS Variables not set in environment, so SDK won't pick it up.
+        if task_credentials is None:
+            logger.critical("CONFIG CELERY: No Credentials Available... Exiting...")
+            sys.exit(1)
+
         aws_access_key = task_credentials["AccessKeyId"]
         aws_secret_key = task_credentials["SecretAccessKey"]
 
         final_broker_url = f"sqs://{safequote(aws_access_key)}:{safequote(aws_secret_key)}@"
 
-        final_transport_options = {"region": aws_region}
+        if predefined_queue is None:
+            final_transport_options = {"region": aws_region}
+        else:
+            final_transport_options = {
+                "region": aws_region,
+                "predefined_queues": {
+                    "celery": {
+                        "url": predefined_queue,
+                        "access_key_id": aws_access_key,
+                        "secret_access_key": aws_secret_key,
+                    }
+                },
+            }
 
         if "RoleArn" in task_credentials:
+            if task_credentials["RoleArn"] == "":
+                logger.debug("CONFIG CELERY: RoleArn is Empty string. Exiting...")
+                sys.exit(1)
+
             logger.debug("CONFIG CELERY: RoleArn Present, updating transport options.")
-            final_transport_options.update(
-                {"sts_role_arn": task_credentials["RoleArn"], "sts_token_timeout": 900}
+            final_transport_options.update({"sts_role_arn": task_credentials["RoleArn"]})
+
+        else:
+            logger.debug(
+                "CONFIG CELERY: RoleArn is Missing Entirely. Must be using direct user credentials."
             )
 
         CELERY.conf.update(
