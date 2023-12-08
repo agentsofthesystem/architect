@@ -1,7 +1,48 @@
 {% extends "uix/layout/base.html" %}
 
 {% block area %}
-<div class="col text-center">
-    <p> System Friends </p>
+
+<!-- Modal -->
+<div class="modal fade" id="addFriendModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add A Friend</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p> A form will go here </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="changePage()">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<div class="col text-center">
+
+    {% if is_empty %}
+        {% include "uix/friends_empty_state.html" %}
+    {% else %}
+        {% include "uix/system_friend_list.html" %}
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+    function showAddFriendModal(){
+        $('#addFriendModal').modal('show')
+    }
+    function changePage(){
+        document.location.href = "{{url_for('protected.system_friends', empty=False)}}";
+    }
+</script>
 {% endblock %}

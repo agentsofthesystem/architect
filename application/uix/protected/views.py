@@ -48,8 +48,17 @@ def dashboard():
 @login_required
 @verified_required
 def system_agents():
+    is_empty = request.args.get("empty", True, type=str)
+    if is_empty == "False" or is_empty == "false":
+        is_empty = False
+    fake_agent_list = [
+        {"hostname": "someplace.somewhere.com", "port": "3000", "owner": "Me", "status": "Alive"}
+    ]
     return render_template(
-        "uix/system_agents.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
+        "uix/system_agents.html",
+        pretty_name=current_app.config["APP_PRETTY_NAME"],
+        is_empty=is_empty,
+        agents=fake_agent_list,
     )
 
 
@@ -57,8 +66,16 @@ def system_agents():
 @login_required
 @verified_required
 def system_crews():
+    is_empty = request.args.get("empty", True, type=str)
+    if is_empty == "False" or is_empty == "false":
+        is_empty = False
+
+    fake_crew_list = [{"name": "Hammer", "owner": "Me", "members": 5, "agents": 2}]
     return render_template(
-        "uix/system_crews.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
+        "uix/system_crews.html",
+        pretty_name=current_app.config["APP_PRETTY_NAME"],
+        is_empty=is_empty,
+        crews=fake_crew_list,
     )
 
 
@@ -66,8 +83,15 @@ def system_crews():
 @login_required
 @verified_required
 def system_friends():
+    is_empty = request.args.get("empty", True, type=str)
+    if is_empty == "False" or is_empty == "false":
+        is_empty = False
+    fake_friend_list = [{"name": "John Doe", "Crews": 1, "Agents": 3}]
     return render_template(
-        "uix/system_friends.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
+        "uix/system_friends.html",
+        pretty_name=current_app.config["APP_PRETTY_NAME"],
+        is_empty=is_empty,
+        friends=fake_friend_list,
     )
 
 

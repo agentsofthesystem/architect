@@ -46,6 +46,11 @@ def about():
     return render_template("uix/about.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 
+@public.route("/coming/soon")
+def coming_soon():
+    return render_template("uix/comingsoon.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
+
+
 # TODO - Uncomment when ready
 # @public.route("/pricing")
 # def pricing():
