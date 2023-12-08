@@ -89,11 +89,10 @@ def _configure_celery(config: dict) -> None:
 
         if "RoleArn" in task_credentials:
             if task_credentials["RoleArn"] == "":
-                logger.debug("CONFIG CELERY: RoleArn is Empty string. Exiting...")
-                sys.exit(1)
-
-            logger.debug("CONFIG CELERY: RoleArn Present, updating transport options.")
-            final_transport_options.update({"sts_role_arn": task_credentials["RoleArn"]})
+                logger.debug("CONFIG CELERY: RoleArn is Empty string. Skipping..")
+            else:
+                logger.debug("CONFIG CELERY: RoleArn Present, updating transport options.")
+                final_transport_options.update({"sts_role_arn": task_credentials["RoleArn"]})
 
         else:
             logger.debug(
