@@ -19,3 +19,6 @@ def start_app(*args, **kwargs):
         deploy_config = kwargs["deploy_as"]
 
     return main(deploy_config)
+
+
+WORKER = start_app()

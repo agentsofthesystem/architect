@@ -4,7 +4,7 @@ import requests
 from flask import current_app
 
 from application.common import logger
-from application.common.constants import FARGATE_CONTAINER_API_IP
+from application.common.constants import CONTAINER_CREDENTIALS_API_IP
 
 _LOCAL_DEBUG = False
 
@@ -56,7 +56,7 @@ def get_task_credentials():
         if _LOCAL_DEBUG:
             endpoint_url = "http://{}{}".format("localhost:8888", creds_uri)
         else:
-            endpoint_url = "http://{}{}".format(FARGATE_CONTAINER_API_IP, creds_uri)
+            endpoint_url = "http://{}{}".format(CONTAINER_CREDENTIALS_API_IP, creds_uri)
 
         logger.info(f"AWS Relative Endpoint: {endpoint_url}")
         resp = requests.get(endpoint_url)

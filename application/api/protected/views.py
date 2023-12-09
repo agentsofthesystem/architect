@@ -22,7 +22,7 @@ from application.common.tools import (
 from application.extensions import DATABASE
 from application.models.user import UserSql
 from application.models.setting import SettingsSql
-from application.uix.protected.forms import (
+from application.api.protected.forms import (
     AccountProfileForm,
     AccountUpdatePasswordForm,
     GlobalMessageForm,
@@ -62,20 +62,20 @@ def system_agents():
     )
 
 
-@protected.route("/system/crews")
+@protected.route("/system/groups")
 @login_required
 @verified_required
-def system_crews():
+def system_groups():
     is_empty = request.args.get("empty", True, type=str)
     if is_empty == "False" or is_empty == "false":
         is_empty = False
 
-    fake_crew_list = [{"name": "Hammer", "owner": "Me", "members": 5, "agents": 2}]
+    fake_group_list = [{"name": "Hammer", "owner": "Me", "members": 5, "agents": 2}]
     return render_template(
-        "uix/system_crews.html",
+        "uix/system_groups.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         is_empty=is_empty,
-        crews=fake_crew_list,
+        groups=fake_group_list,
     )
 
 
