@@ -19,7 +19,7 @@ from application.common.tools import _get_setting
 from application.extensions import CSRF, DATABASE
 from application.models.user import UserSql
 from application.models.setting import SettingsSql
-from application.uix.public.forms import (
+from application.api.public.forms import (
     SignupForm,
     SignInForm,
     ForgotPasswordForm,

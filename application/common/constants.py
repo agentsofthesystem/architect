@@ -8,6 +8,8 @@ class DeployTypes(Enum):
 
 
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html
-FARGATE_CONTAINER_API_IP = "169.254.170.2"
+CONTAINER_CREDENTIALS_API_IP = "169.254.170.2"
+
+AGENT_SMITH_DEFAULT_PORT = 3000
 
 _DeployTypes = DeployTypes
