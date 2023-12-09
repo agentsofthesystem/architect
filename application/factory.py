@@ -33,8 +33,8 @@ from application.extensions import (
 )
 from application.models.user import UserSql
 from application.models.setting import SettingsSql
-from application.uix.public.views import public
-from application.uix.protected.views import protected
+from application.api.public.views import public
+from application.api.protected.views import protected
 
 CURRENT_FOLDER = _get_application_path()
 STATIC_FOLDER = os.path.join(CURRENT_FOLDER, "static")

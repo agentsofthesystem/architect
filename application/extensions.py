@@ -4,7 +4,7 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
-task_modules = ["application.api.workers.email"]
+task_modules = ["application.workers.email"]
 
 ADMIN = Admin(template_mode="bootstrap3")
 

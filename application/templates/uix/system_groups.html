@@ -3,12 +3,12 @@
 {% block area %}
 
 <!-- Modal -->
-<div class="modal fade" id="createCrewModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
+<div class="modal fade" id="createGroupModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Create a New Crew</h5>
+                <h5 class="modal-title">Create a New Friend Group</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -27,9 +27,9 @@
 <div class="col text-center">
 
     {% if is_empty %}
-        {% include "uix/crews_empty_state.html" %}
+        {% include "uix/groups_empty_state.html" %}
     {% else %}
-        {% include "uix/system_crew_list.html" %}
+        {% include "uix/system_group_list.html" %}
     {% endif %}
 
 </div>
@@ -38,11 +38,11 @@
 {% block scripts %}
 {{super()}}
 <script>
-    function showCreateCrewModal(){
-        $('#createCrewModal').modal('show')
+    function showCreateGroupModal(){
+        $('#createGroupModal').modal('show')
     }
     function changePage(){
-        document.location.href = "{{url_for('protected.system_crews', empty=False)}}";
+        document.location.href = "{{url_for('protected.system_groups', empty=False)}}";
     }
 </script>
 {% endblock %}

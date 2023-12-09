@@ -15,7 +15,7 @@ x-common-variables: &common-variables
 
   # Or uncomment and use these two to simulate using STS Task IAM Role
   #CELERY_SQS_PREDEFINED_QUEUE: REPLACEME
-  #AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: REPLACEME
+  #AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: /creds
 
 services:
 
@@ -41,13 +41,13 @@ services:
   tasks:
     profiles: ["dev", "deploy"]
     image: architect:dev_test
-    restart: on-failure
+    #restart: on-failure
     build:
       context: ./
       dockerfile: Dockerfile
     volumes:
       - "./application:/var/application"
-    command: "celery -A application.wsgi_worker_compose:WORKER worker --loglevel=DEBUG --beat -l INFO -c 2"
+    command: "celery -A application.wsgi_worker:WORKER worker -l DEBUG --beat -l DEBUG -c 2"
     environment:
       <<: *common-variables
     networks:

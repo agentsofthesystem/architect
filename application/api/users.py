@@ -15,7 +15,7 @@ from application.extensions import DATABASE
 from application.common import logger
 from application.common.tools import check_password
 from application.models.user import UserSql
-from application.api.workers.email import emailer
+from application.workers.email import emailer
 
 
 def signin(request):
