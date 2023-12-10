@@ -33,6 +33,7 @@ from application.extensions import (
 )
 from application.models.user import UserSql
 from application.models.setting import SettingsSql
+from application.api.backend.views import backend
 from application.api.public.views import public
 from application.api.protected.views import protected
 
@@ -211,6 +212,7 @@ def create_app(config=None, init_db=True, init_celery=True):
     ADMIN.add_link(MenuLink(name="Signout", url="/signout", category="Links"))
 
     # Register all blueprints
+    flask_app.register_blueprint(backend)
     flask_app.register_blueprint(public)
     flask_app.register_blueprint(protected)
 

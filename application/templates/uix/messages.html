@@ -80,7 +80,23 @@
                     </tbody>
                 </table>
                 {% else %}
-                    <p class="text-center"> No New Global Messages. </p>
+                <section class="height-20">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-12 col-md-6 col-lg-5">
+                                <div class="card card-lg text-center">
+                                    <div class="card-body">
+                                        <i class="icon-mail display-4 opacity-40"></i>
+                                        <h1 class="h5">There are no Global Messages.</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--end of col-->
+                        </div>
+                        <!--end of row-->
+                    </div>
+                    <!--end of container-->
+                </section>
                 {% endif %}
             </div>
         </div>
@@ -123,7 +139,23 @@
                     </tbody>
                 </table>
                 {% else %}
-                    <p class="text-center"> No New Direct Messages. </p>
+                    <section class="height-20">
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-12 col-md-6 col-lg-5">
+                                    <div class="card card-lg text-center">
+                                        <div class="card-body">
+                                            <i class="icon-mail display-4 opacity-40"></i>
+                                            <h1 class="h5">There are no Direct Messages.</h1>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--end of col-->
+                            </div>
+                            <!--end of row-->
+                        </div>
+                        <!--end of container-->
+                    </section>
                 {% endif %}
             </div>
         </div>
@@ -187,7 +219,7 @@
             $('#direct-message-uid').html(msg_id);
             $('#directMessageModal').modal('show')
         }
-            
+
         function handleButton(action){
 
             var csrftoken = $('meta[name=csrf-token]').attr('content')
@@ -204,17 +236,17 @@
                     }
                 }
             })
-         
+
             $.ajax({
                 type: "POST",
                 url: "/app/messages",
                 contentType: 'application/json',
                 data: JSON.stringify({"status": action}),
-                success: function(){  
+                success: function(){
                     console.log("win!")
                     location.reload();
                 },
-                error: function( ){ 
+                error: function( ){
                     console.log('error!')
                 }
             });

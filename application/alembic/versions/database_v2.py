@@ -6,7 +6,7 @@ Create Date: 2023-10-08 14:10:31.088339
 
 """
 from alembic import op
-from application.common.constants import AGENT_SMITH_DEFAULT_PORT
+from application.common.constants import AGENT_SMITH_DEFAULT_PORT, FriendRequestState
 from datetime import datetime
 import sqlalchemy as sa
 
@@ -24,7 +24,7 @@ def upgrade():
         "agents",
         sa.Column("agent_id", sa.Integer(), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False, default=True),
-        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow()),
+        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
         sa.Column("hostname", sa.String(length=256), nullable=False),
         sa.Column("port", sa.Integer(), nullable=False, default=AGENT_SMITH_DEFAULT_PORT),
         sa.Column("access_token", sa.String(length=256), nullable=True),
@@ -44,7 +44,7 @@ def upgrade():
         "groups",
         sa.Column("group_id", sa.Integer(), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False, default=True),
-        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow()),
+        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
         sa.Column("owner_id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("group_id"),
     )
@@ -61,7 +61,7 @@ def upgrade():
         "group_members",
         sa.Column("group_member_id", sa.Integer(), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False, default=True),
-        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow()),
+        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
         sa.Column("group_id", sa.Integer(), nullable=False),
         sa.Column("member_id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("group_member_id"),
@@ -86,7 +86,7 @@ def upgrade():
     op.create_table(
         "friends",
         sa.Column("friend_id", sa.Integer(), nullable=False),
-        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow()),
+        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
         sa.Column("myself_id", sa.Integer(), nullable=False),
         sa.Column("friends_with_id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("friend_id"),
@@ -108,12 +108,40 @@ def upgrade():
         ["user_id"],
     )
 
+    op.create_table(
+        "friend_requests",
+        sa.Column("request_id", sa.Integer(), nullable=False),
+        sa.Column("state", sa.Integer(), nullable=False, default=FriendRequestState.PENDING.value),
+        sa.Column("sender_id", sa.Integer(), nullable=False),
+        sa.Column("recipient_id", sa.Integer(), nullable=False),
+        sa.Column("timestamp", sa.DateTime(), nullable=False, default=datetime.utcnow),
+        sa.PrimaryKeyConstraint("request_id"),
+    )
+
+    op.create_foreign_key(
+        op.f("fk_friend_requests_sender_user_id"),
+        "friend_requests",
+        "users",
+        ["sender_id"],
+        ["user_id"],
+    )
+    op.create_foreign_key(
+        op.f("fk_friend_requests_recipient_user_id"),
+        "friend_requests",
+        "users",
+        ["recipient_id"],
+        ["user_id"],
+    )
+
     op.create_index("ix_agents_agent_id", "agents", ["agent_id"], unique=False)
     op.create_index("ix_groups_group_id", "groups", ["group_id"], unique=False)
     op.create_index(
         "ix_group_members_group_member_id", "group_members", ["group_member_id"], unique=False
     )
     op.create_index("ix_friends_friend_id", "friends", ["friend_id"], unique=False)
+    op.create_index(
+        "ix_friend_requests_request_id", "friend_requests", ["request_id"], unique=False
+    )
     # ### end Alembic commands ###
 
 
@@ -130,6 +158,10 @@ def downgrade():
     op.drop_constraint("fk_group_members_groups_member_id", "group_members", type_="foreignkey")
     op.drop_constraint("fk_friends_users_friends_with_id", "friends", type_="foreignkey")
     op.drop_constraint("fk_friends_users_friends_with_id", "friends", type_="foreignkey")
+    op.drop_constraint("fk_friend_requests_sender_user_id", "friend_requests", type_="foreignkey")
+    op.drop_constraint(
+        "fk_friend_requests_recipient_user_id", "friend_requests", type_="foreignkey"
+    )
 
     op.drop_table("agents")
     op.drop_table("groups")

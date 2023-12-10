@@ -13,7 +13,7 @@ from flask import (
 )
 from flask_login import current_user
 
-from application.api import users
+from application.api.controllers import users
 from application.common import logger
 from application.common.tools import _get_setting
 from application.extensions import CSRF, DATABASE
@@ -87,13 +87,13 @@ def signup():
 
     # If already signed in, got to main app page.
     if current_user.is_authenticated:
-        return redirect(url_for("protected.main"))
+        return redirect(url_for("protected.dashboard"))
 
     if request.method == "POST":
         result = users.signup(request)
         if result:
             # TODO - Maybe go to an onboarding page.
-            return redirect(url_for("protected.main"))
+            return redirect(url_for("protected.dashboard"))
         else:
             return render_template(
                 "uix/signup.html",

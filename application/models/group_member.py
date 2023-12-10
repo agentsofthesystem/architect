@@ -9,7 +9,7 @@ class GroupMembers(PaginatedApi, DATABASE.Model):
 
     group_member_id = DATABASE.Column(DATABASE.Integer, primary_key=True)
 
-    creation_date = DATABASE.Column(DATABASE.DateTime, nullable=False, default=datetime.utcnow())
+    creation_date = DATABASE.Column(DATABASE.DateTime, nullable=False, default=datetime.utcnow)
 
     group_id = DATABASE.Column(
         DATABASE.Integer, DATABASE.ForeignKey("groups.group_id"), nullable=False

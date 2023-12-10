@@ -2,51 +2,34 @@
 <!--end of section-->
 <section class="flush-with-above">
   <div class="container">
-    <div class="row">
-      <div class="col">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <span class="text-muted text-small">Results 1 - 8 of 8</span>
-          </div>
-          <form class="d-flex align-items-center">
-            <span class="mr-2 text-muted text-small text-nowrap">Sort by:</span>
-            <select class="custom-select">
-              <option value="alpha">Alphabetical</option>
-              <option value="old-new" selected>Newest</option>
-              <option value="new-old">Oldest</option>
-              <option value="status">Status</option>
-            </select>
-          </form>
-        </div>
-      </div>
-      <!--end of col-->
-    </div>
-    <!--end of row-->
+
     <div class="row">
       <div class="col">
         <table class="table table-borderless table-hover align-items-center">
           <thead>
             <tr>
-              <th scope="col">HostName</th>
-              <th scope="col">Owner</th>
+              <th scope="col">Agent Type</th>
+              <th scope="col">Hostname:Port</th>
+              <th scope="col">Owner </th>
               <th scope="col">Status</th>
               <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
 
+            {% for agent in owned_agents %}
             <tr class="bg-white">
-              <th scope="row">
-                <a class="media align-items-center">
-                  <img alt="Image" src="{{ url_for('static', filename='uix/assets/img/agent.png') }}" class="avatar rounded avatar-sm" />
-                  <div class="media-body">
-                    <span class="h6 mb-0">Agent 1</span>
-                  </div>
-                </a>
-              </th>
-              <td>Lucy</td>
               <td>
-                <span class="badge badge-success">Active</span>
+                <a class="align-items-center">
+                  <img alt="I own this Agent" src="{{ url_for('static', filename='uix/assets/img/agent.png') }}" class="avatar rounded avatar-sm" />
+                </a>
+              </td>
+              <td>
+                <span class="h6 mb-0">{{agent['hostname']}}:{{agent['port']}}</span>
+              </td>
+              <td>(Me)</td>
+              <td>
+                <span class="badge badge-warning">Pending</span>
               </td>
               <td>
                 <div class="dropdown">
@@ -54,10 +37,10 @@
                     <i class="icon-dots-three-horizontal"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-sm">
-                    <a class="dropdown-item" href="#">Update Agent</a>
-                    <a class="dropdown-item" href="#">Share</a>
+                    <a class="dropdown-item update-agent" onclick="showUpdateAgentModal({{agent['agent_id']}})">Update Agent</a>
+                    <a class="dropdown-item">Share</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Delete</a>
+                    <a class="dropdown-item delete-agent" id="{{agent['agent_id']}}">Delete</a>
                   </div>
                 </div>
               </td>
@@ -66,6 +49,7 @@
               <th></th>
               <td></td>
             </tr>
+            {% endfor %}
 
           </tbody>
         </table>
@@ -78,7 +62,7 @@
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div></div>
             <form class="d-flex align-items-center">
-              <a class="btn btn-success btn-lg" onclick="showAddAgentModal()">New Agent</a>
+              <a class="btn btn-success btn-lg" onclick="showNewAgentModal()">Add New Agent</a>
             </form>
           </div>
         </div>
@@ -88,3 +72,40 @@
   </div>
   <!--end of container-->
 </section>
+
+<script>
+
+  $(document).ready(function(){
+
+    var csrftoken = $('meta[name=csrf-token]').attr('content')
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken)
+            }
+        }
+    })
+
+  });
+
+  $('.delete-agent').click(function(){
+
+    console.log("Deleting agent " + this.id);
+
+    $.ajax({
+        type: "DELETE",
+        url: "/app/backend/agent/" + this.id,
+        contentType: 'application/json',
+        success: function(){
+            console.log("Agent" + this.id + ' deleted.')
+            location.reload();
+        },
+        error: function( ){
+            console.log('error!')
+        }
+    });
+
+  });
+
+</script>

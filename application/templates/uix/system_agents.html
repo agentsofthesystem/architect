@@ -2,7 +2,9 @@
 
 {% block area %}
 
-<div class="modal fade" id="addAgentModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<div class="modal fade" id="newAgentModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -12,17 +14,105 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <p> A form will go here </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" onclick="changePage()">Save changes</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
+            <form action="{{url_for('protected.system_agents')}}" method="post">
+                {{ new_agent_form.csrf_token }}
+                {{ new_agent_form.method(value="POST") }}
+                {{ new_agent_form.owner_id(value=current_user.user_id) }}
+                <div class="modal-body">
+
+                    <div class="col-12">
+
+                        <div class="form-group row">
+                            {{ new_agent_form.hostname.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ new_agent_form.hostname(class="form-control", type="text", value="localhost", placeholder="agent-smith.somewhere.com, IP, localhost") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ new_agent_form.port.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ new_agent_form.port(class="form-control", type="text", value="3000") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ new_agent_form.access_token.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ new_agent_form.access_token(class="form-control", type="text", value="") }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </form>
         </div>
     </div>
 </div>
 
+<div class="modal fade" id="updateAgentModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Agent</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{url_for('protected.system_agents')}}" method="post">
+                {{ update_agent_form.csrf_token }}
+                {{ update_agent_form.method(value="PATCH") }}
+                {{ update_agent_form.agent_id(id="update-agent-id-input") }}
+                <div class="modal-body">
+
+                    <div class="col-12">
+
+                        <div class="form-group row">
+                            {{ update_agent_form.hostname.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ update_agent_form.hostname(class="form-control", id="update-agent-hostname-input", type="text", value="") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ update_agent_form.port.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ new_agent_form.port(class="form-control", id="update-agent-port-input", type="text", value="") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ new_agent_form.access_token.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ update_agent_form.access_token(class="form-control", id="update-agent-access-token-input", type="text", value="") }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
 
 <div class="col text-center">
 
@@ -38,11 +128,24 @@
 {% block scripts %}
 {{super()}}
 <script>
-    function showAddAgentModal(){
-        $('#addAgentModal').modal('show')
+    function showNewAgentModal(){
+        $('#newAgentModal').modal('show')
     }
-    function changePage(){
-        document.location.href = "{{url_for('protected.system_agents', empty=False)}}";
+    function showUpdateAgentModal(agent_id){
+
+        $.ajax({
+            url: "/app/backend/agent/" + agent_id,
+            type: 'GET',
+            dataType: 'json', // added data type
+            success: function(data) {
+                $('#update-agent-id-input')[0].value = agent_id;
+                $('#update-agent-hostname-input')[0].value = data[0]['hostname'];
+                $('#update-agent-port-input')[0].value = data[0]['port'];
+                $('#update-agent-access-token-input')[0].value = data[0]['access_token'];
+            }
+        });
+
+        $('#updateAgentModal').modal('show')
     }
 </script>
 {% endblock %}
