@@ -37,10 +37,6 @@ class AccountUpdatePasswordForm(FlaskForm):
     repeat_password = PasswordField("Repeat Password")
 
 
-class StockSearchForm(FlaskForm):
-    ticker = StringField("Ticker", validators=[DataRequired()])
-
-
 class GlobalMessageForm(FlaskForm):
     subject = StringField("Subject", validators=[DataRequired()])
     message = TextAreaField("Message", validators=[DataRequired()])
@@ -51,4 +47,25 @@ class DirectMessageForm(FlaskForm):
     subject = StringField("Subject", validators=[DataRequired()])
     message = TextAreaField("Message", validators=[DataRequired()])
     recipient_id = IntegerField("Recipient", validators=[DataRequired()])
+    send = SubmitField("Send")
+
+
+class NewAgentForm(FlaskForm):
+    owner_id = HiddenField("Owner User ID")
+    method = HiddenField("POST")
+
+    hostname = StringField("Hostname", validators=[DataRequired()])
+    port = IntegerField("Port", validators=[DataRequired()])
+    access_token = StringField("Access Token", validators=[DataRequired()])
+    send = SubmitField("Send")
+
+
+class UpdateAgentForm(FlaskForm):
+    agent_id = HiddenField("Agent ID")
+    method = HiddenField("PATCH")
+
+    hostname = StringField("Hostname", validators=[DataRequired()])
+    port = IntegerField("Port", validators=[DataRequired()])
+    access_token = StringField("Access Token", validators=[DataRequired()])
+
     send = SubmitField("Send")

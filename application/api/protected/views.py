@@ -12,7 +12,9 @@ from flask import (
 )
 from flask_login import login_required, current_user
 
-from application.api import users, messages
+from application.api.controllers import agents
+from application.api.controllers import users
+from application.api.controllers import messages
 from application.common import logger
 from application.common.tools import (
     verified_required,
@@ -27,6 +29,8 @@ from application.api.protected.forms import (
     AccountUpdatePasswordForm,
     GlobalMessageForm,
     DirectMessageForm,
+    NewAgentForm,
+    UpdateAgentForm,
 )
 
 protected = Blueprint("protected", __name__, url_prefix="/app")
@@ -44,21 +48,47 @@ def dashboard():
     return render_template("uix/dashboard.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 
-@protected.route("/system/agents")
+@protected.route("/system/agents", methods=["GET", "POST", "PATCH"])
 @login_required
 @verified_required
 def system_agents():
-    is_empty = request.args.get("empty", True, type=str)
-    if is_empty == "False" or is_empty == "false":
-        is_empty = False
-    fake_agent_list = [
-        {"hostname": "someplace.somewhere.com", "port": "3000", "owner": "Me", "status": "Alive"}
-    ]
+    new_agent_form = NewAgentForm()
+    update_agent_form = UpdateAgentForm()
+
+    if request.method == "POST":
+        data = request.form
+        method = data["method"]
+
+        if method == "POST":
+            logger.debug("Agents: Received POST from form!")
+            result = agents.create_agent(request)
+
+            if not result:
+                flash("Error Adding Agent.", "danger")
+
+            return redirect(url_for("protected.system_agents"))
+
+        elif method == "PATCH":
+            logger.debug("Agents: Received PATCH from update form!")
+            result = agents.update_agent(request)
+
+            if not result:
+                flash("Error Updating Agent.", "danger")
+
+            return redirect(url_for("protected.system_agents"))
+
+    owned_agent_list = agents.get_agents_by_owner(current_user.user_id)
+    is_empty = True if owned_agent_list == [] else False
+
+    # TODO - Get another list of agents that the user has access to, either by group or friendship.
+
     return render_template(
         "uix/system_agents.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         is_empty=is_empty,
-        agents=fake_agent_list,
+        owned_agents=owned_agent_list,
+        new_agent_form=new_agent_form,
+        update_agent_form=update_agent_form,
     )
 
 
@@ -93,16 +123,6 @@ def system_friends():
         is_empty=is_empty,
         friends=fake_friend_list,
     )
-
-
-# @protected.route("/example/verified/page")
-# @login_required
-# @verified_required
-# def example_verified_page():
-#     return render_template(
-#         "uix/example_verified_page.html",
-#         pretty_name=current_app.config["APP_PRETTY_NAME"],
-#     )
 
 
 # @protected.route("/example/paid/page")
@@ -185,6 +205,7 @@ def create_checkout_session():
 
     http_mode = "http" if current_app.config["ENV"] == "development" else "https"
 
+    # Note - Not using url_for here on purpose since host is coming from Stripe.
     success_url = f"{http_mode}://{request.host}/app/success" + "?session_id={CHECKOUT_SESSION_ID}"
     cancel_url = f"{http_mode}://{request.host}/app/account?tab=billing"
 

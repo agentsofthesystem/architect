@@ -11,7 +11,7 @@ class Groups(PaginatedApi, DATABASE.Model):
 
     # Identifying features
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
-    creation_date = DATABASE.Column(DATABASE.DateTime, nullable=False, default=datetime.utcnow())
+    creation_date = DATABASE.Column(DATABASE.DateTime, nullable=False, default=datetime.utcnow)
 
     owner_id = DATABASE.Column(
         DATABASE.Integer, DATABASE.ForeignKey("users.user_id"), nullable=False

@@ -45,24 +45,36 @@ class PaginatedApi(object):
     def to_collection_dict(query, page, per_page, endpoint, **kwargs):
         resources = Pagination.paginate(query, page, per_page, False)
 
+        ignore_links = kwargs.get("ignore_links", False)
+
         data = {
             "items": [item.to_dict() for item in resources.items],
-            "_meta": {
-                "page": page,
-                "per_page": per_page,
-                "total_pages": resources.pages,
-                "total_items": resources.total,
-            },
-            "_links": {
-                "self": url_for(endpoint, page=page, per_page=page, **kwargs),
-                "next": url_for(endpoint, page=page + 1, per_page=page, **kwargs)
-                if resources.has_next
-                else None,
-                "prev": url_for(endpoint, page=page - 1, per_page=page, **kwargs)
-                if resources.has_next
-                else None,
-            },
         }
+
+        if not ignore_links:
+            links = {
+                "_links": {
+                    "self": url_for(endpoint, page=page, per_page=page, **kwargs),
+                    "next": url_for(endpoint, page=page + 1, per_page=page, **kwargs)
+                    if resources.has_next
+                    else None,
+                    "prev": url_for(endpoint, page=page - 1, per_page=page, **kwargs)
+                    if resources.has_next
+                    else None,
+                }
+            }
+
+            meta = {
+                "_meta": {
+                    "page": page,
+                    "per_page": per_page,
+                    "total_pages": resources.pages,
+                    "total_items": resources.total,
+                }
+            }
+
+            data.update(links)
+            data.update(meta)
 
         return data
 
