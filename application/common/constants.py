@@ -7,9 +7,20 @@ class DeployTypes(Enum):
     PYTHON = "python"
 
 
+class FriendRequestState(Enum):
+    PENDING = 0
+    ACCEPTED = 1
+    REJECTED = 2
+
+
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html
 CONTAINER_CREDENTIALS_API_IP = "169.254.170.2"
 
 AGENT_SMITH_DEFAULT_PORT = 3000
+
+# Pagination Defaults
+DEFAULT_PAGE = 1
+DEFAULT_PER_PAGE = 10
+DEFAULT_PER_PAGE_MAX = 100000
 
 _DeployTypes = DeployTypes

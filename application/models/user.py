@@ -33,7 +33,7 @@ class UserSql(PaginatedApi, DATABASE.Model):
     first_name = DATABASE.Column(DATABASE.String(256), nullable=True)
     last_name = DATABASE.Column(DATABASE.String(256), nullable=True)
 
-    # For Messages
+    # Designate User Relationship Back-refs
     messages_sent = DATABASE.relationship(
         "Messages", foreign_keys="Messages.sender_id", backref="author", lazy="dynamic"
     )
@@ -43,6 +43,31 @@ class UserSql(PaginatedApi, DATABASE.Model):
         backref="recipient",
         lazy="dynamic",
     )
+
+    agents = DATABASE.relationship(
+        "Agents",
+        foreign_keys="Agents.owner_id",
+        backref="agents",
+        lazy="dynamic",
+    )
+
+    # To track sharing - TODO - Will need an intermediate table for each.
+    # Friend to Agent (Direct)
+    # Group to Agent
+
+    # friends = DATABASE.relationship(
+    #     "Friends",
+    #     foreign_keys="Friends.friend_id",
+    #     backref="friends",
+    #     lazy="dynamic",
+    # )
+
+    # groups = DATABASE.relationship(
+    #     "Groups",
+    #     foreign_keys="Groups.group_id",
+    #     backref="groups",
+    #     lazy="dynamic",
+    # )
 
     last_message_read_time = DATABASE.Column(DATABASE.DateTime, nullable=True)
 
