@@ -33,6 +33,9 @@ class UserSql(PaginatedApi, DATABASE.Model):
     first_name = DATABASE.Column(DATABASE.String(256), nullable=True)
     last_name = DATABASE.Column(DATABASE.String(256), nullable=True)
 
+    # Friends
+    friend_code = DATABASE.Column(DATABASE.String(256), nullable=True)
+
     # Designate User Relationship Back-refs
     messages_sent = DATABASE.relationship(
         "Messages", foreign_keys="Messages.sender_id", backref="author", lazy="dynamic"
