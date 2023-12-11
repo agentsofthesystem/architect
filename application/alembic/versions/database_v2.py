@@ -142,6 +142,8 @@ def upgrade():
     op.create_index(
         "ix_friend_requests_request_id", "friend_requests", ["request_id"], unique=False
     )
+
+    op.add_column("users", sa.Column("friend_code", sa.String(length=256)))
     # ### end Alembic commands ###
 
 
@@ -167,4 +169,6 @@ def downgrade():
     op.drop_table("groups")
     op.drop_table("group_members")
     op.drop_table("friends")
+
+    op.drop_column("users", "friend_code")
     # ### end Alembic commands ###
