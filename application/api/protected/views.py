@@ -13,8 +13,9 @@ from flask import (
 from flask_login import login_required, current_user
 
 from application.api.controllers import agents
-from application.api.controllers import users
+from application.api.controllers import friends
 from application.api.controllers import messages
+from application.api.controllers import users
 from application.common import logger
 from application.common.tools import (
     verified_required,
@@ -45,6 +46,11 @@ def main():
 @protected.route("/dashboard")
 @login_required
 def dashboard():
+    if current_user.friend_code is None:
+        uuid = friends.generate_friend_code(current_user.email)
+        if not friends.add_friend_code_to_user(current_user.user_id, str(uuid)):
+            flash("Unable to update user with Friend Code", "danger")
+
     return render_template("uix/dashboard.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 

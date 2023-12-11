@@ -11,9 +11,10 @@ from flask_login import login_user, logout_user
 from kombu.exceptions import OperationalError
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.extensions import DATABASE
+from application.api.controllers.friends import generate_friend_code
 from application.common import logger
 from application.common.tools import check_password
+from application.extensions import DATABASE
 from application.models.user import UserSql
 from application.workers.email import emailer
 
@@ -92,6 +93,7 @@ def signup(request):
     new_user.username = user
     new_user.email = email
     new_user.password = generate_password_hash(password)
+    new_user.friend_code = generate_friend_code(email)
 
     new_user.first_name = first
     new_user.last_name = last

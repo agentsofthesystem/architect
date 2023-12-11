@@ -1,56 +1,97 @@
 {% extends "uix/layout/base.html" %}
 
 {% block area %}
-<div class="col text-center">
 
-    <section>
-        <div class="container">
-            <!--end of row-->
-            <div class="row justify-content-center">
-                <div class="col-12 col-lg-10">
-                    <ul class="feature-list feature-list-sm row">
+<section>
+    <div class="container">
+        <!--end of row-->
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+                <ul class="feature-list feature-list-sm row">
 
-                        <li class="col-6 col-md-4">
-                            <a class="card text-center" href="#">
-                                <div class="card-body">
-                                    <i class="icon-network text-red display-4"></i>
-                                    <h6 class="title-decorative">Agents</h6>
-                                    <p>Agents I Own: 0</p>
-                                    <p>Agents I'm allowed to see: 0</p>
-                                </div>
-                            </a>
-                        </li>
+                    <li class="col-6 col-md-4">
+                        <a class="card text-center" href="#">
+                            <div class="card-body">
+                                <i class="icon-network text-red display-4"></i>
+                                <h6 class="title-decorative">Agents</h6>
+                                <p>Agents I Own: 0</p>
+                                <p>Agents I'm allowed to see: 0</p>
+                            </div>
+                        </a>
+                    </li>
 
-                        <li class="col-6 col-md-4">
-                            <a class="card text-center" href="#">
-                                <div class="card-body">
-                                    <i class="icon-users text-orange display-4"></i>
-                                    <h6 class="title-decorative">Friend Groups</h6>
-                                    <p>Groups I Created: 0</p>
-                                    <p>Groups I'm a part of: 0</p>
-                                </div>
-                            </a>
-                        </li>
+                    <li class="col-6 col-md-4">
+                        <a class="card text-center" href="#">
+                            <div class="card-body">
+                                <i class="icon-users text-orange display-4"></i>
+                                <h6 class="title-decorative">Friend Groups</h6>
+                                <p>Groups I Created: 0</p>
+                                <p>Groups I'm a part of: 0</p>
+                            </div>
+                        </a>
+                    </li>
 
-                        <li class="col-6 col-md-4">
-                            <a class="card text-center" href="#">
-                                <div class="card-body">
-                                    <i class="icon-user text-green display-4"></i>
-                                    <h6 class="title-decorative">Friends</h6>
-                                    <p>Friend Count: 0</p>
-                                </div>
-                            </a>
-                        </li>
+                    <li class="col-6 col-md-4">
+                        <a class="card text-center" href="#">
+                            <div class="card-body">
+                                <i class="icon-user text-green display-4"></i>
+                                <h6 class="title-decorative">Friends</h6>
+                                <p>Friend Count: 0</p>
+                            </div>
+                        </a>
+                    </li>
 
-                    </ul>
-                </div>
-                <!--end of col-->
+                </ul>
             </div>
-            <!--end of row-->
+            <!--end of col-->
         </div>
-        <!--end of container-->
-    </section>
-    <!--end of section-->
+        <!--end of row-->
 
-</div>
+        <div class="row justify-content-center">
+
+            <div class="col-12 col-lg-10">
+
+                <div class="card card-sm">
+                    <div class="card-body row no-gutters align-items-center">
+                        <div class="col-auto">
+                            <h6 class="title-decorative">Friend Code</h6>
+                        </div>
+                        <!--end of col-->
+                        <div class="col">
+                            <input class="form-control form-control-lg form-control-borderless" value="{{current_user.friend_code}}" id="friend-code">
+                        </div>
+                        <!--end of col-->
+                        <div class="col-auto">
+                            <button class="btn btn-lg btn-success friend-code-copy" type="submit"><i class="icon-copy h4 text-body"></i></button>
+                        </div>
+                        <!--end of col-->
+                    </div>
+                </div>
+
+            </div>
+            <!--end of col-->
+        </div>
+        <!--end of row-->
+
+    </div>
+    <!--end of container-->
+</section>
+<!--end of section-->
+
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+    $('.friend-code-copy').click(function(){
+        var copyText = document.getElementById("friend-code");
+
+        // Select the text field
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobile devices
+
+        // Copy the text inside the text field
+        navigator.clipboard.writeText(copyText.value);
+    });
+</script>
 {% endblock %}
