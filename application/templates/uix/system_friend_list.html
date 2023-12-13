@@ -1,87 +1,85 @@
-</section>
-<!--end of section-->
-<section class="flush-with-above">
-  <div class="container">
-    <div class="row">
-      <div class="col">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <span class="text-muted text-small">Results 1 - 8 of 8</span>
-          </div>
-          <form class="d-flex align-items-center">
-            <span class="mr-2 text-muted text-small text-nowrap">Sort by:</span>
-            <select class="custom-select">
-              <option value="alpha">Alphabetical</option>
-              <option value="old-new" selected>Newest</option>
-              <option value="new-old">Oldest</option>
-            </select>
-          </form>
-        </div>
-      </div>
-      <!--end of col-->
-    </div>
-    <!--end of row-->
-    <div class="row">
-      <div class="col">
-        <table class="table table-borderless table-hover align-items-center">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Crews</th>
-              <th scope="col">Agents</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
+<div class="col text-center">
 
-            <tr class="bg-white">
-              <th scope="row">
-                <a class="media align-items-center">
-                  <img alt="Image" src="{{ url_for('static', filename='uix/assets/img/agent.png') }}" class="avatar rounded avatar-sm" />
-                  <div class="media-body">
-                    <span class="h6 mb-0">John Doe</span>
-                  </div>
-                </a>
-              </th>
-              <td>1</td>
-              <td>3</td>
-              <td>
-                <div class="dropdown">
-                  <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="icon-dots-three-horizontal"></i>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-sm">
-                    <a class="dropdown-item" href="#">Add to Crew</a>
-                    <a class="dropdown-item" href="#">Add to Agent</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Remove</a>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr class="table-divider">
-              <th></th>
-              <td></td>
-            </tr>
+  <section class="flush-with-above">
 
-          </tbody>
-        </table>
-      </div>
-      <!--end of col-->
-    </div>
-    <!--end of row-->
-    <div class="row">
-      <div class="col">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <div></div>
-          <form class="d-flex align-items-center">
-            <a class="btn btn-success btn-lg" onclick="showAddFriendModal()">Add Friend</a>
-          </form>
+    <div class="container">
+
+      <div class="row">
+
+        <div class="col">
+          <table class="table table-borderless table-hover align-items-center">
+            <thead>
+              <tr>
+                <th scope="col"><strong>Friend:</strong></th>
+                <th scope="col">Friend Username</th>
+                <th scope="col">Name</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+
+              {% for friend in friends_list %}
+              <tr class="bg-white">
+                <td>
+                  <a class="align-items-center">
+                    <img alt="" src="{{ url_for('static', filename='uix/assets/img/agent.png') }}" class="avatar rounded avatar-sm" />
+                  </a>
+                </td>
+                {% if current_user.user_id == friend['initiator_id'] %}
+                <td>{{friend['receiver']['username']}}</td>
+                {% else %}
+                <td>{{friend['initiator']['username']}}</td>
+                {% endif %}
+
+                {% if current_user.user_id == friend['initiator_id'] %}
+                <td>{{friend['receiver']['first_name']}} {{friend['receiver']['last_name']}}</td>
+                {% else %}
+                <td>{{friend['initiator']['first_name']}} {{friend['initiator']['last_name']}}</td>
+                {% endif %}
+
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="icon-dots-three-horizontal"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-sm">
+                      <a class="dropdown-item cancel-friend-request" id="">De-Friend</a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="table-divider">
+                <th></th>
+                <td></td>
+              </tr>
+              {% endfor %}
+
+            </tbody>
+          </table>
         </div>
+        <!--end of col-->
       </div>
-      <!--end of col-->
+      <!--end of row-->
     </div>
-    <!--end of row-->
-  </div>
-  <!--end of container-->
-</section>
+    <!--end of container-->
+  </section>
+
+</div>
+
+<script>
+
+  $(document).ready(function(){
+
+    var csrftoken = $('meta[name=csrf-token]').attr('content')
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken)
+            }
+        }
+    })
+
+  });
+
+</script>

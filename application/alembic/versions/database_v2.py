@@ -6,7 +6,7 @@ Create Date: 2023-10-08 14:10:31.088339
 
 """
 from alembic import op
-from application.common.constants import AGENT_SMITH_DEFAULT_PORT, FriendRequestState
+from application.common.constants import AGENT_SMITH_DEFAULT_PORT, FriendRequestStates
 from datetime import datetime
 import sqlalchemy as sa
 
@@ -25,6 +25,7 @@ def upgrade():
         sa.Column("agent_id", sa.Integer(), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False, default=True),
         sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
+        sa.Column("name", sa.String(length=256), nullable=False),
         sa.Column("hostname", sa.String(length=256), nullable=False),
         sa.Column("port", sa.Integer(), nullable=False, default=AGENT_SMITH_DEFAULT_PORT),
         sa.Column("access_token", sa.String(length=256), nullable=True),
@@ -87,31 +88,31 @@ def upgrade():
         "friends",
         sa.Column("friend_id", sa.Integer(), nullable=False),
         sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
-        sa.Column("myself_id", sa.Integer(), nullable=False),
-        sa.Column("friends_with_id", sa.Integer(), nullable=False),
+        sa.Column("initiator_id", sa.Integer(), nullable=False),
+        sa.Column("receiver_id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("friend_id"),
     )
 
     op.create_foreign_key(
-        op.f("fk_friends_users_myself_id"),
+        op.f("fk_friends_users_initiator_id"),
         "friends",
         "users",
-        ["myself_id"],
+        ["initiator_id"],
         ["user_id"],
     )
 
     op.create_foreign_key(
-        op.f("fk_friends_users_friends_with_id"),
+        op.f("fk_friends_users_receiver_id"),
         "friends",
         "users",
-        ["friends_with_id"],
+        ["receiver_id"],
         ["user_id"],
     )
 
     op.create_table(
         "friend_requests",
         sa.Column("request_id", sa.Integer(), nullable=False),
-        sa.Column("state", sa.Integer(), nullable=False, default=FriendRequestState.PENDING.value),
+        sa.Column("state", sa.Integer(), nullable=False, default=FriendRequestStates.PENDING.value),
         sa.Column("sender_id", sa.Integer(), nullable=False),
         sa.Column("recipient_id", sa.Integer(), nullable=False),
         sa.Column("timestamp", sa.DateTime(), nullable=False, default=datetime.utcnow),

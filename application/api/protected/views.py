@@ -30,6 +30,7 @@ from application.api.protected.forms import (
     AccountUpdatePasswordForm,
     GlobalMessageForm,
     DirectMessageForm,
+    FriendRequestForm,
     NewAgentForm,
     UpdateAgentForm,
 )
@@ -40,7 +41,7 @@ protected = Blueprint("protected", __name__, url_prefix="/app")
 @protected.route("/main")
 @login_required
 def main():
-    return render_template("uix/app.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
+    return redirect(url_for("protected.dashboard"))
 
 
 @protected.route("/dashboard")
@@ -54,7 +55,7 @@ def dashboard():
     return render_template("uix/dashboard.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 
-@protected.route("/system/agents", methods=["GET", "POST", "PATCH"])
+@protected.route("/system/agents", methods=["GET", "POST"])
 @login_required
 @verified_required
 def system_agents():
@@ -115,19 +116,40 @@ def system_groups():
     )
 
 
-@protected.route("/system/friends")
+@protected.route("/system/friends", methods=["GET", "POST"])
 @login_required
 @verified_required
 def system_friends():
-    is_empty = request.args.get("empty", True, type=str)
-    if is_empty == "False" or is_empty == "false":
-        is_empty = False
-    fake_friend_list = [{"name": "John Doe", "Crews": 1, "Agents": 3}]
+    friend_request_form = FriendRequestForm()
+
+    friend_request_list = friends.get_my_friend_requests()
+    request_list_empty = True if friend_request_list == [] else False
+
+    friends_list = friends.get_my_friends()
+    friend_list_empty = True if friends_list == [] else False
+
+    if request.method == "POST":
+        result = friends.create_new_friend_request(request)
+
+        if not result:
+            flash("Unable to send friend request.", "danger")
+        else:
+            flash("Friend Request Sent!", "info")
+
+        return redirect(url_for("protected.system_friends"))
+
+    logger.info("*******************************")
+    logger.info(friends_list)
+    logger.info("*******************************")
+
     return render_template(
         "uix/system_friends.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
-        is_empty=is_empty,
-        friends=fake_friend_list,
+        request_list_empty=request_list_empty,
+        friend_list_empty=friend_list_empty,
+        friends_list=friends_list,
+        friend_requests=friend_request_list,
+        friend_request_form=friend_request_form,
     )
 
 

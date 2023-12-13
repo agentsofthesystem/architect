@@ -4,6 +4,7 @@ from application.common import logger
 from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
 from application.models.message import Messages
+from application.models.friend_request import FriendRequests  # noqa: F401
 
 
 class UserSql(PaginatedApi, DATABASE.Model):
@@ -54,16 +55,35 @@ class UserSql(PaginatedApi, DATABASE.Model):
         lazy="dynamic",
     )
 
-    # To track sharing - TODO - Will need an intermediate table for each.
-    # Friend to Agent (Direct)
-    # Group to Agent
+    # Track friend requests.
+    incoming_friend_requests = DATABASE.relationship(
+        "FriendRequests",
+        foreign_keys="FriendRequests.recipient_id",
+        backref="incoming_friend_requests",
+        lazy="dynamic",
+    )
 
-    # friends = DATABASE.relationship(
-    #     "Friends",
-    #     foreign_keys="Friends.friend_id",
-    #     backref="friends",
-    #     lazy="dynamic",
-    # )
+    outgoing_friend_requests = DATABASE.relationship(
+        "FriendRequests",
+        foreign_keys="FriendRequests.sender_id",
+        backref="outgoing_friend_requests",
+        lazy="dynamic",
+    )
+
+    # Tracking a users' friends
+    initiated_friends = DATABASE.relationship(
+        "Friends",
+        foreign_keys="Friends.initiator_id",
+        backref="initiated_friends",
+        lazy="dynamic",
+    )
+
+    received_friends = DATABASE.relationship(
+        "Friends",
+        foreign_keys="Friends.receiver_id",
+        backref="received_friends",
+        lazy="dynamic",
+    )
 
     # groups = DATABASE.relationship(
     #     "Groups",
@@ -114,6 +134,22 @@ class UserSql(PaginatedApi, DATABASE.Model):
             .filter(Messages.timestamp > last_read_time)
             .count()
         )
+
+    def to_dict(self):
+        return {
+            "user_id": self.user_id,
+            "active": self.active,
+            "authenticated": self.authenticated,
+            "admin": self.admin,
+            "subscribed": self.subscribed,
+            "subscription_id": self.subscription_id,
+            "customer_id": self.customer_id,
+            "username": self.username,
+            "email": self.email,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "friend_code": self.friend_code,
+        }
 
     @property
     def is_admin(self):

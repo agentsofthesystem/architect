@@ -7,10 +7,11 @@ class DeployTypes(Enum):
     PYTHON = "python"
 
 
-class FriendRequestState(Enum):
+class FriendRequestStates(Enum):
     PENDING = 0
     ACCEPTED = 1
     REJECTED = 2
+    CANCELED = 3
 
 
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html

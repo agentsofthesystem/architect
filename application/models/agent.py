@@ -14,6 +14,7 @@ class Agents(PaginatedApi, DATABASE.Model):
     # Identifying features
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
     creation_date = DATABASE.Column(DATABASE.DateTime, nullable=False, default=datetime.utcnow)
+    name = DATABASE.Column(DATABASE.String(256), nullable=False)
     hostname = DATABASE.Column(DATABASE.String(256), nullable=False)
     port = DATABASE.Column(DATABASE.Integer, nullable=False, default=AGENT_SMITH_DEFAULT_PORT)
     access_token = DATABASE.Column(DATABASE.String(256), nullable=True)
@@ -34,6 +35,7 @@ class Agents(PaginatedApi, DATABASE.Model):
             "agent_id": self.agent_id,
             "active": self.active,
             "creation_date": self.creation_date,
+            "name": self.name,
             "hostname": self.hostname,
             "port": self.port,
             "access_token": self.access_token,

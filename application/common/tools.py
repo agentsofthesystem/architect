@@ -21,7 +21,7 @@ class MyAdminIndexView(AdminIndexView):
             if current_user.is_admin:
                 return super(MyAdminIndexView, self).index()
             else:
-                return redirect(url_for("protected.main"))
+                return redirect(url_for("protected.dashboard"))
         else:
             return redirect(url_for("public.index"))
 
