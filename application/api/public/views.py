@@ -114,12 +114,12 @@ def signin():
 
     # If already signed in, got to main app page.
     if current_user.is_authenticated:
-        return redirect(url_for("protected.main"))
+        return redirect(url_for("protected.dashboard"))
 
     if request.method == "POST":
         result = users.signin(request)
         if result:
-            return redirect(url_for("protected.main"))
+            return redirect(url_for("protected.dashboard"))
         else:
             flash("Incorrect Username or Password!", "danger")
             return render_template(
@@ -149,7 +149,7 @@ def forgot():
 
     # If already signed in, got to main app page.
     if current_user.is_authenticated:
-        return redirect(url_for("protected.main"))
+        return redirect(url_for("protected.dashboard"))
 
     if request.method == "POST":
         result = users.forgot_password(request)
@@ -214,7 +214,7 @@ def reset():
     else:
         # If already signed in, got to main app page.
         if current_user.is_authenticated:
-            return redirect(url_for("protected.main"))
+            return redirect(url_for("protected.dashboard"))
 
         return redirect(url_for("public.index"))
 
@@ -249,7 +249,7 @@ def verify():
                 "Email not verified! Please resend the verification email and try again.",
                 "danger",
             )
-            return redirect(url_for("protected.main"))
+            return redirect(url_for("protected.dashboard"))
 
 
 @public.route("/webhook", methods=["POST"])

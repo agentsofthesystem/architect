@@ -10,7 +10,7 @@
                 <ul class="feature-list feature-list-sm row">
 
                     <li class="col-6 col-md-4">
-                        <a class="card text-center" href="#">
+                        <a class="card text-center" href="{{url_for('protected.system_agents')}}">
                             <div class="card-body">
                                 <i class="icon-network text-red display-4"></i>
                                 <h6 class="title-decorative">Agents</h6>
@@ -21,7 +21,7 @@
                     </li>
 
                     <li class="col-6 col-md-4">
-                        <a class="card text-center" href="#">
+                        <a class="card text-center" href="{{url_for('protected.system_groups')}}">
                             <div class="card-body">
                                 <i class="icon-users text-orange display-4"></i>
                                 <h6 class="title-decorative">Friend Groups</h6>
@@ -32,10 +32,11 @@
                     </li>
 
                     <li class="col-6 col-md-4">
-                        <a class="card text-center" href="#">
+                        <a class="card text-center" href="{{url_for('protected.system_friends')}}">
                             <div class="card-body">
                                 <i class="icon-user text-green display-4"></i>
                                 <h6 class="title-decorative">Friends</h6>
+                                <p>Friend Requests: 0</p>
                                 <p>Friend Count: 0</p>
                             </div>
                         </a>

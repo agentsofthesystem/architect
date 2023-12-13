@@ -23,6 +23,13 @@
                     <div class="col-12">
 
                         <div class="form-group row">
+                            {{ new_agent_form.name.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ new_agent_form.name(class="form-control", type="text", value="Agent Smith", placeholder="Agent Smith") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
                             {{ new_agent_form.hostname.label(class="col-sm-2 col-form-label") }}
                             <div class="col-sm-10">
                             {{ new_agent_form.hostname(class="form-control", type="text", value="localhost", placeholder="agent-smith.somewhere.com, IP, localhost") }}
@@ -76,6 +83,13 @@
                 <div class="modal-body">
 
                     <div class="col-12">
+
+                        <div class="form-group row">
+                            {{ update_agent_form.name.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ update_agent_form.name(class="form-control", id="update-agent-name-input", type="text", value="") }}
+                            </div>
+                        </div>
 
                         <div class="form-group row">
                             {{ update_agent_form.hostname.label(class="col-sm-2 col-form-label") }}
@@ -139,6 +153,7 @@
             dataType: 'json', // added data type
             success: function(data) {
                 $('#update-agent-id-input')[0].value = agent_id;
+                $('#update-agent-name-input')[0].value = data[0]['name'];
                 $('#update-agent-hostname-input')[0].value = data[0]['hostname'];
                 $('#update-agent-port-input')[0].value = data[0]['port'];
                 $('#update-agent-access-token-input')[0].value = data[0]['access_token'];
