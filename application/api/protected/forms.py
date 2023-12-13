@@ -54,6 +54,7 @@ class NewAgentForm(FlaskForm):
     owner_id = HiddenField("Owner User ID")
     method = HiddenField("POST")
 
+    name = StringField("Name", validators=[DataRequired()])
     hostname = StringField("Hostname", validators=[DataRequired()])
     port = IntegerField("Port", validators=[DataRequired()])
     access_token = StringField("Access Token", validators=[DataRequired()])
@@ -64,8 +65,15 @@ class UpdateAgentForm(FlaskForm):
     agent_id = HiddenField("Agent ID")
     method = HiddenField("PATCH")
 
+    name = StringField("Name", validators=[DataRequired()])
     hostname = StringField("Hostname", validators=[DataRequired()])
     port = IntegerField("Port", validators=[DataRequired()])
     access_token = StringField("Access Token", validators=[DataRequired()])
+
+    send = SubmitField("Send")
+
+
+class FriendRequestForm(FlaskForm):
+    friend_code = StringField("Friend Code", validators=[DataRequired()])
 
     send = SubmitField("Send")

@@ -9,6 +9,7 @@
           <thead>
             <tr>
               <th scope="col">Agent Type</th>
+              <th scope="col">Name</th>
               <th scope="col">Hostname:Port</th>
               <th scope="col">Owner </th>
               <th scope="col">Status</th>
@@ -24,6 +25,7 @@
                   <img alt="I own this Agent" src="{{ url_for('static', filename='uix/assets/img/agent.png') }}" class="avatar rounded avatar-sm" />
                 </a>
               </td>
+              <td>{{agent['name']}}</td>
               <td>
                 <span class="h6 mb-0">{{agent['hostname']}}:{{agent['port']}}</span>
               </td>

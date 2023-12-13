@@ -34,6 +34,7 @@ def create_agent(request) -> bool:
     data = request.form
 
     try:
+        name = data["name"]
         hostname = data["hostname"]
         port = data["port"]
         owner_id = data["owner_id"]
@@ -54,6 +55,7 @@ def create_agent(request) -> bool:
         return False
 
     new_agent = Agents()
+    new_agent.name = name
     new_agent.hostname = hostname
     new_agent.port = port
     new_agent.owner_id = owner_id
@@ -73,6 +75,7 @@ def update_agent(request):
     data = request.form
 
     try:
+        name = data["name"]
         hostname = data["hostname"]
         port = data["port"]
         agent_id = data["agent_id"]
@@ -89,6 +92,7 @@ def update_agent(request):
         raise InvalidUsage("Error: Update Agent Does not exist!", status_code=400)
 
     update_dict = {
+        "name": name,
         "hostname": hostname,
         "port": port,
         "access_token": access_token,

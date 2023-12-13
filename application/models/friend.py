@@ -9,11 +9,19 @@ class Friends(PaginatedApi, DATABASE.Model):
 
     friend_id = DATABASE.Column(DATABASE.Integer, primary_key=True)
 
-    created_date = DATABASE.Column(DATABASE.DateTime, nullable=False, default=datetime.utcnow)
+    creation_date = DATABASE.Column(DATABASE.DateTime, nullable=False, default=datetime.utcnow)
 
-    myself_id = DATABASE.Column(
+    initiator_id = DATABASE.Column(
         DATABASE.Integer, DATABASE.ForeignKey("users.user_id"), nullable=False
     )
-    friends_with_id = DATABASE.Column(
+    receiver_id = DATABASE.Column(
         DATABASE.Integer, DATABASE.ForeignKey("users.user_id"), nullable=False
     )
+
+    def to_dict(self):
+        return {
+            "friend_id": self.friend_id,
+            "creation_date": self.creation_date,
+            "initiator_id": self.initiator_id,
+            "receiver_id": self.receiver_id,
+        }
