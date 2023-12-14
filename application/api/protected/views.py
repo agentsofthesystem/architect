@@ -138,10 +138,6 @@ def system_friends():
 
         return redirect(url_for("protected.system_friends"))
 
-    logger.info("*******************************")
-    logger.info(friends_list)
-    logger.info("*******************************")
-
     return render_template(
         "uix/system_friends.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],

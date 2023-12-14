@@ -6,9 +6,23 @@ from application.api.controllers import agents
 from application.api.controllers import friends
 from application.common.tools import verified_required
 from application.models.agent import Agents
+from application.models.friend import Friends
 from application.models.friend_request import FriendRequests
 
 backend = Blueprint("backend", __name__, url_prefix="/app/backend")
+
+
+class FriendsBackendApi(MethodView):
+    def __init__(self, model):
+        self.model = model
+
+    @login_required
+    @verified_required
+    def delete(self, object_id):
+        if friends.delete_friend(object_id):
+            return "", 204
+        else:
+            return "Error!", 500
 
 
 class FriendRequestsBackendApi(MethodView):
@@ -42,6 +56,12 @@ class AgentsBackendApi(MethodView):
         else:
             return "Error!", 500
 
+
+backend.add_url_rule(
+    "/friend/<int:object_id>",
+    view_func=FriendsBackendApi.as_view("friends_api", Friends),
+    methods=["DELETE"],
+)
 
 backend.add_url_rule(
     "/friend/request/<int:object_id>",

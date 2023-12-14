@@ -1,11 +1,12 @@
 import json
 import uuid
 
-from flask import flash
+from flask import flash, url_for
 from flask_login import current_user
 
 from application.common import logger
 from application.common.constants import FriendRequestStates
+from application.api.controllers.messages import create_direct_message
 from application.extensions import DATABASE
 from application.models.friend import Friends
 from application.models.friend_request import FriendRequests
@@ -95,6 +96,16 @@ def create_new_friend_request(request) -> bool:
 
     # Don't need to bother if you're already friends!
     # TODO - Add another check here.
+    if (
+        Friends.query.filter_by(
+            initiator_id=current_user.user_id, receiver_id=user_obj.user_id
+        ).first()
+        or Friends.query.filter_by(
+            receiver_id=current_user.user_id, initiator_id=user_obj.user_id
+        ).first()
+    ):
+        flash(f"You are already friends with {user_obj.username}.", "warning")
+        return False
 
     # Don't send a new friend request if one was already sent...
     check_existing_outgoing = FriendRequests.query.filter_by(
@@ -141,7 +152,15 @@ def create_new_friend_request(request) -> bool:
         flash("Could not create Friend Request. Database Error!", "danger")
         return False
 
-    # TODO - Send Email
+    subject = "Friend Request"
+    friend_href = url_for("protected.system_friends")
+    message = (
+        f"<p>Hey, {current_user.first_name}! {user_obj.username} wants to be friends. Go to the "
+        f'<a href="{friend_href}">Friends Page</a> to respond.</p>'
+    )
+
+    # TODO - Update DMs to alert users that they received a message via email.
+    create_direct_message(new_fr.sender_id, new_fr.recipient_id, message, subject)
 
     return True
 
@@ -185,6 +204,13 @@ def update_friend_request(object_id: int, payload: dict) -> bool:
     new_status = json_payload["state"]
 
     if fr_obj.state != FriendRequestStates.PENDING.value:
+        if fr_obj.state == FriendRequestStates.ACCEPTED.value:
+            flash("Friend Request was already Accepted.", "info")
+        elif fr_obj.state == FriendRequestStates.REJECTED.value:
+            flash("Friend Request was rejected.", "info")
+        elif fr_obj.state == FriendRequestStates.CANCELED.value:
+            flash("Friend Request was already canceled.", "info")
+
         logger.error("Can only transition from PENDING state")
         return False
 
@@ -196,10 +222,14 @@ def update_friend_request(object_id: int, payload: dict) -> bool:
             return False
 
         fr_qry.update({"state": FriendRequestStates.ACCEPTED.value})
+        flash("Friend Request was Accepted.", "info")
+
     elif new_status == "REJECTED":
         fr_qry.update({"state": FriendRequestStates.REJECTED.value})
+        flash("Friend Request was Rejected.", "info")
     elif new_status == "CANCELED":
         fr_qry.update({"state": FriendRequestStates.CANCELED.value})
+        flash("Friend Request was Cancelled.", "info")
 
     try:
         DATABASE.session.commit()
@@ -207,5 +237,44 @@ def update_friend_request(object_id: int, payload: dict) -> bool:
         logger.critical(error)
         flash("Could update Friend Request. Database Error!", "danger")
         return False
+
+    return True
+
+
+def delete_friend(object_id: int) -> bool:
+    # Delete the friend record
+
+    friend_obj = Friends.query.filter_by(friend_id=object_id).first()
+
+    # TODO - If friend had access to any group owned by current_user, then remove from the group.
+
+    if friend_obj is None:
+        logger.error(f"Cannot delete friend ID {object_id}. Does not exist!")
+        return False
+
+    try:
+        DATABASE.session.delete(friend_obj)
+        DATABASE.session.commit()
+    except Exception as error:
+        logger.critical(error)
+        return False
+
+    subject = "No Longer Friends."
+    message = f"{current_user.username}, has removed your from their friend list."
+    friend_removed_id = 0
+
+    if current_user.user_id == friend_obj.initiator_id:
+        create_direct_message(current_user.user_id, friend_obj.receiver_id, message, subject)
+        friend_removed_id = friend_obj.receiver_id
+    else:
+        create_direct_message(current_user.user_id, friend_obj.initiator_id, message, subject)
+        friend_removed_id = friend_obj.initiator_id
+
+    user_obj = UserSql.query.filter_by(user_id=friend_removed_id).first()
+
+    flash(
+        f"You and {user_obj.username} are no longer friends. A message was sent to let them know",
+        "info",
+    )
 
     return True
