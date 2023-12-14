@@ -43,7 +43,7 @@
                       <i class="icon-dots-three-horizontal"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-sm">
-                      <a class="dropdown-item cancel-friend-request" id="">De-Friend</a>
+                      <a class="dropdown-item remove-friend-request" id="{{friend['friend_id']}}">De-Friend</a>
                     </div>
                   </div>
                 </td>
@@ -79,6 +79,25 @@
             }
         }
     })
+
+  });
+
+  $(".remove-friend-request").click(function(){
+    console.log("De-Friend Request ID: " + this.id);
+
+    $.ajax({
+        type: "DELETE",
+        url: "/app/backend/friend/" + this.id,
+        contentType: 'application/json',
+        success: function(){
+            console.log("Friend Removed" + this.id + ' canceled.')
+            location.reload();
+        },
+        error: function( ){
+            console.log('error!')
+            location.reload();
+        }
+    });
 
   });
 
