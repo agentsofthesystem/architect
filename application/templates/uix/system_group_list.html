@@ -42,6 +42,7 @@
                   </div>
                 </div>
                 <div class="col-sm">
+                  {% if current_user.user_id == group['owner_id'] %}
                   <div class="dropdown">
                     <button class="btn btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       <i class="icon-dots-three-horizontal"></i>
@@ -50,11 +51,10 @@
                       <a class="dropdown-item" onclick="showUpdateGroupModal({{group['group_id']}})">Update Group</a>
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item">Transfer Ownership</a>
-                      {% if current_user.user_id == group['owner_id'] %}
                         <a class="dropdown-item delete-group" id="{{group['group_id']}}">Disband</a>
-                      {% endif %}
                     </div>
                   </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -73,16 +73,33 @@
                       <tr class="bg-white">
                         <td>{{member['user']['username']}}</td>
                         <td>{{ 'Owner' if member['user']['user_id'] == group['owner_id'] else 'Member' }}</td>
+                        <!-- If the current user is the group owner, all buttons are enabled except for the owner.  That way the owner cannot delete itself from the group -->
+                        {% if current_user.user_id == group['owner_id'] %}
                         <td>
+                          {% set is_disabled = 'disabled="true"' if member['user']['user_id'] == group['owner_id'] else '' %}
                           <div class="dropdown">
-                            <button class="btn btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{'disabled="true"' if group['owner_id'] == member['user']['user_id'] else ''}}>
+                            <button class="btn btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{is_disabled}}>
                               <i class="icon-dots-three-horizontal"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-sm">
-                              <a class="dropdown-item remove-friend-from-group" data-group_id="{{group['group_id']}}" id="{{member['user']['user_id']}}">{{ 'Leave Group' if current_user.user_id == member['user']['user_id'] else 'Remove Friend'}}</a>
+                              <a class="dropdown-item remove-friend-from-group" data-group_id="{{group['group_id']}}" id="{{member['user']['user_id']}}"> Remove from Group</a>
                             </div>
                           </div>
                         </td>
+                        <!-- If the current user is NOT the group owner, all buttons are disabled except for current users.  That way the current user cannot remove other users from the group, and only leave the group. -->
+                        {% else %}
+                        <td>
+                          {% set is_disabled = 'disabled="true"' if member['user']['user_id'] != current_user.user_id else '' %}
+                          <div class="dropdown">
+                            <button class="btn btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{is_disabled}}>
+                              <i class="icon-dots-three-horizontal"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-sm">
+                              <a class="dropdown-item remove-friend-from-group" data-group_id="{{group['group_id']}}" id="{{member['user']['user_id']}}"> Leave Group</a>
+                            </div>
+                          </div>
+                        </td>
+                        {% endif %}
                       </tr>
                       {% endfor %}
                     </tbody>
