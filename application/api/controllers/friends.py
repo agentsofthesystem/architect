@@ -267,8 +267,6 @@ def delete_friend(object_id: int) -> bool:
         logger.critical(error)
         return False
 
-    return True
-
     try:
         DATABASE.session.delete(friend_obj)
         DATABASE.session.commit()
