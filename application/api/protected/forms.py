@@ -7,6 +7,7 @@ from wtforms import (
     SubmitField,
     TextAreaField,
     IntegerField,
+    SelectField,
     SelectMultipleField,
 )
 from wtforms.validators import DataRequired
@@ -94,24 +95,38 @@ class UpdateGroupForm(FlaskForm):
     send = SubmitField("Send")
 
 
+@staticmethod
+def _populate_choices() -> list:
+    choices = []
+
+    # Explicitly want to use == for condition.
+    if current_user == None:  # noqa: E711
+        return choices
+
+    friend_list = friends.get_my_friends()
+
+    for friend in friend_list:
+        if current_user.user_id == friend["initiator_id"]:
+            choices.append((friend["receiver"]["user_id"], friend["receiver"]["username"]))
+        else:
+            choices.append((friend["initiator"]["user_id"], friend["initiator"]["username"]))
+
+    return choices
+
+
 class AddFriendToGroupForm(FlaskForm):
     group_id = HiddenField("Group ID")
     method = HiddenField("PATCH_FRIEND")
     friends_list = SelectMultipleField(choices=[], validators=[DataRequired()])
 
     def populate_choices(self) -> list:
-        choices = []
+        self.friends_list.choices = _populate_choices()
 
-        # Explicitly want to use == for condition.
-        if current_user == None:  # noqa: E711
-            return choices
 
-        friend_list = friends.get_my_friends()
+class TransferGroupForm(FlaskForm):
+    group_id = HiddenField("Group ID")
+    method = HiddenField("PATCH_GROUP_TRANSFER")
+    friends_list = SelectField(choices=[], validators=[DataRequired()])
 
-        for friend in friend_list:
-            if current_user.user_id == friend["initiator_id"]:
-                choices.append((friend["receiver"]["user_id"], friend["receiver"]["username"]))
-            else:
-                choices.append((friend["initiator"]["user_id"], friend["initiator"]["username"]))
-
-        self.friends_list.choices = choices
+    def populate_choices(self) -> list:
+        self.friends_list.choices = _populate_choices()

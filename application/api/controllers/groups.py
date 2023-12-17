@@ -1,7 +1,8 @@
-from flask import flash
+from flask import flash, url_for
 from flask_login import current_user
 
 from application.common import logger
+from application.api.controllers.messages import create_direct_message
 from application.extensions import DATABASE
 from application.models.group import Groups
 from application.models.group_member import GroupMembers
@@ -256,5 +257,57 @@ def remove_friend_from_group(group_id: int, member_id: int) -> bool:
         return False
 
     flash("User was removed from group.", "info")
+
+    return True
+
+
+def transfer_group(request) -> bool:
+    data = request.form
+
+    try:
+        group_id = data["group_id"]
+        friends_list = data.getlist("friends_list")
+    except KeyError:
+        logger.error("Add Friend to Group: Missing Form Input Data")
+        flash("Unable to add friend to group because the form was missing data!", "danger")
+        return False
+
+    if len(friends_list) > 1:
+        flash("Error: Can only transfer to one user.", "danger")
+        return False
+
+    group_qry = Groups.query.filter_by(group_id=group_id)
+    group_obj = group_qry.first()
+
+    if group_obj is None:
+        flash("Error: Group does not exist!", "danger")
+        return False
+
+    old_owner_id = group_obj.owner_id
+    group_name = group_obj.name
+    new_owner_id = friends_list[0]
+
+    update_dict = {"owner_id": new_owner_id}
+
+    try:
+        group_qry.update(update_dict)
+        DATABASE.session.commit()
+    except Exception as error:
+        logger.critical(error)
+        return False
+
+    old_owner_obj = UserSql.query.filter_by(user_id=old_owner_id).first()
+
+    subject = "Group Transferred to you."
+    friend_href = url_for("protected.system_groups")
+    message = (
+        f"<p>Hey, {current_user.first_name}! {old_owner_obj.username} has transferred ownership "
+        f"of group, {group_name}, to you. Go to the "
+        f'<a href="{friend_href}">Groups Page</a> to and have a look..</p>'
+    )
+
+    create_direct_message(old_owner_id, new_owner_id, message, subject)
+
+    flash(f"Group, {group_name}, successfully transferred.", "info")
 
     return True
