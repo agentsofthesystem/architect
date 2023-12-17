@@ -85,12 +85,12 @@ class UserSql(PaginatedApi, DATABASE.Model):
         lazy="dynamic",
     )
 
-    # groups = DATABASE.relationship(
-    #     "Groups",
-    #     foreign_keys="Groups.group_id",
-    #     backref="groups",
-    #     lazy="dynamic",
-    # )
+    groups = DATABASE.relationship(
+        "Groups",
+        foreign_keys="Groups.owner_id",
+        backref="groups",
+        lazy="dynamic",
+    )
 
     last_message_read_time = DATABASE.Column(DATABASE.DateTime, nullable=True)
 
