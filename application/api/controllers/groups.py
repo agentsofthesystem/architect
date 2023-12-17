@@ -311,3 +311,44 @@ def transfer_group(request) -> bool:
     flash(f"Group, {group_name}, successfully transferred.", "info")
 
     return True
+
+
+def remove_deleted_friend_from_groups(delete_friend_user_id: int):
+    # See if current user owns any groups.
+    owned_groups = get_owned_groups()
+    member_to_groups = get_groups_i_belong_to()
+
+    all_groups = owned_groups + member_to_groups
+
+    deleted_group_memberships = 0
+
+    # If there are any...
+    for group in all_groups:
+        # check if the friend is any of these groups.
+        group_member_obj = None
+        group_id = group["group_id"]
+        owner_id = group["owner_id"]
+
+        # If the deleted friend is not the group owner, delete the membership of the user that
+        # was deleted as a friend..
+        if delete_friend_user_id != owner_id:
+            group_member_obj = GroupMembers.query.filter_by(
+                group_id=group_id, member_id=delete_friend_user_id
+            ).first()
+        else:
+            # Otherwise, delete the current user.
+            group_member_obj = GroupMembers.query.filter_by(
+                group_id=group_id, member_id=current_user.user_id
+            ).first()
+
+        if group_member_obj:
+            DATABASE.session.delete(group_member_obj)
+            deleted_group_memberships += 1
+
+    if deleted_group_memberships > 0:
+        try:
+            DATABASE.session.commit()
+        except Exception as error:
+            logger.critical(error)
+            flash("Could not remove friend from owned groups. Database Error!", "danger")
+            raise Exception("Database Error")

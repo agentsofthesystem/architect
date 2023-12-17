@@ -6,7 +6,8 @@ from flask_login import current_user
 
 from application.common import logger
 from application.common.constants import FriendRequestStates
-from application.api.controllers.messages import create_direct_message
+from application.api.controllers import groups as group_control
+from application.api.controllers import messages as message_control
 from application.extensions import DATABASE
 from application.models.friend import Friends
 from application.models.friend_request import FriendRequests
@@ -164,7 +165,7 @@ def create_new_friend_request(request) -> bool:
     )
 
     # TODO - Update DMs to alert users that they received a message via email.
-    create_direct_message(new_fr.sender_id, new_fr.recipient_id, message, subject)
+    message_control.create_direct_message(new_fr.sender_id, new_fr.recipient_id, message, subject)
 
     return True
 
@@ -250,11 +251,23 @@ def delete_friend(object_id: int) -> bool:
 
     friend_obj = Friends.query.filter_by(friend_id=object_id).first()
 
-    # TODO - If friend had access to any group owned by current_user, then remove from the group.
-
     if friend_obj is None:
         logger.error(f"Cannot delete friend ID {object_id}. Does not exist!")
         return False
+
+    # Eliminate friend from any owned groups.
+    try:
+        if current_user.user_id == friend_obj.initiator_id:
+            delete_friend_user_id = friend_obj.receiver_id
+        else:
+            delete_friend_user_id = friend_obj.initiator_id
+        logger.debug(f"Delete Friend: ID of Friend Being Deleted: {delete_friend_user_id}")
+        group_control.remove_deleted_friend_from_groups(delete_friend_user_id)
+    except Exception as error:
+        logger.critical(error)
+        return False
+
+    return True
 
     try:
         DATABASE.session.delete(friend_obj)
@@ -268,10 +281,14 @@ def delete_friend(object_id: int) -> bool:
     friend_removed_id = 0
 
     if current_user.user_id == friend_obj.initiator_id:
-        create_direct_message(current_user.user_id, friend_obj.receiver_id, message, subject)
+        message_control.create_direct_message(
+            current_user.user_id, friend_obj.receiver_id, message, subject
+        )
         friend_removed_id = friend_obj.receiver_id
     else:
-        create_direct_message(current_user.user_id, friend_obj.initiator_id, message, subject)
+        message_control.create_direct_message(
+            current_user.user_id, friend_obj.initiator_id, message, subject
+        )
         friend_removed_id = friend_obj.initiator_id
 
     user_obj = UserSql.query.filter_by(user_id=friend_removed_id).first()
