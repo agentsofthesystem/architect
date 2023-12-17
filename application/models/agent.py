@@ -4,6 +4,8 @@ from application.common import logger
 from application.common.constants import AGENT_SMITH_DEFAULT_PORT
 from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
+from application.models.agent_group_member import AgentGroupMembers  # noqa: F401
+from application.models.agent_friend_member import AgentFriendMembers  # noqa: F401
 
 
 class Agents(PaginatedApi, DATABASE.Model):
@@ -21,6 +23,20 @@ class Agents(PaginatedApi, DATABASE.Model):
 
     owner_id = DATABASE.Column(
         DATABASE.Integer, DATABASE.ForeignKey("users.user_id"), nullable=False
+    )
+
+    groups_with_access = DATABASE.relationship(
+        "AgentGroupMembers",
+        foreign_keys="AgentGroupMembers.agent_id",
+        backref="groups_with_access",
+        lazy="dynamic",
+    )
+
+    friends_with_access = DATABASE.relationship(
+        "AgentFriendMembers",
+        foreign_keys="AgentFriendMembers.agent_id",
+        backref="friends_with_access",
+        lazy="dynamic",
     )
 
     def get_id(self):
