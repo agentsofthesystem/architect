@@ -37,6 +37,7 @@ from application.api.protected.forms import (
     NewGroupForm,
     UpdateGroupForm,
     AddFriendToGroupForm,
+    TransferGroupForm,
 )
 
 protected = Blueprint("protected", __name__, url_prefix="/app")
@@ -109,8 +110,13 @@ def system_agents():
 def system_groups():
     new_group_form = NewGroupForm()
     update_group_form = UpdateGroupForm()
+
+    # Group related forms
     friend_to_group_form = AddFriendToGroupForm()
     friend_to_group_form.populate_choices()
+
+    transfer_group_form = TransferGroupForm()
+    transfer_group_form.populate_choices()
 
     if request.method == "POST":
         data = request.form
@@ -141,6 +147,14 @@ def system_groups():
                 flash("Error Adding Friend(s) to group.", "danger")
 
             return redirect(url_for("protected.system_groups"))
+        elif method == "PATCH_GROUP_TRANSFER":
+            logger.debug("Group: Transferring Ownership of group to friend.")
+            result = groups.transfer_group(request)
+
+            if not result:
+                flash("Error Transferring Friend to Group.", "danger")
+
+            return redirect(url_for("protected.system_groups"))
 
     owned_groups = groups.get_owned_groups()
     groups_i_belong_to = groups.get_groups_i_belong_to()
@@ -156,6 +170,7 @@ def system_groups():
         new_group_form=new_group_form,
         update_group_form=update_group_form,
         friend_to_group_form=friend_to_group_form,
+        transfer_group_form=transfer_group_form,
     )
 
 

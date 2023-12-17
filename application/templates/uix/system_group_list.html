@@ -50,8 +50,8 @@
                     <div class="dropdown-menu dropdown-menu-sm">
                       <a class="dropdown-item" onclick="showUpdateGroupModal({{group['group_id']}})">Update Group</a>
                       <div class="dropdown-divider"></div>
-                      <a class="dropdown-item">Transfer Ownership</a>
-                        <a class="dropdown-item delete-group" id="{{group['group_id']}}">Disband</a>
+                      <a class="dropdown-item" onclick="showTransferGroupModal({{group['group_id']}})">Transfer Ownership</a>
+                        <a class="dropdown-item delete-group" id="{{group['group_id']}}">Disband Group</a>
                     </div>
                   </div>
                   {% endif %}
