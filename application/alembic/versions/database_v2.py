@@ -45,6 +45,7 @@ def upgrade():
         "groups",
         sa.Column("group_id", sa.Integer(), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False, default=True),
+        sa.Column("name", sa.String(length=256), nullable=False),
         sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
         sa.Column("owner_id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("group_id"),

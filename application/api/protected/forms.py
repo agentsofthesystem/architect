@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import (
     HiddenField,
@@ -8,8 +7,11 @@ from wtforms import (
     SubmitField,
     TextAreaField,
     IntegerField,
+    SelectMultipleField,
 )
 from wtforms.validators import DataRequired
+
+from application.api.controllers import friends
 
 
 class AccountProfileForm(FlaskForm):
@@ -77,3 +79,39 @@ class FriendRequestForm(FlaskForm):
     friend_code = StringField("Friend Code", validators=[DataRequired()])
 
     send = SubmitField("Send")
+
+
+class NewGroupForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    method = HiddenField("POST")
+    send = SubmitField("Send")
+
+
+class UpdateGroupForm(FlaskForm):
+    group_id = HiddenField("Group ID")
+    name = StringField("Name", validators=[DataRequired()])
+    method = HiddenField("PATCH")
+    send = SubmitField("Send")
+
+
+class AddFriendToGroupForm(FlaskForm):
+    group_id = HiddenField("Group ID")
+    method = HiddenField("PATCH_FRIEND")
+    friends_list = SelectMultipleField(choices=[], validators=[DataRequired()])
+
+    def populate_choices(self) -> list:
+        choices = []
+
+        # Explicitly want to use == for condition.
+        if current_user == None:  # noqa: E711
+            return choices
+
+        friend_list = friends.get_my_friends()
+
+        for friend in friend_list:
+            if current_user.user_id == friend["initiator_id"]:
+                choices.append((friend["receiver"]["user_id"], friend["receiver"]["username"]))
+            else:
+                choices.append((friend["initiator"]["user_id"], friend["initiator"]["username"]))
+
+        self.friends_list.choices = choices

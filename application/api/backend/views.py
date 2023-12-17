@@ -4,12 +4,55 @@ from flask_login import login_required
 
 from application.api.controllers import agents
 from application.api.controllers import friends
+from application.api.controllers import groups
 from application.common.tools import verified_required
 from application.models.agent import Agents
 from application.models.friend import Friends
+from application.models.group import Groups
+from application.models.group_member import GroupMembers
 from application.models.friend_request import FriendRequests
 
 backend = Blueprint("backend", __name__, url_prefix="/app/backend")
+
+
+class GroupMembersBackendApi(MethodView):
+    def __init__(self, model):
+        self.model = model
+
+    @login_required
+    @verified_required
+    def delete(self, group_id, member_id):
+        if groups.remove_friend_from_group(group_id, member_id):
+            return "", 204
+        else:
+            return "Error!", 500
+
+
+class GroupsBackendApi(MethodView):
+    def __init__(self, model):
+        self.model = model
+
+    @login_required
+    @verified_required
+    def get(self, object_id):
+        return jsonify(groups.get_group_by_id(object_id))
+
+    @login_required
+    @verified_required
+    def patch(self, object_id):
+        payload = request.json
+        if groups.update_group(object_id, payload):
+            return "", 204
+        else:
+            return "Error!", 500
+
+    @login_required
+    @verified_required
+    def delete(self, object_id):
+        if groups.delete_group(object_id):
+            return "", 204
+        else:
+            return "Error!", 500
 
 
 class FriendsBackendApi(MethodView):
@@ -56,6 +99,18 @@ class AgentsBackendApi(MethodView):
         else:
             return "Error!", 500
 
+
+backend.add_url_rule(
+    "/group/member/<int:group_id>/<int:member_id>",
+    view_func=GroupMembersBackendApi.as_view("group_members_api", GroupMembers),
+    methods=["DELETE"],
+)
+
+backend.add_url_rule(
+    "/group/<int:object_id>",
+    view_func=GroupsBackendApi.as_view("groups_api", Groups),
+    methods=["GET", "PATCH", "DELETE"],
+)
 
 backend.add_url_rule(
     "/friend/<int:object_id>",

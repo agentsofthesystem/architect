@@ -14,6 +14,7 @@ from flask_login import login_required, current_user
 
 from application.api.controllers import agents
 from application.api.controllers import friends
+from application.api.controllers import groups
 from application.api.controllers import messages
 from application.api.controllers import users
 from application.common import logger
@@ -33,6 +34,9 @@ from application.api.protected.forms import (
     FriendRequestForm,
     NewAgentForm,
     UpdateAgentForm,
+    NewGroupForm,
+    UpdateGroupForm,
+    AddFriendToGroupForm,
 )
 
 protected = Blueprint("protected", __name__, url_prefix="/app")
@@ -99,20 +103,59 @@ def system_agents():
     )
 
 
-@protected.route("/system/groups")
+@protected.route("/system/groups", methods=["GET", "POST"])
 @login_required
 @verified_required
 def system_groups():
-    is_empty = request.args.get("empty", True, type=str)
-    if is_empty == "False" or is_empty == "false":
-        is_empty = False
+    new_group_form = NewGroupForm()
+    update_group_form = UpdateGroupForm()
+    friend_to_group_form = AddFriendToGroupForm()
+    friend_to_group_form.populate_choices()
 
-    fake_group_list = [{"name": "Hammer", "owner": "Me", "members": 5, "agents": 2}]
+    if request.method == "POST":
+        data = request.form
+        method = data["method"]
+
+        if method == "POST":
+            logger.debug("Groups: Received POST from form!")
+            result = groups.create_group(current_user.user_id, request)
+
+            if not result:
+                flash("Error Adding Group.", "danger")
+
+            return redirect(url_for("protected.system_groups"))
+
+        elif method == "PATCH":
+            logger.debug("Groups: Received PATCH from update form!")
+            result = groups.update_group(current_user.user_id, request)
+
+            if not result:
+                flash("Error Updating Group.", "danger")
+
+            return redirect(url_for("protected.system_groups"))
+        elif method == "PATCH_FRIEND":
+            logger.debug("Group: Adding friend to group.")
+            result = groups.add_friend_to_group(request)
+
+            if not result:
+                flash("Error Adding Friend(s) to group.", "danger")
+
+            return redirect(url_for("protected.system_groups"))
+
+    owned_groups = groups.get_owned_groups()
+    groups_i_belong_to = groups.get_groups_i_belong_to()
+    is_empty = True if owned_groups == [] and groups_i_belong_to == [] else False
+
+    all_groups = owned_groups + groups_i_belong_to
+
     return render_template(
         "uix/system_groups.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         is_empty=is_empty,
-        groups=fake_group_list,
+        all_groups=all_groups,
+        new_group_form=new_group_form,
+        update_group_form=update_group_form,
+        friend_to_group_form=friend_to_group_form,
     )
 
 

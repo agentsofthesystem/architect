@@ -59,12 +59,16 @@ def get_my_friend_requests() -> list:
 
 
 def get_my_friends() -> list:
+    final_list = []
+
+    if current_user is None:
+        logger.error("Friends:get_my_friend - Current User is NoneType")
+        return final_list
+
     initiated_friends = current_user.initiated_friends.all()
     received_friends = current_user.received_friends.all()
 
     all_friends = initiated_friends + received_friends
-
-    final_list = []
 
     for friend in all_friends:
         friend_dict = friend.to_dict()

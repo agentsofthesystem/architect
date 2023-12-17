@@ -2,76 +2,115 @@
 <!--end of section-->
 <section class="flush-with-above">
   <div class="container">
-    <div class="row">
-      <div class="col">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <span class="text-muted text-small">Results 1 - 8 of 8</span>
-          </div>
-          <form class="d-flex align-items-center">
-            <span class="mr-2 text-muted text-small text-nowrap">Sort by:</span>
-            <select class="custom-select">
-              <option value="alpha">Alphabetical</option>
-              <option value="old-new" selected>Newest</option>
-              <option value="new-old">Oldest</option>
-            </select>
-          </form>
-        </div>
-      </div>
-      <!--end of col-->
-    </div>
-    <!--end of row-->
-    <div class="row">
-      <div class="col">
-        <table class="table table-borderless table-hover align-items-center">
-          <thead>
-            <tr>
-              <th scope="col">Crew</th>
-              <th scope="col">Owner</th>
-              <th scope="col">Members</th>
-              <th scope="col">Agents</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
 
-            <tr class="bg-white">
-              <th scope="row">
-                <a class="media align-items-center">
-                  <img alt="Image" src="{{ url_for('static', filename='uix/assets/img/agent.png') }}" class="avatar rounded avatar-sm" />
-                  <div class="media-body">
-                    <span class="h6 mb-0">The Hammer</span>
-                  </div>
-                </a>
-              </th>
-              <td>{{current_user.username}}</td>
-              <td>
-                5
-              </td>
-              <td>
-                2
-              </td>
-              <td>
-                <div class="dropdown">
-                  <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="icon-dots-three-horizontal"></i>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-sm">
-                    <a class="dropdown-item" href="#">Update Crew</a>
-                    <a class="dropdown-item" href="#">Members</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Disband</a>
+    <div class="row">
+
+      <div class="col">
+
+        <div id="accordion">
+
+          {% for group in all_groups %}
+          <div class="card">
+
+            <div class="card-header" id="group-heading-{{group['group_id']}}">
+              <div class="row d-flex justify-content-center">
+                <div class="col-sm">
+                  <button class="btn btn-lg btn-success" data-toggle="collapse" data-target="#collapseGroup{{group['group_id']}}" aria-expanded="true" aria-controls="collapseGroup{{group['group_id']}}">Group: {{group['name']}}</button>
+                </div>
+                <div class="col-sm" >
+                  <div class="row d-flex justify-content-md-center">
+                    <ul class="list-inline">
+                      <li class="list-inline-item"><h5>Owner: </h5></li>
+                      <li class="list-inline-item"><p> {{group['owner']['username']}}</p></li>
+                    </ul>
                   </div>
                 </div>
-              </td>
-            </tr>
-            <tr class="table-divider">
-              <th></th>
-              <td></td>
-            </tr>
+                <div class="col-sm">
+                  <div class="row d-flex justify-content-md-center">
+                    <ul class="list-inline">
+                      <li class="list-inline-item"><h5>Members: </h5></li>
+                      <li class="list-inline-item"><p> {{group['member_count']}}</p></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="col-sm">
+                  <div class="row d-flex justify-content-md-center">
+                    <ul class="list-inline">
+                      <li class="list-inline-item"><h5>Agents: </h5></li>
+                      <li class="list-inline-item"><p> 0</p></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="col-sm">
+                  <div class="dropdown">
+                    <button class="btn btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="icon-dots-three-horizontal"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-sm">
+                      <a class="dropdown-item" onclick="showUpdateGroupModal({{group['group_id']}})">Update Group</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item">Transfer Ownership</a>
+                      {% if current_user.user_id == group['owner_id'] %}
+                        <a class="dropdown-item delete-group" id="{{group['group_id']}}">Disband</a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-          </tbody>
-        </table>
+            <div id="collapseGroup{{group['group_id']}}" class="collapse" aria-labelledby="group-heading-{{group['group_id']}}" data-parent="#accordion">
+              <div class="card-body">
+                <div class="row">
+                  <table class="table table-bordered">
+                    <thead>
+                      <th role="col">Member Username</th>
+                      <th role="col">Role</th>
+                      <th role="col">Action</th>
+                    </thead>
+                    <tbody>
+                      {% for member in group['members'] %}
+                      <tr class="bg-white">
+                        <td>{{member['user']['username']}}</td>
+                        <td>{{ 'Owner' if member['user']['user_id'] == group['owner_id'] else 'Member' }}</td>
+                        <td>
+                          <div class="dropdown">
+                            <button class="btn btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{'disabled="true"' if group['owner_id'] == member['user']['user_id'] else ''}}>
+                              <i class="icon-dots-three-horizontal"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-sm">
+                              <a class="dropdown-item remove-friend-from-group" data-group_id="{{group['group_id']}}" id="{{member['user']['user_id']}}">{{ 'Leave Group' if current_user.user_id == member['user']['user_id'] else 'Remove Friend'}}</a>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="card-footer">
+                <div class="row">
+                  <div class="col">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                      <div></div>
+                      <div class="d-flex align-items-center">
+                        <button class="btn btn-lg btn-success" onclick="showAddFriendToGroupModal({{group['group_id']}})" {{'disabled="true"' if group['owner_id'] != current_user.user_id else ''}}>Add Friend to Group</button>
+                      </div>
+                    </div>
+                  </div>
+                  <!--end of col-->
+                </div>
+                <!--end of row-->
+              </div>
+            </div>
+
+          </div>
+          <!-- end of card -->
+          {% endfor %}
+
+        </div>
+        <!-- end of accordian -->
       </div>
       <!--end of col-->
     </div>
@@ -80,9 +119,9 @@
       <div class="col">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <div></div>
-          <form class="d-flex align-items-center">
-            <a class="btn btn-success btn-lg" onclick="showCreateCrewModal()">New Crew</a>
-          </form>
+          <div class="d-flex align-items-center">
+            <button class="btn btn-success btn-lg" onclick="showNewGroupModal()">New Group</button>
+          </div>
         </div>
       </div>
       <!--end of col-->
@@ -91,3 +130,63 @@
   </div>
   <!--end of container-->
 </section>
+
+<script>
+  $(document).ready(function(){
+
+    var csrftoken = $('meta[name=csrf-token]').attr('content')
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken)
+            }
+        }
+    })
+
+  });
+
+  $('.delete-group').click(function(){
+
+    console.log("Deleting Group " + this.id);
+
+    $.ajax({
+        type: "DELETE",
+        url: "/app/backend/group/" + this.id,
+        contentType: 'application/json',
+        success: function(){
+            console.log("Group" + this.id + ' deleted.');
+            location.reload();
+        },
+        error: function( ){
+            console.log('error!')
+        }
+    });
+
+  });
+
+  $('.remove-friend-from-group').click(function(){
+
+    var group_id = this.getAttribute('data-group_id');
+    var member_id = this.id;
+
+    message = "Removing Member ID: " + member_id + " From Group ID: " + group_id;
+    console.log(message);
+
+    $.ajax({
+        type: "DELETE",
+        url: "/app/backend/group/member/" + group_id + "/" + member_id,
+        contentType: 'application/json',
+        success: function(){
+            console.log("Member ID: " + member_id + " Deleted From Group ID: " + group_id);
+            location.reload();
+        },
+        error: function( ){
+            console.log('error!')
+            location.reload()
+        }
+    });
+
+  });
+
+</script>
