@@ -411,3 +411,13 @@ def verify_email(token):
     DATABASE.session.commit()
 
     return True
+
+
+def get_user_by_id(user_id: int) -> UserSql:
+    user_obj = UserSql.query.filter_by(user_id=user_id).first()
+
+    if user_obj is None:
+        logger.error("Error: User does not exist!")
+        return None
+
+    return user_obj

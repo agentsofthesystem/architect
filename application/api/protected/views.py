@@ -26,19 +26,7 @@ from application.common.tools import (
 from application.extensions import DATABASE
 from application.models.user import UserSql
 from application.models.setting import SettingsSql
-from application.api.protected.forms import (
-    AccountProfileForm,
-    AccountUpdatePasswordForm,
-    GlobalMessageForm,
-    DirectMessageForm,
-    FriendRequestForm,
-    NewAgentForm,
-    UpdateAgentForm,
-    NewGroupForm,
-    UpdateGroupForm,
-    AddFriendToGroupForm,
-    TransferGroupForm,
-)
+from application.api.protected import forms
 
 protected = Blueprint("protected", __name__, url_prefix="/app")
 
@@ -52,6 +40,7 @@ def main():
 @protected.route("/dashboard")
 @login_required
 def dashboard():
+    # This code is present to handle the event where a user exits with a Null friend code.
     if current_user.friend_code is None:
         uuid = friends.generate_friend_code(current_user.email)
         if not friends.add_friend_code_to_user(current_user.user_id, str(uuid)):
@@ -64,8 +53,15 @@ def dashboard():
 @login_required
 @verified_required
 def system_agents():
-    new_agent_form = NewAgentForm()
-    update_agent_form = UpdateAgentForm()
+    new_agent_form = forms.NewAgentForm()
+    update_agent_form = forms.UpdateAgentForm()
+    share_to_group_form = forms.ShareAgentToGroupForm()
+    share_to_friend_form = forms.ShareAgentToFriendForm()
+
+    # TODO - Would be great to work out inheritance so this function call is not needed.
+    # Applies to groups front-end as well.
+    share_to_group_form.populate_choices()
+    share_to_friend_form.populate_choices()
 
     if request.method == "POST":
         data = request.form
@@ -89,8 +85,28 @@ def system_agents():
 
             return redirect(url_for("protected.system_agents"))
 
+        elif method == "SHARE_TO_GROUP":
+            logger.debug("Agents: Received SHARE_TO_GROUP from form!")
+            result = agents.share_agent_with_group(request)
+
+            if not result:
+                flash("Error Sharing Agent with Group.", "danger")
+
+            return redirect(url_for("protected.system_agents"))
+
+        elif method == "SHARE_TO_FRIEND":
+            logger.debug("Agents: Received SHARE_TO_FRIEND from form!")
+            result = agents.share_agent_with_friend(request)
+
+            if not result:
+                flash("Error Sharing Agent with Friend.", "danger")
+
+            return redirect(url_for("protected.system_agents"))
+
     owned_agent_list = agents.get_agents_by_owner(current_user.user_id)
-    is_empty = True if owned_agent_list == [] else False
+    associated_agents_list = agents.get_associated_agents()
+    all_agents_list = owned_agent_list + associated_agents_list
+    is_empty = True if all_agents_list == [] else False
 
     # TODO - Get another list of agents that the user has access to, either by group or friendship.
 
@@ -98,9 +114,21 @@ def system_agents():
         "uix/system_agents.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         is_empty=is_empty,
-        owned_agents=owned_agent_list,
+        all_agents_list=all_agents_list,
         new_agent_form=new_agent_form,
         update_agent_form=update_agent_form,
+        share_to_group_form=share_to_group_form,
+        share_to_friend_form=share_to_friend_form,
+    )
+
+
+@protected.route("/system/agent/info/<int:agent_id>", methods=["GET", "POST"])
+@login_required
+@verified_required
+def system_agent_info(agent_id: int):
+    return render_template(
+        "uix/system_agent_info.html",
+        pretty_name=current_app.config["APP_PRETTY_NAME"],
     )
 
 
@@ -108,14 +136,14 @@ def system_agents():
 @login_required
 @verified_required
 def system_groups():
-    new_group_form = NewGroupForm()
-    update_group_form = UpdateGroupForm()
+    new_group_form = forms.NewGroupForm()
+    update_group_form = forms.UpdateGroupForm()
 
     # Group related forms
-    friend_to_group_form = AddFriendToGroupForm()
+    friend_to_group_form = forms.AddFriendToGroupForm()
     friend_to_group_form.populate_choices()
 
-    transfer_group_form = TransferGroupForm()
+    transfer_group_form = forms.TransferGroupForm()
     transfer_group_form.populate_choices()
 
     if request.method == "POST":
@@ -157,10 +185,10 @@ def system_groups():
             return redirect(url_for("protected.system_groups"))
 
     owned_groups = groups.get_owned_groups()
-    groups_i_belong_to = groups.get_groups_i_belong_to()
-    is_empty = True if owned_groups == [] and groups_i_belong_to == [] else False
+    associated_groups = groups.get_associated_groups()
+    is_empty = True if owned_groups == [] and associated_groups == [] else False
 
-    all_groups = owned_groups + groups_i_belong_to
+    all_groups = owned_groups + associated_groups
 
     return render_template(
         "uix/system_groups.html",
@@ -178,7 +206,7 @@ def system_groups():
 @login_required
 @verified_required
 def system_friends():
-    friend_request_form = FriendRequestForm()
+    friend_request_form = forms.FriendRequestForm()
 
     friend_request_list = friends.get_my_friend_requests()
     request_list_empty = True if friend_request_list == [] else False
@@ -235,8 +263,8 @@ def update_account_password():
 @protected.route("/account", methods=["GET", "POST"])
 @login_required
 def account():
-    profile_form = AccountProfileForm()
-    update_password_form = AccountUpdatePasswordForm()
+    profile_form = forms.AccountProfileForm()
+    update_password_form = forms.AccountUpdatePasswordForm()
 
     verified = "True" if current_user.verified else "False"
 
@@ -387,7 +415,7 @@ def customer_portal():
 @protected.route("/admin/submit/global", methods=["POST"])
 @admin_required
 def admin_submit_global_message():
-    global_message = GlobalMessageForm()
+    global_message = forms.GlobalMessageForm()
 
     if request.method == "POST" and global_message.validate_on_submit():
         messages.create_global_message(global_message.message.data, global_message.subject.data)
@@ -400,7 +428,7 @@ def admin_submit_global_message():
 @protected.route("/admin/submit/direct", methods=["POST"])
 @admin_required
 def admin_submit_direct_message():
-    message = DirectMessageForm()
+    message = forms.DirectMessageForm()
 
     if request.method == "POST" and message.validate_on_submit():
         logger.info("Evaluating DIRECT Message POST....")
@@ -417,8 +445,8 @@ def admin_submit_direct_message():
 @protected.route("/admin", methods=["GET", "POST"])
 @admin_required
 def admin():
-    global_message = GlobalMessageForm()
-    message = DirectMessageForm()
+    global_message = forms.GlobalMessageForm()
+    message = forms.DirectMessageForm()
 
     # All non-admin users
     all_users = UserSql.query.filter_by(admin=False).all()

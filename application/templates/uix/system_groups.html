@@ -82,9 +82,9 @@
                 </button>
             </div>
             <form  action="{{url_for('protected.system_groups')}}" method="post">
-                {{ update_group_form.csrf_token }}
-                {{ update_group_form.method(value="PATCH_FRIEND") }}
-                {{ update_group_form.group_id(id="update-add-friend-group-id-input") }}
+                {{ friend_to_group_form.csrf_token }}
+                {{ friend_to_group_form.method(value="PATCH_FRIEND") }}
+                {{ friend_to_group_form.group_id(id="update-add-friend-group-id-input") }}
                 <div class="modal-body">
 
                     <div class="form-group row">
