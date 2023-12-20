@@ -128,6 +128,74 @@
     </div>
 </div>
 
+<div class="modal fade" id="shareAgentToGroupModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share this Agent with Selected Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form  action="{{url_for('protected.system_agents')}}" method="post">
+                {{ share_to_group_form.csrf_token }}
+                {{ share_to_group_form.method(value="SHARE_TO_GROUP") }}
+                {{ share_to_group_form.agent_id(id="update-share-group-agent-id-input") }}
+                <div class="modal-body">
+
+                    <div class="form-group row">
+                        {{ share_to_group_form.group_list.label(class="col-sm-2 col-form-label") }}
+                        <div class="col-sm-10">
+                        {{ share_to_group_form.group_list(class="form-control") }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="shareAgentToFriendModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share this Agent with Selected Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form  action="{{url_for('protected.system_agents')}}" method="post">
+                {{ share_to_friend_form.csrf_token }}
+                {{ share_to_friend_form.method(value="SHARE_TO_FRIEND") }}
+                {{ share_to_friend_form.agent_id(id="update-share-friend-agent-id-input") }}
+                <div class="modal-body">
+
+                    <div class="form-group row">
+                        {{ share_to_friend_form.friends_list.label(class="col-sm-2 col-form-label") }}
+                        <div class="col-sm-10">
+                        {{ share_to_friend_form.friends_list(class="form-control") }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="col text-center">
 
     {% if is_empty %}
@@ -161,6 +229,18 @@
         });
 
         $('#updateAgentModal').modal('show')
+    }
+
+    function showShareAgentToGroupModal(agent_id){
+        console.log("Agent ID is: "+ agent_id);
+        $('#update-share-group-agent-id-input')[0].value = agent_id;
+        $('#shareAgentToGroupModal').modal('show')
+    }
+
+    function showShareAgentToFriendModal(agent_id){
+        console.log("Agent ID is: "+ agent_id);
+        $('#update-share-friend-agent-id-input')[0].value = agent_id;
+        $('#shareAgentToFriendModal').modal('show')
     }
 </script>
 {% endblock %}

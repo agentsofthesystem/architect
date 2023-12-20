@@ -49,7 +49,7 @@ def get_owned_groups() -> list:
     return owned_group_list
 
 
-def get_groups_i_belong_to() -> list:
+def get_associated_groups() -> list:
     member_to_groups = GroupMembers.query.filter_by(member_id=current_user.user_id).all()
     member_to_groups_list = []
 
@@ -256,6 +256,8 @@ def remove_friend_from_group(group_id: int, member_id: int) -> bool:
         logger.critical(error)
         return False
 
+    # TODO - Send Message/Email to tell user that they were removed from the group.
+
     flash("User was removed from group.", "info")
 
     return True
@@ -313,10 +315,10 @@ def transfer_group(request) -> bool:
     return True
 
 
-def remove_deleted_friend_from_groups(delete_friend_user_id: int):
+def remove_deleted_friend_from_groups(deleted_friend_user_id: int):
     # See if current user owns any groups.
     owned_groups = get_owned_groups()
-    member_to_groups = get_groups_i_belong_to()
+    member_to_groups = get_associated_groups()
 
     all_groups = owned_groups + member_to_groups
 
@@ -331,9 +333,9 @@ def remove_deleted_friend_from_groups(delete_friend_user_id: int):
 
         # If the deleted friend is not the group owner, delete the membership of the user that
         # was deleted as a friend..
-        if delete_friend_user_id != owner_id:
+        if deleted_friend_user_id != owner_id:
             group_member_obj = GroupMembers.query.filter_by(
-                group_id=group_id, member_id=delete_friend_user_id
+                group_id=group_id, member_id=deleted_friend_user_id
             ).first()
         else:
             # Otherwise, delete the current user.
