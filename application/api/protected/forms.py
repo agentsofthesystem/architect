@@ -13,6 +13,8 @@ from wtforms import (
 from wtforms.validators import DataRequired
 
 from application.api.controllers import friends
+from application.api.controllers import groups
+from application.models.user import UserSql
 
 
 class AccountProfileForm(FlaskForm):
@@ -96,7 +98,7 @@ class UpdateGroupForm(FlaskForm):
 
 
 @staticmethod
-def _populate_choices() -> list:
+def _populate_friend_choices() -> list:
     choices = []
 
     # Explicitly want to use == for condition.
@@ -114,13 +116,32 @@ def _populate_choices() -> list:
     return choices
 
 
+@staticmethod
+def _populate_group_choices() -> list:
+    choices = []
+
+    # Explicitly want to use == for condition.
+    if current_user == None:  # noqa: E711
+        return choices
+
+    group_list = groups.get_owned_groups() + groups.get_associated_groups()
+
+    # TODO - Eliminate groups that already belong to a given agent via kwarg.
+    for group in group_list:
+        owner_obj = UserSql.query.filter_by(user_id=group["owner_id"]).first()
+        label = f"{group['name']} ({owner_obj.username})"
+        choices.append((group["group_id"], label))
+
+    return choices
+
+
 class AddFriendToGroupForm(FlaskForm):
     group_id = HiddenField("Group ID")
     method = HiddenField("PATCH_FRIEND")
     friends_list = SelectMultipleField(choices=[], validators=[DataRequired()])
 
     def populate_choices(self) -> list:
-        self.friends_list.choices = _populate_choices()
+        self.friends_list.choices = _populate_friend_choices()
 
 
 class TransferGroupForm(FlaskForm):
@@ -129,4 +150,22 @@ class TransferGroupForm(FlaskForm):
     friends_list = SelectField(choices=[], validators=[DataRequired()])
 
     def populate_choices(self) -> list:
-        self.friends_list.choices = _populate_choices()
+        self.friends_list.choices = _populate_friend_choices()
+
+
+class ShareAgentToGroupForm(FlaskForm):
+    agent_id = HiddenField("Group ID")
+    method = HiddenField("SHARE_TO_GROUP")
+    group_list = SelectField(choices=[], validators=[DataRequired()])
+
+    def populate_choices(self) -> list:
+        self.group_list.choices = _populate_group_choices()
+
+
+class ShareAgentToFriendForm(FlaskForm):
+    agent_id = HiddenField("Group ID")
+    method = HiddenField("SHARE_TO_FRIEND")
+    friends_list = SelectField(choices=[], validators=[DataRequired()])
+
+    def populate_choices(self) -> list:
+        self.friends_list.choices = _populate_friend_choices()

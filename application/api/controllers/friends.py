@@ -6,6 +6,7 @@ from flask_login import current_user
 
 from application.common import logger
 from application.common.constants import FriendRequestStates
+from application.api.controllers import agents as agent_control
 from application.api.controllers import groups as group_control
 from application.api.controllers import messages as message_control
 from application.extensions import DATABASE
@@ -258,11 +259,14 @@ def delete_friend(object_id: int) -> bool:
     # Eliminate friend from any owned groups.
     try:
         if current_user.user_id == friend_obj.initiator_id:
-            delete_friend_user_id = friend_obj.receiver_id
+            deleted_friend_user_id = friend_obj.receiver_id
         else:
-            delete_friend_user_id = friend_obj.initiator_id
-        logger.debug(f"Delete Friend: ID of Friend Being Deleted: {delete_friend_user_id}")
-        group_control.remove_deleted_friend_from_groups(delete_friend_user_id)
+            deleted_friend_user_id = friend_obj.initiator_id
+        logger.debug(f"Delete Friend: ID of Friend Being Deleted: {deleted_friend_user_id}")
+        group_control.remove_deleted_friend_from_groups(deleted_friend_user_id)
+        agent_control.remove_deleted_friend_from_agents(
+            current_user.user_id, deleted_friend_user_id
+        )
     except Exception as error:
         logger.critical(error)
         return False

@@ -1,0 +1,56 @@
+{% extends "uix/layout/base.html" %}
+
+{% block area %}
+<div class="col">
+    <section class="bg-white space-sm">
+        <div class="container">
+          <div class="row justify-content-between">
+            <div class="col">
+              <div class="media align-items-center">
+                <img alt="Image" src="{{ url_for('static', filename='uix/assets/img/agent.png') }}" class="avatar avatar-lg avatar-square rounded" />
+                <div class="media-body">
+                  <h1 class="mb-0">Agent Name</h1>
+                  <h2 class="lead mb-2">Agent URL/Port:  todo:5000  </h2>
+                  <div class="d-flex align-items-center">
+                    <span class="badge badge-secondary mr-3">Owned By: TODO</span>
+                    <ul class="list-inline text-small d-inline-block">
+                        <!-- Games installed -->
+                        <li class="list-inline-item"><i class="icon-game-controller"></i> 214</li>
+                        <!-- Groups -->
+                        <li class="list-inline-item"><i class="icon-globe"></i> 6</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--end of col-->
+            <div class="col-auto">
+              <div class="btn-group mb-2">
+                <button type="button" class="btn btn-success btn-lg">Shutdown / Startup </button>
+                <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split dropdown-toggle-no-arrow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="icon-dots-three-horizontal"></i>
+                  <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right dropdown-menu-sm">
+                  <a class="dropdown-item">Action 1</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item">Separated Action 2</a>
+                </div>
+              </div>
+            </div>
+            <!--end of col-->
+          </div>
+          <!--end of row-->
+        </div>
+        <!--end of container-->
+      </section>
+      <!--end of section-->
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+
+</script>
+{% endblock %}

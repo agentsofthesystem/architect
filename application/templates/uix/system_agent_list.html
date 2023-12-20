@@ -8,7 +8,7 @@
         <table class="table table-borderless table-hover align-items-center">
           <thead>
             <tr>
-              <th scope="col">Agent Type</th>
+              <th scope="col">Agent Info</th>
               <th scope="col">Name</th>
               <th scope="col">Hostname:Port</th>
               <th scope="col">Owner </th>
@@ -18,29 +18,39 @@
           </thead>
           <tbody>
 
-            {% for agent in owned_agents %}
+            {% for agent in all_agents_list %}
             <tr class="bg-white">
               <td>
                 <a class="align-items-center">
-                  <img alt="I own this Agent" src="{{ url_for('static', filename='uix/assets/img/agent.png') }}" class="avatar rounded avatar-sm" />
+                  {% if current_user.user_id == agent['owner_id'] %}
+                    <a href="{{url_for('protected.system_agent_info', agent_id=agent['agent_id'])}}">
+                      <img alt="I own this Agent"  src="{{ url_for('static', filename='uix/assets/img/agent.png') }}" class="avatar rounded avatar-sm" />
+                    </a>
+                  {% else %}
+                  <a href="{{url_for('protected.system_agent_info', agent_id=agent['agent_id'])}}">
+                    <img alt="Shared Agent" src="{{ url_for('static', filename='uix/assets/img/agent-green.png') }}" class="avatar rounded avatar-sm" />
+                  </a>
+                  {% endif %}
                 </a>
               </td>
               <td>{{agent['name']}}</td>
               <td>
                 <span class="h6 mb-0">{{agent['hostname']}}:{{agent['port']}}</span>
               </td>
-              <td>(Me)</td>
+              <td>{{ '(Me)' if current_user.user_id == agent['owner_id'] else agent['owner']['username'] }}</td>
               <td>
                 <span class="badge badge-warning">Pending</span>
               </td>
               <td>
                 <div class="dropdown">
-                  <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  {% set is_disabled = "disabled='true'" if current_user.user_id != agent['owner_id'] else "" %}
+                  <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{is_disabled}}>
                     <i class="icon-dots-three-horizontal"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-sm">
                     <a class="dropdown-item update-agent" onclick="showUpdateAgentModal({{agent['agent_id']}})">Update Agent</a>
-                    <a class="dropdown-item">Share</a>
+                    <a class="dropdown-item share-to-group" onclick="showShareAgentToGroupModal({{agent['agent_id']}})">Share with Group</a>
+                    <a class="dropdown-item share-to-friend" onclick="showShareAgentToFriendModal({{agent['agent_id']}})">Share with Friend</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item delete-agent" id="{{agent['agent_id']}}">Delete</a>
                   </div>
