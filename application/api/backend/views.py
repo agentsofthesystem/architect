@@ -7,12 +7,40 @@ from application.api.controllers import friends
 from application.api.controllers import groups
 from application.common.tools import verified_required
 from application.models.agent import Agents
+from application.models.agent import AgentFriendMembers
+from application.models.agent import AgentGroupMembers
 from application.models.friend import Friends
 from application.models.group import Groups
 from application.models.group_member import GroupMembers
 from application.models.friend_request import FriendRequests
 
 backend = Blueprint("backend", __name__, url_prefix="/app/backend")
+
+
+class AgentFriendMembersBackendApi(MethodView):
+    def __init__(self, model):
+        self.model = model
+
+    @login_required
+    @verified_required
+    def delete(self, member_id):
+        if agents.remove_friend_membership(member_id):
+            return "", 204
+        else:
+            return "Error!", 500
+
+
+class AgentGroupMembersBackendApi(MethodView):
+    def __init__(self, model):
+        self.model = model
+
+    @login_required
+    @verified_required
+    def delete(self, member_id):
+        if agents.remove_group_membership(member_id):
+            return "", 204
+        else:
+            return "Error!", 500
 
 
 class GroupMembersBackendApi(MethodView):
@@ -99,6 +127,18 @@ class AgentsBackendApi(MethodView):
         else:
             return "Error!", 500
 
+
+backend.add_url_rule(
+    "/agent/friend/member/<int:member_id>",
+    view_func=AgentFriendMembersBackendApi.as_view("agent_friend_members_api", AgentFriendMembers),
+    methods=["DELETE"],
+)
+
+backend.add_url_rule(
+    "/agent/group/member/<int:member_id>",
+    view_func=AgentGroupMembersBackendApi.as_view("agent_group_members_api", AgentGroupMembers),
+    methods=["DELETE"],
+)
 
 backend.add_url_rule(
     "/group/member/<int:group_id>/<int:member_id>",
