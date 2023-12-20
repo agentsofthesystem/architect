@@ -126,9 +126,46 @@ def system_agents():
 @login_required
 @verified_required
 def system_agent_info(agent_id: int):
+    # Get Agent Info.
+    agent_obj = agents.get_agent_by_id(agent_id, as_obj=True)
+    agent_dict = agent_obj.to_dict()
+
+    owner_obj = users.get_user_by_id(agent_obj.owner_id)
+    agent_dict["owner"] = owner_obj.to_dict()
+
+    group_member_qry = agent_obj.groups_with_access
+    friend_member_qry = agent_obj.friends_with_access
+
+    num_groups = group_member_qry.count()
+    num_friends = friend_member_qry.count()
+
+    group_list = []
+    for group_member in group_member_qry.all():
+        group_dict = groups.get_group_by_id(group_member.group_member_id)
+        group_owner_obj = users.get_user_by_id(group_dict["owner_id"])
+        group_dict["owner"] = group_owner_obj.to_dict()
+        group_dict["agent_group_member_id"] = group_member.agent_group_member_id
+        group_list.append(group_dict)
+
+    friend_list = []
+    for friend_member in friend_member_qry.all():
+        friend_obj = users.get_user_by_id(friend_member.friend_member_id)
+        friend_dict = friend_obj.to_dict()
+        friend_dict["agent_friend_member_id"] = friend_member.agent_friend_member_id
+        friend_list.append(friend_dict)
+
+    agent_info = {
+        "agent": agent_dict,
+        "num_groups": num_groups,
+        "num_friends": num_friends,
+        "groups": group_list,
+        "friends": friend_list,
+    }
+
     return render_template(
         "uix/system_agent_info.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
+        agent_info=agent_info,
     )
 
 

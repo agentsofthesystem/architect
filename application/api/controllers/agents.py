@@ -12,14 +12,14 @@ from application.models.agent_group_member import AgentGroupMembers
 from application.models.agent_friend_member import AgentFriendMembers
 
 
-def get_agent_by_id(agent_id: int) -> dict:
+def get_agent_by_id(agent_id: int, as_obj: bool = False) -> dict:
     agent_qry = Agents.query.filter_by(agent_id=agent_id)
 
-    agent_obj = Agents.to_collection_dict(
+    agent_dict = Agents.to_collection_dict(
         agent_qry, constants.DEFAULT_PAGE, constants.DEFAULT_PER_PAGE_MAX, "", ignore_links=True
     )
 
-    return agent_obj["items"]
+    return agent_qry.first() if as_obj else agent_dict["items"]
 
 
 def get_agents_by_owner(owner_id: int) -> []:
@@ -310,3 +310,47 @@ def remove_deleted_friend_from_agents(agent_owner_id: int, deleted_friend_user_i
     except Exception as error:
         logger.critical(error)
         flash("Could not eliminate Friend from all my agents. Database Error!", "danger")
+
+
+def remove_group_membership(membership_id: int) -> bool:
+    membership_obj = AgentGroupMembers.query.filter_by(agent_group_member_id=membership_id).first()
+
+    if membership_obj is None:
+        flash("Error: Unable to remove group from agent because it doesn't exist!", "danger")
+        return False
+
+    try:
+        DATABASE.session.delete(membership_obj)
+        DATABASE.session.commit()
+    except Exception as error:
+        logger.critical(error)
+        flash("Could not remove group from agent. Database Error!", "danger")
+        return False
+
+    flash("Group Member Removed From Agent!", "info")
+
+    return True
+
+
+def remove_friend_membership(membership_id: int) -> bool:
+    membership_obj = AgentFriendMembers.query.filter_by(
+        agent_friend_member_id=membership_id
+    ).first()
+
+    if membership_obj is None:
+        flash("Error: Unable to remove friend from agent because it doesn't exist!", "danger")
+        return False
+
+    try:
+        DATABASE.session.delete(membership_obj)
+        DATABASE.session.commit()
+    except Exception as error:
+        logger.critical(error)
+        flash("Could not remove friend from agent. Database Error!", "danger")
+        return False
+
+    # TODO - Message user that their access to the agent has been removed.
+
+    flash("Friend Removed From Agent!", "info")
+
+    return True
