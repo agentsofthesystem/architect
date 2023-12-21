@@ -513,8 +513,11 @@ def user_messages():
     global_message_list = messages.get_global_messages()
     direct_message_list = messages.get_direct_messages()
 
-    is_global_message = True if len(global_message_list) > 0 else False
-    is_direct_message = True if len(direct_message_list) > 0 else False
+    num_global_messages = len(global_message_list)
+    num_direct_messages = len(direct_message_list)
+
+    is_global_message = True if num_global_messages > 0 else False
+    is_direct_message = True if num_direct_messages > 0 else False
 
     for dm in direct_message_list:
         sender_id = dm.sender_id
@@ -527,5 +530,7 @@ def user_messages():
         direct_message_list=direct_message_list,
         is_global_message=is_global_message,
         is_direct_message=is_direct_message,
+        num_global_messages=num_global_messages,
+        num_direct_messages=num_direct_messages,
         pretty_name=current_app.config["APP_PRETTY_NAME"],
     )
