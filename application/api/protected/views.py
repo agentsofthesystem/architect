@@ -46,7 +46,29 @@ def dashboard():
         if not friends.add_friend_code_to_user(current_user.user_id, str(uuid)):
             flash("Unable to update user with Friend Code", "danger")
 
-    return render_template("uix/dashboard.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
+    num_owned_agents = current_user.agents.count()
+    num_associated_agents = len(agents.get_associated_agents())
+
+    num_owned_groups = current_user.groups.count()
+    num_associated_groups = len(groups.get_associated_groups())
+
+    num_friend_requests = len(friends.get_my_friend_requests())
+    num_friends = len(friends.get_my_friends())
+
+    dashboard_dict = {
+        "num_owned_agents": num_owned_agents,
+        "num_associated_agents": num_associated_agents,
+        "num_owned_groups": num_owned_groups,
+        "num_associated_groups": num_associated_groups,
+        "num_friend_requests": num_friend_requests,
+        "num_friends": num_friends,
+    }
+
+    return render_template(
+        "uix/dashboard.html",
+        pretty_name=current_app.config["APP_PRETTY_NAME"],
+        dashboard=dashboard_dict,
+    )
 
 
 @protected.route("/system/agents", methods=["GET", "POST"])

@@ -2914,14 +2914,14 @@ input[type="button"].btn-block {
     .nav-tabs .nav-link:hover, .nav-tabs .nav-link:focus {
       border-color: transparent; }
     .nav-tabs .nav-link.disabled {
-      color: #6c757d;
+      color: #204829;
       background-color: transparent;
       border-color: transparent; }
   .nav-tabs .nav-link.active,
   .nav-tabs .nav-item.show .nav-link {
-    color: #4582EC;
+    color: #204829;
     background-color: transparent;
-    border-color: transparent; }
+    border-color: #204829; }
   .nav-tabs .dropdown-menu {
     margin-top: 0;
     border-top-left-radius: 0;
@@ -2933,7 +2933,7 @@ input[type="button"].btn-block {
 .nav-pills .nav-link.active,
 .nav-pills .show > .nav-link {
   color: #fff;
-  background-color: #4582EC; }
+  background-color: #204829; }
 
 .nav-fill .nav-item {
   flex: 1 1 auto;
@@ -9856,7 +9856,7 @@ a.list-group-item.disabled {
     .nav-tabs .nav-item .nav-link:not(.active):hover {
       color: #343a40; }
   .nav-tabs .nav-item .nav-link.active {
-    border-color: #4582EC; }
+    border-color: #204829; }
 
 section > .tab-content {
   padding: 3rem 0; }

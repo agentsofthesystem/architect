@@ -100,6 +100,18 @@ def create_new_friend_request(request) -> bool:
         flash("There is no user with the entered friend code. Try again!", "danger")
         return False
 
+    # Check to make sure that the person is not sending a friend request to self
+    self_obj = UserSql.query.filter_by(
+        user_id=current_user.user_id, friend_code=friend_code
+    ).first()
+
+    if self_obj:
+        flash(
+            "Not trying to be hard on you, but you cannot be friends with yourself... Try again.",
+            "danger",
+        )
+        return False
+
     # Don't need to bother if you're already friends!
     # TODO - Add another check here.
     if (
