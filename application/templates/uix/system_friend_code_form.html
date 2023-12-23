@@ -1,0 +1,30 @@
+<div class="container mt-2">
+
+    <div class="row justify-content-center">
+
+        <form class="col-24 col-lg-12" action="{{url_for('protected.system_friends')}}" method="post">
+            {{ friend_request_form.csrf_token }}
+            <div class="card card-sm text-center">
+                <div class="card-body row no-gutters align-items-center">
+                    <div class="col-auto">
+                        <h6 class="title-decorative">New Friend Request:</h6>
+                    </div>
+                    <!--end of col-->
+                    <div class="col">
+                        {{ friend_request_form.friend_code(class="form-control form-control-lg
+                        form-control-borderless", type="text", id="friend-code", placeholder="Paste Friend Code here and click Send!") }}
+                    </div>
+                    <!--end of col-->
+                    <div class="col-auto">
+                        <button class="btn btn-lg btn-success friend-code-copy" type="submit">Send</button>
+                    </div>
+                    <!--end of col-->
+                </div>
+            </div>
+
+        </form>
+        <!--end of form-->
+    </div>
+    <!--end of row-->
+</div>
+<!--end of container-->

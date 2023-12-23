@@ -6,57 +6,83 @@
 
 <div class="col text-center">
 
-    <section class="height-10">
+    {% if request_list_empty %}
+
+        {% include "uix/system_friend_code_form.html" %}
+
+        {% include "uix/system_friend_list.html" %}
+
+    {% else %}
+    <section class="flush-with-above space-0">
+
+        {% include "uix/system_friend_code_form.html" %}
 
         <div class="container">
-
-            <div class="row justify-content-center">
-
-                <form class="col-12 col-lg-10" action="{{url_for('protected.system_friends')}}" method="post">
-                    {{ friend_request_form.csrf_token }}
-                    <div class="card card-sm text-center">
-                        <div class="card-body row no-gutters align-items-center">
-                            <div class="col-auto">
-                                <h6 class="title-decorative">Friend Request:</h6>
-                            </div>
-                            <!--end of col-->
-                            <div class="col">
-                                {{ friend_request_form.friend_code(class="form-control form-control-lg form-control-borderless", type="text", id="friend-code", placeholder="Paste Friend Code here and click Send!") }}
-                            </div>
-                            <!--end of col-->
-                            <div class="col-auto">
-                                <button class="btn btn-lg btn-success friend-code-copy" type="submit">Send</button>
-                            </div>
-                            <!--end of col-->
-                        </div>
-                    </div>
-
-                </form>
-                <!--end of form-->
+            <div class="row">
+                <div class="col">
+                    <ul class="nav nav-tabs" id="myMessagesTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="friend-request-tab" data-toggle="tab"
+                                href="#friend-requests" role="tab" aria-selected="true">Friend Requests</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="friend-list-tab" data-toggle="tab" href="#friend-list"
+                                role="tab" aria-selected="true">Friend List</a>
+                        </li>
+                    </ul>
+                </div>
+                <!--end of col-->
             </div>
             <!--end of row-->
-
         </div>
         <!--end of container-->
     </section>
 
-    {% if not request_list_empty %}
-        {% include "uix/system_friend_request_list.html" %}
+    <section class="flush-with-above height-80 d-block">
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="friend-requests" role="tabpanel">
+                <div class="container">
+                    <!--end of row-->
+                    <div class="container align-self-start">
+                        <div class="row justify-content-center">
+                            <div class="col-25 col-md-12 order-md-1">
+                                {% include "uix/system_friend_request_list.html" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--end of tab pane-->
+            <div class="tab-pane fade" id="friend-list" role="tabpanel">
+                <div class="container align-self-start">
+                    <div class="row justify-content-center">
+                        <div class="col-25 col-md-12 order-md-1">
+                            {% include "uix/system_friend_list.html" %}
+                        </div>
+                    </div>
+                    <!--end of row-->
+                </div>
+                <!--end of container-->
+
+            </div>
+            <!--end of tab pane-->
+        </div>
+        <!--end of tabs content-->
+    </section>
     {% endif %}
 
-    {% if not friend_list_empty %}
-        {% include "uix/system_friend_list.html" %}
-    {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{super()}}
 <script>
-    function showAddFriendModal(){
+    function showAddFriendModal() {
         $('#addFriendModal').modal('show')
     }
-    function changePage(){
+    function changePage() {
         document.location.href = "{{url_for('protected.system_friends', empty=False)}}";
     }
 </script>
