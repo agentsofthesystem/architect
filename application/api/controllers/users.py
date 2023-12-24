@@ -5,10 +5,13 @@ from flask import (
     current_app,
     render_template,
     flash,
-    session,
 )
+
+from flask import session as flask_session
 from flask_login import login_user, logout_user, current_user
 from kombu.exceptions import OperationalError
+from random import getrandbits
+from uuid import uuid1, getnode
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from application.api.controllers import agents as agent_control
@@ -32,6 +35,7 @@ def _create_new_user(email, password):
 
     new_user.password = generate_password_hash(password)
     new_user.friend_code = toolbox.generate_friend_code(email)
+    new_user.session_id = uuid1(node=getnode(), clock_seq=getrandbits(14))
     new_user.last_message_read_time = datetime.now(timezone.utc)
 
     try:
@@ -85,7 +89,13 @@ def signin(request):
         logger.error("SIGNIN: Bad Password")
         return False
 
-    update_dict = {"authenticated": True, "active": True}
+    session_id = uuid1(node=getnode(), clock_seq=getrandbits(14))
+
+    logger.debug("++++++++++++++++++++++++++++++++++++++++++++++")
+    logger.debug(session_id)
+    logger.debug("++++++++++++++++++++++++++++++++++++++++++++++")
+
+    update_dict = {"authenticated": True, "active": True, "session_id": session_id}
 
     try:
         user_qry.update(update_dict)
@@ -98,13 +108,11 @@ def signin(request):
     if "remember" in data.keys():
         lm_remember = True
 
-    logger.info(f"SIGNIN: Remember User: {lm_remember}")
-
-    session.permanent = True
-
     login_user(
         user_obj, remember=lm_remember, duration=current_app.config["PERMANENT_SESSION_LIFETIME"]
     )
+
+    flask_session["session_id"] = session_id
 
     return True
 
