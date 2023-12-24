@@ -91,10 +91,6 @@ def signin(request):
 
     session_id = uuid1(node=getnode(), clock_seq=getrandbits(14))
 
-    logger.debug("++++++++++++++++++++++++++++++++++++++++++++++")
-    logger.debug(session_id)
-    logger.debug("++++++++++++++++++++++++++++++++++++++++++++++")
-
     update_dict = {"authenticated": True, "active": True, "session_id": session_id}
 
     try:

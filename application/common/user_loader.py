@@ -1,9 +1,7 @@
-from flask import flash, redirect, url_for
 from flask import session as flask_session
-from flask_login import logout_user
 
 from application.common import logger
-from application.extensions import LOGIN_MANAGER
+from application.extensions import DATABASE, LOGIN_MANAGER
 from application.models.user import UserSql
 
 
@@ -28,11 +26,17 @@ def load_user(user_id):
 
         if browser_session_id:
             if browser_session_id != user_obj.session_id:
+                update_dict = {"authenticated": False}
+                user_qry.update(update_dict)
+                DATABASE.session.commit()
+                # flash(
+                #    "The user may only be signed into one browser at a time. Logging you out...",
+                #    'warning'
+                # )
+                logger.info("*****************************")
+                logger.info(browser_session_id)
+                logger.info(user_obj.session_id)
+                logger.info("*****************************")
                 return None
-
-            logger.info("*****************************")
-            logger.info(browser_session_id)
-            logger.info(user_obj.session_id)
-            logger.info("*****************************")
 
     return user_obj
