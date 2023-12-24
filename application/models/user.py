@@ -36,6 +36,7 @@ class UserSql(PaginatedApi, DATABASE.Model):
 
     # Friends
     friend_code = DATABASE.Column(DATABASE.String(256), nullable=True)
+    session_id = DATABASE.Column(DATABASE.String(256), nullable=True)
 
     # Designate User Relationship Back-refs
     messages_sent = DATABASE.relationship(

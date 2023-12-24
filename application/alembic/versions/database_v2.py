@@ -244,6 +244,7 @@ def upgrade():
     )
 
     op.add_column("users", sa.Column("friend_code", sa.String(length=256)))
+    op.add_column("users", sa.Column("session_id", sa.String(length=130)))
     # ### end Alembic commands ###
 
 
@@ -287,4 +288,5 @@ def downgrade():
     op.drop_table("agent_friend_members")
 
     op.drop_column("users", "friend_code")
+    op.drop_column("users", "session_id")
     # ### end Alembic commands ###
