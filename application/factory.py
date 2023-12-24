@@ -232,7 +232,8 @@ def create_app(config=None, init_db=True, init_celery=True):
         else:
             test_str = request.endpoint
 
-        if "favicon" not in test_str and "static" != test_str:
+        # Ignore updating settings for static back endpoints, public pages, and the favicon.
+        if "favicon" not in test_str and "static" != test_str and "public." not in test_str:
             logger.debug(f"*** Updating System Settings for -> {test_str}")
             update_system_settings()
 
