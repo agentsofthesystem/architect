@@ -99,3 +99,13 @@ def _get_setting(setting_name: str, setting_objs: list):
         if setting.name == setting_name:
             setting_value = setting.value
     return setting_value
+
+
+@staticmethod
+def format_url(input: str) -> str:
+    hostname = input
+
+    if "http://" not in input or "https://" not in input:
+        hostname = f"http://{input}"
+
+    return hostname

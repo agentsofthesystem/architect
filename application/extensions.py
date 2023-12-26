@@ -1,6 +1,7 @@
 from celery import Celery
 from flask_admin import Admin
 from flask_login import LoginManager
+from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
@@ -15,3 +16,5 @@ CSRF = CSRFProtect()
 DATABASE = SQLAlchemy()
 
 LOGIN_MANAGER = LoginManager()
+
+SOCKETIO = SocketIO()
