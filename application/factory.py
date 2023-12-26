@@ -24,13 +24,7 @@ from application.common.tools import MyAdminIndexView, _get_application_path
 from application.common.seed_data import seed_system_settings, update_system_settings
 from application.config.config import DefaultConfig
 from application.debugger import init_debugger
-from application.extensions import (
-    ADMIN,
-    CELERY,
-    CSRF,
-    DATABASE,
-    LOGIN_MANAGER,
-)
+from application.extensions import ADMIN, CELERY, CSRF, DATABASE, LOGIN_MANAGER, SOCKETIO
 from application.models.user import UserSql
 from application.models.setting import SettingsSql
 from application.api.backend.views import backend
@@ -253,6 +247,13 @@ def create_app(config=None, init_db=True, init_celery=True):
             update_system_settings()
 
     _handle_default_records(flask_app)
+
+    # Initialize SocketIO
+    SOCKETIO.init_app(flask_app)
+
+    # Import socket endpoints
+    # Intentionally imported here after socketio initializes.
+    from application.api.websocket import agents  # noqa: F401
 
     logger.info(f"{flask_app.name} has successfully initialized.")
 

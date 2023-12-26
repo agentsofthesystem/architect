@@ -39,7 +39,7 @@
               </td>
               <td>{{ '(Me)' if current_user.user_id == agent['owner_id'] else agent['owner']['username'] }}</td>
               <td>
-                <span class="badge badge-warning">Pending</span>
+                <span class="badge badge-warning agent-status-badge agent-id-{{agent['agent_id']}}" id="{{agent['agent_id']}}">Pending</span>
               </td>
               <td>
                 <div class="dropdown">

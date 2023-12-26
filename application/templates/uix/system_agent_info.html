@@ -4,179 +4,261 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <div class="col">
-    <section class="bg-white space-sm">
-        <div class="container">
-          <div class="row justify-content-between">
-            <div class="col">
-              <div class="media align-items-center">
-                {% if current_user.user_id == agent_info['agent']['owner_id'] %}
-                    <img alt="I own this Agent"  src="{{ url_for('static', filename='uix/assets/img/agent.png') }}" class="avatar avatar-lg avatar-square rounded" />
-                {% else %}
-                    <img alt="Shared Agent" src="{{ url_for('static', filename='uix/assets/img/agent-green.png') }}" class="avatar avatar-lg avatar-square rounded" />
-                {% endif %}
-                <div class="media-body">
-                  <h1 class="mb-0"><strong>Agent Name:</strong> {{agent_info['agent']['name']}} </h1>
-                  <h2 class="lead mb-2">Agent URL/Port: {{agent_info['agent']['hostname']}}:{{agent_info['agent']['port']}}</h2>
-                  <div class="d-flex align-items-center">
-                    <span class="badge badge-secondary mr-3">Owned By: {{agent_info['agent']['owner']['username']}}</span>
-                    <ul class="list-inline text-small d-inline-block">
-                        <!-- Games installed -->
-                        <li class="list-inline-item"><i class="icon-game-controller"></i> TODO</li>
-                        <!-- Groups -->
-                        <li class="list-inline-item"><i class="icon-globe"></i> {{agent_info['num_groups']}}</li>
-                        <!-- Groups -->
-                        <li class="list-inline-item"><i class="icon-share"></i> {{agent_info['num_friends']}}</li>
-                    </ul>
-                  </div>
-                </div>
+  <section class="bg-white space-sm">
+    <div class="container">
+      <div class="row justify-content-between">
+        <div class="col">
+          <div class="media align-items-center">
+            {% if current_user.user_id == agent_info['agent']['owner_id'] %}
+            <img alt="I own this Agent" src="{{ url_for('static', filename='uix/assets/img/agent.png') }}"
+              class="avatar avatar-lg avatar-square rounded" />
+            {% else %}
+            <img alt="Shared Agent" src="{{ url_for('static', filename='uix/assets/img/agent-green.png') }}"
+              class="avatar avatar-lg avatar-square rounded" />
+            {% endif %}
+            <div class="media-body">
+              <h1 class="mb-0"><strong>Agent Name:</strong> {{agent_info['agent']['name']}} </h1>
+              <h2 class="lead mb-2">Agent URL/Port: {{agent_info['agent']['hostname']}}:{{agent_info['agent']['port']}}
+              </h2>
+              <div class="d-flex align-items-center">
+                <span class="badge badge-secondary mr-3">Owned By: {{agent_info['agent']['owner']['username']}}</span>
+                <ul class="list-inline text-small d-inline-block">
+                  <!-- Games installed -->
+                  <li class="list-inline-item"><i class="icon-game-controller"></i> TODO</li>
+                  <!-- Groups -->
+                  <li class="list-inline-item"><i class="icon-globe"></i> {{agent_info['num_groups']}}</li>
+                  <!-- Groups -->
+                  <li class="list-inline-item"><i class="icon-share"></i> {{agent_info['num_friends']}}</li>
+                </ul>
               </div>
             </div>
-            <!--end of col-->
-            <div class="col-auto">
-              <div class="btn-group mb-2">
-                <button type="button" class="btn btn-success btn-lg">Shutdown / Startup </button>
-                <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split dropdown-toggle-no-arrow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="icon-dots-three-horizontal"></i>
-                  <span class="sr-only">Toggle Dropdown</span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-right dropdown-menu-sm">
-                  <a class="dropdown-item">Action 1</a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item">Separated Action 2</a>
-                </div>
-              </div>
-            </div>
-            <!--end of col-->
           </div>
-          <!--end of row-->
         </div>
-        <!--end of container-->
-      </section>
-      <!--end of section-->
-
-      <section class="height-5">
-        <div class="container">
-          <ul class="feature-list feature-list-sm row">
-
-            <li class="col-sm">
-              <div class="card">
-                <div class="card-header d-flex justify-content-between">
-                  <div>
-                    <span class="h6">Group Members</span>
-                    <span class="badge badge-secondary">{{agent_info['num_groups']}}</span>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <ul class="list-unstyled list-spacing-sm">
-                    {% for group in agent_info['groups'] %}
-                    <li>
-                        <div class="input-group">
-                            <input class="form-control form-control-lg" type="text" value="{{group['name']}} (Owner: {{group['owner']['username']}})" disabled="true">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary remove-group-from-agent" type="button" id="{{group['agent_group_member_id']}}"><i class="icon-circle-with-cross"></i></button>
-                            </div>
-                        </div>
-                    </li>
-                    {% endfor %}
-                  </ul>
-                </div>
-              </div>
-              <!--end of card-->
-            </li>
-            <!--end of col-->
-
-            <li class="col-sm">
-              <div class="card">
-                <div class="card-header d-flex justify-content-between">
-                  <div>
-                    <span class="h6">Friend Members</span>
-                    <span class="badge badge-secondary">{{agent_info['num_friends']}}</span>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <ul class="list-unstyled list-spacing-sm">
-                    {% for friend in agent_info['friends'] %}
-                    <li>
-                        <div class="input-group">
-                            <input class="form-control form-control-lg" type="text" value="{{friend['username']}}" disabled="true">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary remove-friend-from-agent" type="button"  id="{{friend['agent_friend_member_id']}}"><i class="icon-remove-user"></i></button>
-                            </div>
-                        </div>
-                    </li>
-                    {% endfor %}
-                  </ul>
-                </div>
-              </div>
-              <!--end of card-->
-            </li>
-            <!--end of col-->
-
-          </ul>
-          <!--end of row-->
+        <!--end of col-->
+        <div class="col-auto">
+          <div class="btn-group mb-2">
+            <button type="button" class="btn btn-success btn-lg">Shutdown / Startup </button>
+            <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split dropdown-toggle-no-arrow"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="icon-dots-three-horizontal"></i>
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right dropdown-menu-sm">
+              <a class="dropdown-item">Action 1</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item">Separated Action 2</a>
+            </div>
+          </div>
         </div>
-        <!--end of container-->
-      </section>
-      <!--end of section-->
+        <!--end of col-->
+      </div>
+      <!--end of row-->
+    </div>
+    <!--end of container-->
+  </section>
+  <!--end of section-->
+
+  <section class="flush-with-above">
+    <div class="container">
+      <div class="row justify-content-between">
+
+        <div class="col-sm">
+          <div class="media align-items-center">
+            <div class="media-body">
+
+              <h2 class="mb-1">Platform Information:</h2>
+              <div class="d-flex align-items-center">
+                <ul class="list-unstyled list-spacing-sm">
+                  <!-- Games installed -->
+                  <li><i class="icon-text-document text-muted mr-1"> FOO BAR </i></li>
+                  <li><i class="icon-text-document text-muted mr-1"> FOO BAR </i></li>
+                  <li><i class="icon-text-document text-muted mr-1"> FOO BAR </i></li>
+                  <li><i class="icon-text-document text-muted mr-1"> FOO BAR </i></li>
+                  <!-- Groups -->
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <!--end of col-->
+
+        <div class="col-sm">
+          <div class="media align-items-center">
+            <div class="media-body">
+
+              <h2 class="mb-1">Platform Information:</h2>
+              <div class="d-flex align-items-center">
+                <ul class="list-unstyled list-spacing-sm">
+                  <!-- Games installed -->
+                  <li><i class="icon-text-document text-muted mr-1"> FOO BAR </i></li>
+                  <li><i class="icon-text-document text-muted mr-1"> FOO BAR </i></li>
+                  <li><i class="icon-text-document text-muted mr-1"> FOO BAR </i></li>
+                  <li><i class="icon-text-document text-muted mr-1"> FOO BAR </i></li>
+                  <!-- Groups -->
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <!--end of col-->
+
+        <div class="col-sm">
+          <div class="media align-items-center">
+            <div class="media-body">
+
+              <h2 class="mb-1">Platform Information:</h2>
+              <div class="d-flex align-items-center">
+                <ul class="list-unstyled list-spacing-sm">
+                  <!-- Games installed -->
+                  <li><i class="icon-text-document text-muted mr-1"> FOO BAR </i></li>
+                  <li><i class="icon-text-document text-muted mr-1"> FOO BAR </i></li>
+                  <li><i class="icon-text-document text-muted mr-1"> FOO BAR </i></li>
+                  <li><i class="icon-text-document text-muted mr-1"> FOO BAR </i></li>
+                  <!-- Groups -->
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <!--end of col-->
+
+      </div>
+      <!--end of row-->
+    </div>
+  <!--end of container-->
+  </section>
+  <!--end of section-->
+
+  <section class="height-5">
+    <div class="container">
+      <ul class="feature-list feature-list-sm row">
+
+        <li class="col-sm">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between">
+              <div>
+                <span class="h6">Group Members</span>
+                <span class="badge badge-secondary">{{agent_info['num_groups']}}</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled list-spacing-sm">
+                {% for group in agent_info['groups'] %}
+                <li>
+                  <div class="input-group">
+                    <input class="form-control form-control-lg" type="text"
+                      value="{{group['name']}} (Owner: {{group['owner']['username']}})" disabled="true">
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary remove-group-from-agent" type="button"
+                        id="{{group['agent_group_member_id']}}"><i class="icon-circle-with-cross"></i></button>
+                    </div>
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          <!--end of card-->
+        </li>
+        <!--end of col-->
+
+        <li class="col-sm">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between">
+              <div>
+                <span class="h6">Friend Members</span>
+                <span class="badge badge-secondary">{{agent_info['num_friends']}}</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled list-spacing-sm">
+                {% for friend in agent_info['friends'] %}
+                <li>
+                  <div class="input-group">
+                    <input class="form-control form-control-lg" type="text" value="{{friend['username']}}"
+                      disabled="true">
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary remove-friend-from-agent" type="button"
+                        id="{{friend['agent_friend_member_id']}}"><i class="icon-remove-user"></i></button>
+                    </div>
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          <!--end of card-->
+        </li>
+        <!--end of col-->
+
+      </ul>
+      <!--end of row-->
+    </div>
+    <!--end of container-->
+  </section>
+  <!--end of section-->
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{super()}}
 <script>
-    $(document).ready(function(){
+  $(document).ready(function () {
 
-        var csrftoken = $('meta[name=csrf-token]').attr('content')
+    var csrftoken = $('meta[name=csrf-token]').attr('content')
 
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken)
-                }
-            }
-        })
+    $.ajaxSetup({
+      beforeSend: function (xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrftoken)
+        }
+      }
+    })
 
+  });
+
+
+  $(".remove-group-from-agent").click(function () {
+    console.log("Removing Agent Group Membership ID: " + this.id)
+
+    $.ajax({
+      type: "DELETE",
+      url: "/app/backend/agent/group/member/" + this.id,
+      contentType: 'application/json',
+      success: function () {
+        console.log("Friend Agent Group Member ID" + this.id);
+        location.reload();
+      },
+      error: function () {
+        console.log('error!')
+        location.reload();
+      }
     });
 
 
-    $(".remove-group-from-agent").click(function(){
-        console.log("Removing Agent Group Membership ID: " + this.id)
+  })
 
-        $.ajax({
-            type: "DELETE",
-            url: "/app/backend/agent/group/member/" + this.id,
-            contentType: 'application/json',
-            success: function(){
-                console.log("Friend Agent Group Member ID" + this.id);
-                location.reload();
-            },
-            error: function( ){
-                console.log('error!')
-                location.reload();
-            }
-        });
+  $(".remove-friend-from-agent").click(function () {
+    console.log("Removing Agent Friend Membership ID: " + this.id)
 
+    $.ajax({
+      type: "DELETE",
+      url: "/app/backend/agent/friend/member/" + this.id,
+      contentType: 'application/json',
+      success: function () {
+        console.log("Friend Agent Group Member ID" + this.id);
+        location.reload();
+      },
+      error: function () {
+        console.log('error!')
+        location.reload();
+      }
+    });
 
-    })
-
-    $(".remove-friend-from-agent").click(function(){
-        console.log("Removing Agent Friend Membership ID: " + this.id)
-
-        $.ajax({
-            type: "DELETE",
-            url: "/app/backend/agent/friend/member/" + this.id,
-            contentType: 'application/json',
-            success: function(){
-                console.log("Friend Agent Group Member ID" + this.id);
-                location.reload();
-            },
-            error: function( ){
-                console.log('error!')
-                location.reload();
-            }
-        });
-
-    })
+  })
 
 </script>
 {% endblock %}

@@ -56,8 +56,8 @@ class DefaultConfig:
     # SQL Database Settings
     SQL_DATABASE_USER = "admin"
     SQL_DATABASE_PASS = "REPLACEME"
-    SQL_DATABASE_SERVER = "mariadb-service"
-    # SQL_DATABASE_SERVER = "localhost"
+    # SQL_DATABASE_SERVER = "mariadb-service"
+    SQL_DATABASE_SERVER = "localhost"
     SQL_DATABASE_PORT = "3306"
     SQL_DATABASE_NAME = "app"
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{SQL_DATABASE_USER}:{SQL_DATABASE_PASS}@{SQL_DATABASE_SERVER}:{SQL_DATABASE_PORT}/{SQL_DATABASE_NAME}"  # noqa: E501

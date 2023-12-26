@@ -6,7 +6,7 @@ RUN mkdir /install
 WORKDIR /install
 
 # Install requirements for pycurl package
-RUN apk update && apk add gcc libc-dev curl-dev openssl-dev
+RUN apk update && apk add gcc libc-dev curl-dev openssl-dev git
 
 # Copy install requirements file.
 COPY requirements.txt /tmp/requirements.txt
@@ -19,4 +19,4 @@ COPY --from=builder /install /usr/local
 COPY ./application /var/application
 WORKDIR /var
 
-CMD ["gunicorn", "-w", "1", "--access-logfile", "-", "-b", ":3000", "--reload", "application.wsgi:start_app(deploy_as='docker_compose')"]
+CMD ["gunicorn", "-k", "gevent", "-w", "1", "--access-logfile", "-", "-b", ":3000", "--reload", "application.wsgi:start_app(deploy_as='docker_compose')"]
