@@ -210,6 +210,43 @@
 {% block scripts %}
 {{super()}}
 <script>
+
+    $(document).ready(function(){
+
+        var socket = io("/system/agents");
+
+        var agent_list = $(".agent-status-badge");
+
+        socket.on('connect', function() {
+            for(let i = 0; i < agent_list.length; ++i){
+                var agent = agent_list[i];
+                socket.emit('get_agent_status', {"agent_id": agent.id});
+            }
+        });
+
+        socket.on("respond_agent_status", function(data){
+
+            var agent_id = data['agent_id'];
+            var agent_status = data['status'];
+            var agent_id_class = 'agent-id-' + agent_id;
+
+            console.log("Agent ID: " + agent_id + ", Status: " + agent_status);
+
+            var badge = $("." + agent_id_class)[0];
+
+            badge.innerHTML = agent_status;
+            if(agent_status == "Alive"){
+                $(badge).attr("class", "badge badge-success agent-status-badge " + agent_id_class);
+            }
+            else if (agent_status == "Unreachable"){
+                $(badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
+            }
+            else if (agent_status == "Error"){
+                $(badge).attr("class", "badge badge-warning agent-status-badge " + agent_id_class);
+            }
+        })
+    })
+
     function showNewAgentModal(){
         $('#newAgentModal').modal('show')
     }
@@ -242,5 +279,6 @@
         $('#update-share-friend-agent-id-input')[0].value = agent_id;
         $('#shareAgentToFriendModal').modal('show')
     }
+
 </script>
 {% endblock %}

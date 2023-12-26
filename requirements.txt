@@ -8,7 +8,9 @@ Flask==2.2.4
 Flask-Admin
 Flask-Login
 Flask-WTF
+Flask-SocketIO==5.3.6
 Flask-SqlAlchemy==3.0.2
+gevent==23.9.1
 gunicorn
 pycurl
 PyJWT
@@ -19,3 +21,6 @@ requests
 selenium
 stripe
 Werkzeug==2.3.7
+
+# TODO - Eventually this should be a specific version.
+operator @ git+https://github.com/agentsofthesystem/operator@main
