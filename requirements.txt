@@ -1,9 +1,6 @@
 alembic
-black
 boto3
 celery==5.3.5
-coverage
-flake8
 Flask==2.2.4
 Flask-Admin
 Flask-Login
@@ -15,10 +12,8 @@ gunicorn
 pycurl
 PyJWT
 pymysql
-pytest
 redis
 requests
-selenium
 stripe
 Werkzeug==2.3.7
 

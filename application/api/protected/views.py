@@ -160,13 +160,6 @@ def system_agent_info(agent_id: int):
     num_groups = group_member_qry.count()
     num_friends = friend_member_qry.count()
 
-    agent_info = agents.get_agent_info(
-        agent_obj.hostname, agent_obj.port, agent_obj.access_token, agent_obj.agent_id
-    )
-
-    if agent_info is None:
-        logger.debug(f"Error: Unable to access agent id {agent_obj.agent_id} for it basic info.")
-
     group_list = []
     for group_member in group_member_qry.all():
         group_dict = groups.get_group_by_id(group_member.group_member_id)
@@ -188,7 +181,6 @@ def system_agent_info(agent_id: int):
         "num_friends": num_friends,
         "groups": group_list,
         "friends": friend_list,
-        "details": agent_info,
     }
 
     return render_template(

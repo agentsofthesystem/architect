@@ -23,11 +23,11 @@
               <td>
                 <a class="align-items-center">
                   {% if current_user.user_id == agent['owner_id'] %}
-                    <a href="{{url_for('protected.system_agent_info', agent_id=agent['agent_id'])}}">
+                    <a class="agent-info-link-{{agent['agent_id']}}" href="{{url_for('protected.system_agent_info', agent_id=agent['agent_id'])}}">
                       <img alt="I own this Agent"  src="{{ url_for('static', filename='uix/assets/img/agent.png') }}" class="avatar rounded avatar-sm" />
                     </a>
                   {% else %}
-                  <a href="{{url_for('protected.system_agent_info', agent_id=agent['agent_id'])}}">
+                  <a class="agent-info-link-{{agent['agent_id']}}" href="{{url_for('protected.system_agent_info', agent_id=agent['agent_id'])}}">
                     <img alt="Shared Agent" src="{{ url_for('static', filename='uix/assets/img/agent-green.png') }}" class="avatar rounded avatar-sm" />
                   </a>
                   {% endif %}
@@ -39,6 +39,9 @@
               </td>
               <td>{{ '(Me)' if current_user.user_id == agent['owner_id'] else agent['owner']['username'] }}</td>
               <td>
+                <div class="spinner-border text-success agent-spinner-id-{{agent['agent_id']}}" role="status">
+                  <span class="sr-only">Pending...</span>
+                </div>
                 <span class="badge badge-warning agent-status-badge agent-id-{{agent['agent_id']}}" id="{{agent['agent_id']}}">Pending</span>
               </td>
               <td>
