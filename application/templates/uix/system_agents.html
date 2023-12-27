@@ -217,10 +217,18 @@
 
         var agent_list = $(".agent-status-badge");
 
+        for(let i = 0; i < agent_list.length; ++i){
+            var agent = agent_list[i];
+            $(agent_list[i]).hide();
+        }
+
         socket.on('connect', function() {
             for(let i = 0; i < agent_list.length; ++i){
                 var agent = agent_list[i];
-                socket.emit('get_agent_status', {"agent_id": agent.id});
+                setTimeout(() =>
+                    socket.emit('get_agent_status', {"agent_id": agent.id}),
+                    500
+                )
             }
         });
 
@@ -229,21 +237,31 @@
             var agent_id = data['agent_id'];
             var agent_status = data['status'];
             var agent_id_class = 'agent-id-' + agent_id;
+            var agent_spinner_id_class = 'agent-spinner-id-' + agent_id;
+            var agent_info_link_class = 'agent-info-link-' + agent_id;
 
             console.log("Agent ID: " + agent_id + ", Status: " + agent_status);
 
             var badge = $("." + agent_id_class)[0];
+            var spinner = $("." + agent_spinner_id_class)[0];
 
             badge.innerHTML = agent_status;
+
+            $(spinner).hide()
+
             if(agent_status == "Alive"){
                 $(badge).attr("class", "badge badge-success agent-status-badge " + agent_id_class);
             }
             else if (agent_status == "Unreachable"){
                 $(badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
+                $('.' + agent_info_link_class).removeAttr("href")
             }
             else if (agent_status == "Error"){
                 $(badge).attr("class", "badge badge-warning agent-status-badge " + agent_id_class);
+                $('.' + agent_info_link_class).removeAttr("href")
             }
+
+            $(badge).show()
         })
     })
 

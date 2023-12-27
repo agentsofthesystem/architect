@@ -4,14 +4,12 @@ from flask_login import current_user
 from application.api.controllers import friends
 from application.api.controllers import groups
 from application.api.controllers import users
-from application.common import constants, logger, tools
+from application.common import constants, logger
 from application.common.exceptions import InvalidUsage
 from application.extensions import DATABASE
 from application.models.agent import Agents
 from application.models.agent_group_member import AgentGroupMembers
 from application.models.agent_friend_member import AgentFriendMembers
-
-from operator_client import Operator
 
 
 def get_agent_by_id(agent_id: int, as_obj: bool = False) -> dict:
@@ -352,11 +350,3 @@ def remove_friend_membership(membership_id: int) -> bool:
     flash("Friend Removed From Agent!", "info")
 
     return True
-
-
-def get_agent_info(hostname: str, port: str, token: str, agent_id: int) -> dict:
-    hostname = tools.format_url(hostname)
-
-    client = Operator(hostname, port, token=token)
-
-    return client.architect.get_agent_info(agent_id)

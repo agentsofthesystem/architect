@@ -40,6 +40,9 @@ class DefaultConfig:
     CELERY_BACKED_BY = "REDIS"
     CELERY_SQS_PREDEFINED_QUEUE = None
 
+    # Log/Verbosity Settings
+    OPERATOR_CLIENT_VERBOSE = False
+
     ######################################################################
     # Non - Re-Configurable Settings
     ######################################################################
