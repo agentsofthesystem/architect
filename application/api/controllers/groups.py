@@ -4,6 +4,7 @@ from flask_login import current_user
 from application.common import logger
 from application.api.controllers.messages import create_direct_message
 from application.extensions import DATABASE
+from application.models.agent_group_member import AgentGroupMembers
 from application.models.group import Groups
 from application.models.group_member import GroupMembers
 from application.models.user import UserSql
@@ -170,6 +171,19 @@ def delete_group(object_id: int) -> bool:
 
     if group_obj is None:
         flash("Group does not exist! Cannot delete.", "danger")
+        return False
+
+    # If group belongs to any agents, then the user must remove the relationship to the
+    # agent(s) first.
+    group_memberships = AgentGroupMembers.query.filter_by(group_member_id=group_obj.group_id).all()
+    num_memberships = len(group_memberships)
+
+    if num_memberships > 0:
+        flash(
+            f"Group associated with {num_memberships} Agent(s). Cannot delete until its "
+            "removed from all.",
+            "warning",
+        )
         return False
 
     group_name = group_obj.name

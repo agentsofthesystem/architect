@@ -10,9 +10,14 @@
 
         {% include "uix/system_friend_code_form.html" %}
 
-        {% include "uix/system_friend_list.html" %}
+        {% if not friend_list_empty %}
+
+            {% include "uix/system_friend_list.html" %}
+
+        {% endif %}
 
     {% else %}
+
     <section class="flush-with-above space-0">
 
         {% include "uix/system_friend_code_form.html" %}

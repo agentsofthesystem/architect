@@ -3,8 +3,10 @@ from flask.views import MethodView
 from flask_login import login_required
 
 from application.api.controllers import agents
+from application.api.controllers import agent_control
 from application.api.controllers import friends
 from application.api.controllers import groups
+from application.common import logger
 from application.common.tools import verified_required
 from application.models.agent import Agents
 from application.models.agent import AgentFriendMembers
@@ -15,6 +17,32 @@ from application.models.group_member import GroupMembers
 from application.models.friend_request import FriendRequests
 
 backend = Blueprint("backend", __name__, url_prefix="/app/backend")
+
+
+class GameServerControlBackendApi(MethodView):
+    def __init__(self) -> None:
+        self.valid_commands = ["startup", "shutdown", "restart"]
+
+    @login_required
+    @verified_required
+    def post(self, command):
+        command_success = False
+
+        if command not in self.valid_commands:
+            logger.error(
+                f"GameServerControlBackendApi: Command provided, {command}, not a valid command!"
+            )
+            return "Error!", 400
+
+        if command == "startup":
+            logger.info("Running startup command...")
+            command_success = agent_control.startup(request)
+        elif command == "shutdown":
+            command_success = agent_control.shutdown(request)
+        elif command == "restart":
+            command_success = agent_control.restart(request)
+
+        return ("Success", 204) if command_success else ("Error!", 500)
 
 
 class AgentFriendMembersBackendApi(MethodView):
@@ -127,6 +155,12 @@ class AgentsBackendApi(MethodView):
         else:
             return "Error!", 500
 
+
+backend.add_url_rule(
+    "/game/server/control/<string:command>",
+    view_func=GameServerControlBackendApi.as_view("game_server_control_api"),
+    methods=["POST"],
+)
 
 backend.add_url_rule(
     "/agent/friend/member/<int:member_id>",
