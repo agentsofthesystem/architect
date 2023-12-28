@@ -47,12 +47,10 @@
               <div class="d-flex align-items-center">
                 <span class="badge badge-secondary mr-3">Owned By: {{agent_info['agent']['owner']['username']}}</span>
                 <ul class="list-inline text-small d-inline-block">
-                  <!-- Games installed -->
-                  <li class="list-inline-item"><i class="icon-game-controller"></i> TODO</li>
                   <!-- Groups -->
-                  <li class="list-inline-item"><i class="icon-globe"></i> {{agent_info['num_groups']}}</li>
+                  <li class="list-inline-item"><i class="icon-globe"></i> Groups: {{agent_info['num_groups']}}</li>
                   <!-- Groups -->
-                  <li class="list-inline-item"><i class="icon-share"></i> {{agent_info['num_friends']}}</li>
+                  <li class="list-inline-item"><i class="icon-game-controller"></i> Friends: {{agent_info['num_friends']}}</li>
                 </ul>
               </div>
             </div>
@@ -205,7 +203,7 @@
   <section class="flush-with-above">
     <div class="container">
       <ul class="feature-list feature-list-sm row">
-
+        {% set is_disabled = "disabled='true'" if current_user.user_id != agent_info['agent']['owner_id'] else "" %}
         <li class="col-sm">
           <div class="card">
             <div class="card-header d-flex justify-content-between">
@@ -223,7 +221,7 @@
                       value="{{group['name']}} (Owner: {{group['owner']['username']}})" disabled="true">
                     <div class="input-group-append">
                       <button class="btn btn-outline-secondary remove-group-from-agent" type="button"
-                        id="{{group['agent_group_member_id']}}"><i class="icon-circle-with-cross"></i></button>
+                        id="{{group['agent_group_member_id']}}" {{is_disabled}}><i class="icon-circle-with-cross"></i></button>
                     </div>
                   </div>
                 </li>
@@ -252,7 +250,7 @@
                       disabled="true">
                     <div class="input-group-append">
                       <button class="btn btn-outline-secondary remove-friend-from-agent" type="button"
-                        id="{{friend['agent_friend_member_id']}}"><i class="icon-remove-user"></i></button>
+                        id="{{friend['agent_friend_member_id']}}" {{is_disabled}}><i class="icon-remove-user"></i></button>
                     </div>
                   </div>
                 </li>
@@ -338,7 +336,7 @@
     socket.on('connect', function () {
       setTimeout(() =>
         socket.emit('get_agent_info', { "agent_id": agent_id }),
-        500
+        100
       )
     });
 
@@ -348,7 +346,6 @@
       var agent_info = data['agent_info'];
 
       console.log("Agent ID: " + agent_id + " responded with its info.");
-      console.log(agent_info);
 
       if( agent_info == "Error"){
         // Show the error modal...
@@ -381,45 +378,110 @@
 
         var new_row =document.createElement('tr');
 
-        let game_server_name = game['game_pretty_name'];
+        let game_server_name = game['game_name'];
+        let game_server_pretty_name = game['game_pretty_name'];
         let game_server_pid= game['game_pid'] == null ? "N/A" : game['game_pid'];
         let game_server_status_badge = game['game_status'] == "Not Running" ? "badge-danger" : "badge-success";
         let game_server_status = game['game_status'];
 
         new_row.innerHTML = `
-        <td>${game_server_name}</td>
-        <td>${game_server_pid}</td>
-        <td><span class="badge ${game_server_status_badge}">${game_server_status}</span></td>
-        <td>
-          <div class="dropdown">
-            <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="icon-dots-three-horizontal"></i>
-            </button>
-            <div class="dropdown-menu dropdown-menu-sm">
-              <a class="dropdown-item start-game-server">Start Server</a>
-              <a class="dropdown-item stop-game-server">Stop Server</a>
-              <a class="dropdown-item restart-game-server">Restart Server</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item uninstall-game-server">Uninstall</a>
+          <td>${game_server_pretty_name}</td>
+          <td>${game_server_pid}</td>
+          <td><span class="badge ${game_server_status_badge}">${game_server_status}</span></td>
+          <td>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="icon-dots-three-horizontal"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-sm">
+                <a class="dropdown-item start-game-server" onclick="startupGameServer('${game_server_name}')">Start Server</a>
+                <a class="dropdown-item stop-game-server" onclick="shutdownGameServer('${game_server_name}')">Stop Server</a>
+                <a class="dropdown-item restart-game-server" onclick="restartGameServer('${game_server_name}')">Restart Server</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item uninstall-game-server">Uninstall</a>
+              </div>
             </div>
-          </div>
-        </td>
+          </td>
         `
-
-        console.log("Running append...")
-
         game_server_table.appendChild(new_row)
       }
 
       $(agent_info_waiting_section).hide();
       $(agent_game_info_waiting_section).hide();
       $(agent_info_section).show();
-      $(agent_game_info_section).show()
+      $(agent_game_info_section).show();
 
     });
 
   });
 
+  function startupGameServer(game_name){
+
+    console.log("Starting Game Server for " + game_name);
+
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var json_data = `{"agent_id": ${agent_id}, "game_name": "${game_name}"}`;
+
+    $.ajax({
+      type: "POST",
+      url: "/app/backend/game/server/control/startup",
+      contentType: 'application/json',
+      dataType: "json",
+      data: JSON.stringify(json_data),
+      success: function () {
+        console.log("Starting Game Server for " + game_name + ' on agent id: ' + agent_id);
+      },
+      error: function () {
+        console.log('error!');
+      }
+    });
+  }
+
+  function shutdownGameServer(game_name){
+
+    console.log("Stopping Game Server for " + game_name);
+
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var json_data = `{"agent_id": ${agent_id}, "game_name": "${game_name}"}`;
+
+    $.ajax({
+      type: "POST",
+      url: "/app/backend/game/server/control/shutdown",
+      contentType: 'application/json',
+      dataType: "json",
+      data: JSON.stringify(json_data),
+      success: function () {
+        console.log("Stopping Game Server for " + game_name + ' on agent id: ' + agent_id);
+      },
+      error: function () {
+        console.log('error!');
+      }
+
+    });
+  }
+
+  function restartGameServer(game_name){
+
+    console.log("Restarting Game Server for " + game_name);
+
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var json_data = `{"agent_id": ${agent_id}, "game_name": "${game_name}"}`;
+
+    $.ajax({
+      type: "POST",
+      url: "/app/backend/game/server/control/restart",
+      contentType: 'application/json',
+      dataType: "json",
+      data: JSON.stringify(json_data),
+      success: function () {
+        console.log("Restarting Game Server for " + game_name + ' on agent id: ' + agent_id);
+      },
+      error: function () {
+        console.log('error!');
+      }
+
+    });
+  }
 
   $(".remove-group-from-agent").click(function () {
     console.log("Removing Agent Group Membership ID: " + this.id)
