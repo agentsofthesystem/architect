@@ -5,7 +5,7 @@ from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
-task_modules = ["application.workers.email"]
+task_modules = ["application.workers.email", "application.workers.game_server_control"]
 
 ADMIN = Admin(template_mode="bootstrap3")
 

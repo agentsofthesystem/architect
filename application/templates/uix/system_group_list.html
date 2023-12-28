@@ -112,7 +112,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                       <div></div>
                       <div class="d-flex align-items-center">
-                        <button class="btn btn-lg btn-success" onclick="showAddFriendToGroupModal({{group['group_id']}})" {{'disabled="true"' if group['owner_id'] != current_user.user_id else ''}}>Add Friend to Group</button>
+                        <button class="btn btn-lg btn-success" onclick="showAddFriendToGroupModal({{group['group_id']}})" {{'disabled="true"' if group['owner_id'] != current_user.user_id else ''}}>Add Friend(s) to Group</button>
                       </div>
                     </div>
                   </div>
@@ -177,6 +177,7 @@
         },
         error: function( ){
             console.log('error!')
+            location.reload();
         }
     });
 
