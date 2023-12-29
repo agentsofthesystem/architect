@@ -30,7 +30,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - "./application:/var/application"
-      - "/c/projects/operator/operator_client:/usr/local/lib/python3.11/site-packages/operator_client"
+      # - "/c/projects/operator/operator_client:/usr/local/lib/python3.11/site-packages/operator_client"
     ports:
       - "3000:3000"
     environment:

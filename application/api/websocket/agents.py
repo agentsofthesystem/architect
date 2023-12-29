@@ -85,3 +85,67 @@ def get_agent_info(input_dict):
         response.update({"agent_info": client_response})
 
     emit("respond_agent_info", response, json=True, namespace="/system/agent/info")
+
+
+@SOCKETIO.on("get_action_result", namespace="/system/agent/info")
+def get_action_result(input_dict):
+    response = {}
+
+    logger.info("Websocket GET ACTION RESULT... TRIGGERED!!!!")
+
+    if "agent_id" not in input_dict:
+        logger.critical("Agent ID not provided...")
+        response.update({"result": "Error"})
+        emit("respond_action_result", response, json=True, namespace="/system/agent/info")
+        return
+
+    if "action" not in input_dict:
+        logger.critical("Action not provided...")
+        response.update({"result": "Error"})
+        emit("respond_action_result", response, json=True, namespace="/system/agent/info")
+        return
+
+    if "game_name" not in input_dict:
+        logger.critical("Game Server Name not provided...")
+        response.update({"result": "Error"})
+        emit("respond_action_result", response, json=True, namespace="/system/agent/info")
+        return
+
+    if "attempt_number" not in input_dict:
+        logger.critical("Need to know which attempt this is...")
+        response.update({"result": "Error"})
+        emit("respond_action_result", response, json=True, namespace="/system/agent/info")
+        return
+
+    response.update(
+        {
+            "agent_id": input_dict["agent_id"],
+            "action": input_dict["action"],
+            "game_name": input_dict["game_name"],
+            "attempt_number": input_dict["attempt_number"],
+        }
+    )
+
+    agent_obj = Agents.query.filter_by(agent_id=input_dict["agent_id"]).first()
+
+    if agent_obj is None:
+        logger.critical("Agent ID Does not exist... cannot contact agent.")
+        response.update({"result": "Error"})
+        emit("respond_action_result", response, json=True, namespace="/system/agent/info")
+        return
+
+    hostname = tools.format_url(agent_obj.hostname)
+
+    verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
+
+    client = Operator(hostname, agent_obj.port, verbose, token=agent_obj.access_token)
+
+    client_response = client.game.get_game_status(input_dict["game_name"])
+
+    if client_response is None:
+        logger.error("Contacted agent, but it did not respond.")
+        response.update({"result": "Error"})
+    else:
+        response.update({"result": client_response})
+
+    emit("respond_action_result", response, json=True, namespace="/system/agent/info")
