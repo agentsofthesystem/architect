@@ -105,7 +105,8 @@ def _get_setting(setting_name: str, setting_objs: list):
 def format_url(input: str) -> str:
     hostname = input
 
-    if "http://" not in input or "https://" not in input:
+    # Default to http since client doesn't yet support https, anyway.
+    if "http://" not in input and "https://" not in input:
         hostname = f"http://{input}"
 
     return hostname
