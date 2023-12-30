@@ -6,7 +6,7 @@ def main(config_type):
     config = DefaultConfig(config_type)
     config.obtain_environment_variables()
 
-    APP = create_app(config=config, init_db=False)
+    APP = create_app(config=config, init_db=True)
 
     WORKER = create_worker(APP)
 
