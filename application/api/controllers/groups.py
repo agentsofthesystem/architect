@@ -222,6 +222,15 @@ def delete_group(object_id: int) -> bool:
         logger.critical(error)
         return False
 
+    group_invites = GroupInvites.query.filter_by(group_id=group_obj.group_id).all()
+
+    try:
+        for invite in group_invites:
+            DATABASE.session.delete(invite)
+    except Exception as error:
+        logger.critical(error)
+        return False
+
     # Do one final commit at the end instead of once each loop.
     try:
         DATABASE.session.delete(group_obj)
