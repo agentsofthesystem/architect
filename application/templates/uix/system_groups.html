@@ -105,6 +105,41 @@
     </div>
 </div>
 
+<div class="modal fade" id="inviteFriendToGroupModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Invite Friend to Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form  action="{{url_for('protected.system_groups')}}" method="post">
+                {{ invite_to_group_form.csrf_token }}
+                {{ invite_to_group_form.method(value="PATCH_INVITE_FRIEND") }}
+                {{ invite_to_group_form.requestor_id(id="update-requestor-id-input") }}
+                {{ invite_to_group_form.group_id(id="update-invite-friend-group-id-input") }}
+                <div class="modal-body">
+
+                    <div class="form-group row">
+                        {{ invite_to_group_form.friends_list.label(class="col-sm-2 col-form-label") }}
+                        <div class="col-sm-10">
+                        {{ invite_to_group_form.friends_list(class="form-control") }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="transferGroupModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -177,6 +212,13 @@
         console.log("Group ID is: "+ group_id);
         $('#update-add-friend-group-id-input')[0].value = group_id;
         $('#addFriendToGroupModal').modal('show')
+    }
+
+    function showInviteFriendToGroupModal(group_id, requestor_id){
+        console.log("Group ID is: "+ group_id);
+        $('#update-invite-friend-group-id-input')[0].value = group_id;
+        $('#update-requestor-id-input')[0].value = requestor_id;
+        $('#inviteFriendToGroupModal').modal('show')
     }
 
     function showTransferGroupModal(group_id){

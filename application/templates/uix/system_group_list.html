@@ -15,7 +15,15 @@
             <div class="card-header" id="group-heading-{{group['group_id']}}">
               <div class="row d-flex justify-content-center">
                 <div class="col-sm">
-                  <button class="btn btn-lg btn-success" data-toggle="collapse" data-target="#collapseGroup{{group['group_id']}}" aria-expanded="true" aria-controls="collapseGroup{{group['group_id']}}">Group: {{group['name']}}</button>
+                  <button class="btn btn-lg btn-success" data-toggle="collapse" data-target="#collapseGroup{{group['group_id']}}" aria-expanded="true" aria-controls="collapseGroup{{group['group_id']}}">Members</button>
+                </div>
+                <div class="col-sm" >
+                  <div class="row d-flex justify-content-md-center">
+                    <ul class="list-inline">
+                      <li class="list-inline-item"><h5>Name: </h5></li>
+                      <li class="list-inline-item"><p> {{group['name']}}</p></li>
+                    </ul>
+                  </div>
                 </div>
                 <div class="col-sm" >
                   <div class="row d-flex justify-content-md-center">
@@ -37,7 +45,7 @@
                   <div class="row d-flex justify-content-md-center">
                     <ul class="list-inline">
                       <li class="list-inline-item"><h5>Agents: </h5></li>
-                      <li class="list-inline-item"><p> 0</p></li>
+                      <li class="list-inline-item"><p> {{group['agent_count']}}</p></li>
                     </ul>
                   </div>
                 </div>
@@ -71,7 +79,7 @@
                     <tbody>
                       {% for member in group['members'] %}
                       <tr class="bg-white">
-                        <td>{{member['user']['username']}}</td>
+                        <td>{{member['user']['username']}}<span style="color:red">{{ '*' if member['user']['is_friend'] is sameas true else ''}}</span></td>
                         <td>{{ 'Owner' if member['user']['user_id'] == group['owner_id'] else 'Member' }}</td>
                         <!-- If the current user is the group owner, all buttons are enabled except for the owner.  That way the owner cannot delete itself from the group -->
                         {% if current_user.user_id == group['owner_id'] %}
@@ -105,6 +113,37 @@
                     </tbody>
                   </table>
                 </div>
+                {% if current_user.user_id == group['owner_id'] and group['has_invites'] is sameas true %}
+                <div class="row">
+                  <table class="table table-bordered">
+                    <thead>
+                      <th role="col">Invited User</th>
+                      <th role="col">Action</th>
+                    </thead>
+                    <tbody>
+                      {% for invite in group['invites'] %}
+                        <tr class="bg-white">
+                          <td>{{invite['user']['username']}}<span style="color:red">{{ '*' if invite['user']['is_friend'] is sameas true else ''}}</span></td>
+                          <td>
+                            <div class="dropdown">
+                              <button class="btn btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="icon-dots-three-horizontal"></i>
+                              </button>
+                              <div class="dropdown-menu dropdown-menu-sm">
+                                <a class="dropdown-item invite-group-accept" data-group_id="{{group['group_id']}}" data-invite_id="{{invite['invite_id']}}" data-requestor_id="{{invite['requestor_id']}}"> Accept</a>
+                                <a class="dropdown-item invite-group-reject" data-group_id="{{group['group_id']}}" data-invite_id="{{invite['invite_id']}}" data-requestor_id="{{invite['requestor_id']}}"> Reject</a>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                {% endif %}
+                <div class="row d-flex">
+                  <p><span style="color:red">*</span> Means User is also your friend.</p>
+                </div>
               </div>
               <div class="card-footer">
                 <div class="row">
@@ -112,7 +151,11 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                       <div></div>
                       <div class="d-flex align-items-center">
-                        <button class="btn btn-lg btn-success" onclick="showAddFriendToGroupModal({{group['group_id']}})" {{'disabled="true"' if group['owner_id'] != current_user.user_id else ''}}>Add Friend(s) to Group</button>
+                        {% if current_user.user_id == group['owner_id'] %}
+                          <button class="btn btn-lg btn-success" onclick="showAddFriendToGroupModal({{group['group_id']}})">Add Friend(s) to Group</button>
+                        {% else %}
+                          <button class="btn btn-lg btn-success" onclick="showInviteFriendToGroupModal({{group['group_id']}}, {{current_user.user_id}})">Invite Friend to Group</button>
+                        {% endif %}
                       </div>
                     </div>
                   </div>
@@ -182,6 +225,78 @@
     });
 
   });
+
+  $('.invite-group-accept').click(function(){
+
+    var group_id = this.getAttribute('data-group_id');
+    var invite_id = this.getAttribute('data-invite_id');
+    var requestor_id = this.getAttribute('data-requestor_id');
+
+    console.log("Invite Accept -> Group ID: " + group_id);
+
+    var json_data = `
+      {
+        "group_id": ${group_id},
+        "invite_id": "${invite_id}",
+        "requestor_id": "${requestor_id}",
+        "action": "accept"
+      }
+    `;
+
+    $.ajax({
+        type: "POST",
+        url: "/app/backend/group/invite",
+        contentType: 'application/json',
+        dataType: "json",
+        data: JSON.stringify(json_data),
+        success: function(){
+            console.log("Group Invitation Resolved.")
+            location.reload();
+        },
+        error: function( ){
+            console.log('error!')
+            location.reload()
+        }
+    });
+
+  });
+
+
+  $('.invite-group-reject').click(function(){
+
+    var group_id = this.getAttribute('data-group_id');
+    var invite_id = this.getAttribute('data-invite_id');
+    var requestor_id = this.getAttribute('data-requestor_id');
+
+    console.log("Invite Reject -> Group ID: " + group_id);
+
+    var json_data = `
+      {
+        "group_id": ${group_id},
+        "invite_id": "${invite_id}",
+        "requestor_id": "${requestor_id}",
+        "action": "reject"
+      }
+    `;
+
+    $.ajax({
+        type: "POST",
+        url: "/app/backend/group/invite",
+        contentType: 'application/json',
+        dataType: "json",
+        data: JSON.stringify(json_data),
+        success: function(){
+            console.log("Group Invitation Resolved.")
+            location.reload();
+        },
+        error: function( ){
+            console.log('error!')
+            location.reload()
+        }
+    });
+
+  });
+
 
   $('.remove-friend-from-group').click(function(){
 
