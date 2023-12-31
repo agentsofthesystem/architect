@@ -14,6 +14,12 @@ class FriendRequestStates(Enum):
     CANCELED = 3
 
 
+class GroupInviteStates(Enum):
+    PENDING = 0
+    ACCEPTED = 1
+    REJECTED = 2
+
+
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html
 CONTAINER_CREDENTIALS_API_IP = "169.254.170.2"
 

@@ -8,6 +8,8 @@ from flask import flash, redirect, url_for, current_app
 from flask_admin import AdminIndexView, expose
 from flask_login import current_user
 
+from application.models.friend import Friends
+
 
 class MyAdminIndexView(AdminIndexView):
     """Define a custom flask admin index view."""
@@ -110,3 +112,21 @@ def format_url(input: str) -> str:
         hostname = f"http://{input}"
 
     return hostname
+
+
+@staticmethod
+def is_friend(left_side_id, right_side_id) -> bool:
+    friend_obj = Friends.query.filter_by(
+        initiator_id=left_side_id, receiver_id=right_side_id
+    ).first()
+    friend_reciprocal_obj = Friends.query.filter_by(
+        initiator_id=right_side_id, receiver_id=left_side_id
+    ).first()
+
+    # Convert to booleans
+    pair_exists = True if friend_obj else False
+    reciprocal_pair_exists = True if friend_reciprocal_obj else False
+
+    # If either the pair or reciprocal pair are populated (I.e. Not None) then the two ids are
+    # friends.
+    return pair_exists or reciprocal_pair_exists

@@ -204,6 +204,9 @@ def system_groups():
     transfer_group_form = forms.TransferGroupForm()
     transfer_group_form.populate_choices()
 
+    invite_to_group_form = forms.InviteFriendToGroupForm()
+    invite_to_group_form.populate_choices()
+
     if request.method == "POST":
         data = request.form
         method = data["method"]
@@ -233,6 +236,14 @@ def system_groups():
                 flash("Error Adding Friend(s) to group.", "danger")
 
             return redirect(url_for("protected.system_groups"))
+        elif method == "PATCH_INVITE_FRIEND":
+            logger.debug("Group: Inviting friend to group.")
+            result = groups.invite_friend_to_group(request)
+
+            if not result:
+                flash("Error Inviting Friend to group.", "danger")
+
+            return redirect(url_for("protected.system_groups"))
         elif method == "PATCH_GROUP_TRANSFER":
             logger.debug("Group: Transferring Ownership of group to friend.")
             result = groups.transfer_group(request)
@@ -257,6 +268,7 @@ def system_groups():
         update_group_form=update_group_form,
         friend_to_group_form=friend_to_group_form,
         transfer_group_form=transfer_group_form,
+        invite_to_group_form=invite_to_group_form,
     )
 
 

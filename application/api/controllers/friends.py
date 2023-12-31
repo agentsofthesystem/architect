@@ -275,7 +275,7 @@ def delete_friend(object_id: int) -> bool:
         else:
             deleted_friend_user_id = friend_obj.initiator_id
         logger.debug(f"Delete Friend: ID of Friend Being Deleted: {deleted_friend_user_id}")
-        group_control.remove_deleted_friend_from_groups(deleted_friend_user_id)
+        group_control.remove_deleted_friend_from_owned_groups(deleted_friend_user_id)
         agent_control.remove_deleted_friend_from_agents(
             current_user.user_id, deleted_friend_user_id
         )
@@ -291,7 +291,7 @@ def delete_friend(object_id: int) -> bool:
         return False
 
     subject = "No Longer Friends."
-    message = f"{current_user.username}, has removed your from their friend list."
+    message = f"<p>{current_user.username}, has removed your from their friend list.</p>"
     friend_removed_id = 0
 
     if current_user.user_id == friend_obj.initiator_id:
