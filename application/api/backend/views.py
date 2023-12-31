@@ -13,10 +13,24 @@ from application.models.agent import AgentFriendMembers
 from application.models.agent import AgentGroupMembers
 from application.models.friend import Friends
 from application.models.group import Groups
+from application.models.group_invite import GroupInvites
 from application.models.group_member import GroupMembers
 from application.models.friend_request import FriendRequests
 
 backend = Blueprint("backend", __name__, url_prefix="/app/backend")
+
+
+class GroupInvitesBackendApi(MethodView):
+    def __init__(self, model):
+        self.model = model
+
+    @login_required
+    @verified_required
+    def post(self):
+        if groups.resolve_group_invitation(request):
+            return "", 204
+        else:
+            return "Error!", 500
 
 
 class GameServerControlBackendApi(MethodView):
@@ -78,7 +92,7 @@ class GroupMembersBackendApi(MethodView):
     @login_required
     @verified_required
     def delete(self, group_id, member_id):
-        if groups.remove_friend_from_group(group_id, member_id):
+        if groups.remove_user_from_group(group_id, member_id):
             return "", 204
         else:
             return "Error!", 500
@@ -172,6 +186,12 @@ backend.add_url_rule(
     "/agent/group/member/<int:member_id>",
     view_func=AgentGroupMembersBackendApi.as_view("agent_group_members_api", AgentGroupMembers),
     methods=["DELETE"],
+)
+
+backend.add_url_rule(
+    "/group/invite",
+    view_func=GroupInvitesBackendApi.as_view("group_invites_api", GroupInvites),
+    methods=["POST"],
 )
 
 backend.add_url_rule(

@@ -144,6 +144,16 @@ class AddFriendToGroupForm(FlaskForm):
         self.friends_list.choices = _populate_friend_choices()
 
 
+class InviteFriendToGroupForm(FlaskForm):
+    group_id = HiddenField("Group ID")
+    requestor_id = HiddenField("Requestor ID")
+    method = HiddenField("PATCH_INVITE_FRIEND")
+    friends_list = SelectField(choices=[], validators=[DataRequired()])
+
+    def populate_choices(self) -> list:
+        self.friends_list.choices = _populate_friend_choices()
+
+
 class TransferGroupForm(FlaskForm):
     group_id = HiddenField("Group ID")
     method = HiddenField("PATCH_GROUP_TRANSFER")

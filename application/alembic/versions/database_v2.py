@@ -1,6 +1,6 @@
 """Initial Migration.
 
-Revision ID: database_v1
+Revision ID: database_v2
 Revises:
 Create Date: 2023-10-08 14:10:31.088339
 
