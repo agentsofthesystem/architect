@@ -25,6 +25,7 @@ class DefaultConfig:
     # Top-level App Controls
     APP_ENABLE_PAYMENTS = False
     APP_ENABLE_EMAIL = False
+    APP_ENABLE_BETA = False
 
     # AWS Settings
     AWS_REGION = "us-east-1"
@@ -42,6 +43,8 @@ class DefaultConfig:
 
     # Log/Verbosity Settings
     OPERATOR_CLIENT_VERBOSE = False
+
+    RPC_PORT = 4242
 
     ######################################################################
     # Non - Re-Configurable Settings

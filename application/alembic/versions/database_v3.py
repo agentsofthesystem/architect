@@ -1,4 +1,4 @@
-"""Initial Migration.
+"""Add Group Invites.
 
 Revision ID: database_v3
 Revises:

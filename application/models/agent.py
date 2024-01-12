@@ -19,6 +19,7 @@ class Agents(PaginatedApi, DATABASE.Model):
     name = DATABASE.Column(DATABASE.String(256), nullable=False)
     hostname = DATABASE.Column(DATABASE.String(256), nullable=False)
     port = DATABASE.Column(DATABASE.Integer, nullable=False, default=AGENT_SMITH_DEFAULT_PORT)
+    ssl_public_cert = DATABASE.Column(DATABASE.String(256), nullable=False)
     access_token = DATABASE.Column(DATABASE.String(256), nullable=True)
 
     owner_id = DATABASE.Column(

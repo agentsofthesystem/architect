@@ -16,6 +16,7 @@ redis
 requests
 stripe
 Werkzeug==2.3.7
+zerorpc
 
 # TODO - Eventually this should be a specific version.
 operator @ git+https://github.com/agentsofthesystem/operator@main

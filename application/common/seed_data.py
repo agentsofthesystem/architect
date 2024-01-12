@@ -82,6 +82,12 @@ SYSTEM_SETTINGS = {
         "category": "system",
         "type": "bool",
     },
+    "APP_ENABLE_BETA": {
+        "pretty": "Application Enable Beta Mode",
+        "description": "Only allow users in beta table to signup.",
+        "category": "system",
+        "type": "bool",
+    },
     # This one is special so the factory.py only runs the init code once.
     "IS_SEEDED": {
         "pretty": "System Settings are Seeded.",

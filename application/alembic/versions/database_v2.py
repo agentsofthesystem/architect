@@ -1,4 +1,4 @@
-"""Initial Migration.
+"""Add Agents, Friends, Groups and associations.
 
 Revision ID: database_v2
 Revises:

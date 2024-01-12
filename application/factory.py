@@ -15,6 +15,7 @@ from alembic.config import Config
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
 from kombu.utils.url import safequote
+from threading import Thread
 from werkzeug.security import generate_password_hash
 
 from application.common import logger
@@ -24,7 +25,8 @@ from application.common.tools import MyAdminIndexView, _get_application_path
 from application.common.seed_data import seed_system_settings, update_system_settings
 from application.config.config import DefaultConfig
 from application.debugger import init_debugger
-from application.extensions import ADMIN, CELERY, CSRF, DATABASE, LOGIN_MANAGER, SOCKETIO
+from application.extensions import ADMIN, CELERY, CSRF, DATABASE, LOGIN_MANAGER, SOCKETIO, ZRPC
+from application.models.beta_user import BetaUser
 from application.models.user import UserSql
 from application.models.setting import SettingsSql
 from application.api.backend.views import backend
@@ -200,6 +202,7 @@ def create_app(config=None, init_db=True, init_celery=True):
 
     # Initialize Flask Admin Panel
     ADMIN.add_view(ModelView(UserSql, DATABASE.session, "Users"))
+    ADMIN.add_view(ModelView(BetaUser, DATABASE.session, "Beta Users"))
     ADMIN.add_view(ModelView(SettingsSql, DATABASE.session, "Settings"))
     ADMIN.init_app(flask_app, index_view=MyAdminIndexView(url="/app/flask_admin"))
     ADMIN.add_link(MenuLink(name="Return", url="/app/admin", category="Links"))
@@ -254,6 +257,12 @@ def create_app(config=None, init_db=True, init_celery=True):
     # Import socket endpoints
     # Intentionally imported here after socketio initializes.
     from application.api.websocket import agents  # noqa: F401
+
+    ZRPC.bind(f"tcp://0.0.0.0:{flask_app.config['RPC_PORT']}")
+    _rpc_thread = Thread(target=lambda: ZRPC.run())
+    _rpc_thread.daemon = True
+
+    _rpc_thread.start()
 
     logger.info(f"{flask_app.name} has successfully initialized.")
 
