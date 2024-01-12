@@ -62,6 +62,7 @@ class NewAgentForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     hostname = StringField("Hostname", validators=[DataRequired()])
     port = IntegerField("Port", validators=[DataRequired()])
+    ssl_public_cert = StringField("Access Token", validators=[DataRequired()])
     access_token = StringField("Access Token", validators=[DataRequired()])
     send = SubmitField("Send")
 

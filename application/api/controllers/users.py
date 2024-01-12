@@ -15,8 +15,40 @@ from application.api.controllers.friends import generate_friend_code
 from application.common import logger
 from application.common.tools import check_password
 from application.extensions import DATABASE
+from application.models.beta_user import BetaUser
+from application.models.setting import SettingsSql
 from application.models.user import UserSql
 from application.workers.email import emailer
+
+
+def _create_new_user(user, email, password, first, last):
+    new_user = UserSql()
+
+    new_user.active = True
+    new_user.authenticated = True
+    new_user.admin = False
+
+    new_user.username = user
+    new_user.email = email
+    new_user.password = generate_password_hash(password)
+    new_user.friend_code = generate_friend_code(email)
+
+    new_user.first_name = first
+    new_user.last_name = last
+
+    try:
+        DATABASE.session.add(new_user)
+        DATABASE.session.commit()
+    except Exception as error:
+        logger.error(error)
+
+    return new_user
+
+
+def _user_exists(email):
+    check_user_obj = UserSql.query.filter_by(email=email).first()
+
+    return False if check_user_obj is None else True
 
 
 def signin(request):
@@ -36,13 +68,26 @@ def signin(request):
     if user_obj is None:
         return False
 
+    # If beta mode is enabled, restrict sign-ins.
+    beta_mode_enable = SettingsSql.query.filter_by(name="APP_ENABLE_BETA").first()
+
+    if beta_mode_enable.value == "True" or beta_mode_enable.value == "true":
+        # Only allowed and active beta users.
+        # Does not apply to the site admin.
+        if (
+            BetaUser.query.filter_by(email=email, active=True).first() is None
+            and not user_obj.admin
+        ):
+            flash("User is not in the Beta User Group and not allowed to sign in", "danger")
+            return False
+
     check = check_password_hash(user_obj.password, password)
 
     if not check:
         logger.error("SIGNIN: Bad Password")
         return False
 
-    update_dict = {"is_authenticated": True, "active": True}
+    update_dict = {"authenticated": True, "active": True}
 
     try:
         user_qry.update(update_dict)
@@ -78,31 +123,24 @@ def signup(request):
         flash("There was an internal error...", "danger")
         return False
 
-    check_user_obj = UserSql.query.filter_by(email=email).first()
+    # If beta mode is enabled, restrict signup form.
+    beta_mode_enable = SettingsSql.query.filter_by(name="APP_ENABLE_BETA").first()
 
-    if check_user_obj:
-        flash("Email already exists!", "danger")
-        return False
-
-    new_user = UserSql()
-
-    new_user.active = True
-    new_user.authenticated = True
-    new_user.admin = False
-
-    new_user.username = user
-    new_user.email = email
-    new_user.password = generate_password_hash(password)
-    new_user.friend_code = generate_friend_code(email)
-
-    new_user.first_name = first
-    new_user.last_name = last
-
-    try:
-        DATABASE.session.add(new_user)
-        DATABASE.session.commit()
-    except Exception as error:
-        logger.error(error)
+    if beta_mode_enable.value == "True" or beta_mode_enable.value == "true":
+        # Only allowed and active beta users.
+        if BetaUser.query.filter_by(email=email, active=True).first():
+            if _user_exists(email):
+                flash("Email already exists!", "danger")
+                return False
+            new_user = _create_new_user(user, email, password, first, last)
+        else:
+            flash("User is not in the Beta User Group and not allowed to sign up", "danger")
+            return False
+    else:
+        if _user_exists(email):
+            flash("Email already exists!", "danger")
+            return False
+        new_user = _create_new_user(user, email, password, first, last)
 
     login_user(new_user)
 
@@ -164,6 +202,10 @@ def signup(request):
 
 
 def signout(user):
+    user_qry = UserSql.query.filter_by(user_id=user.user_id)
+    update_dict = {"active": False, "authenticated": False}
+    user_qry.update(update_dict)
+    DATABASE.session.commit()
     logout_user()
 
 
