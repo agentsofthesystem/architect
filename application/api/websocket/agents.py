@@ -37,11 +37,17 @@ def get_agent_status(input_dict):
         logger.critical("Agent ID Does not exist... cannot contact agent.")
         response.update({"status": "Error"})
 
-    hostname = tools.format_url(agent_obj.hostname)
+    hostname = tools.format_url_prefix(agent_obj.hostname)
 
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
-    client = Operator(hostname, agent_obj.port, verbose, token=agent_obj.access_token)
+    client = Operator(
+        hostname,
+        agent_obj.port,
+        verbose,
+        token=agent_obj.access_token,
+        certificate=agent_obj.ssl_public_cert,
+    )
 
     client_response = client.architect.get_health(secure_version=True)
 
@@ -70,11 +76,11 @@ def get_agent_info(input_dict):
         logger.critical("Agent ID Does not exist... cannot contact agent.")
         response.update({"agent_info": "Error"})
 
-    hostname = tools.format_url(agent_obj.hostname)
+    hostname = tools.format_url_prefix(agent_obj.hostname)
 
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
-    client = Operator(hostname, agent_obj.port, verbose, token=agent_obj.access_token)
+    client = Operator(hostname, agent_obj.port, verbose, token=agent_obj.access_token, certificate=agent_obj.ssl_public_cert)
 
     client_response = client.architect.get_agent_info()
 
@@ -134,11 +140,11 @@ def get_action_result(input_dict):
         emit("respond_action_result", response, json=True, namespace="/system/agent/info")
         return
 
-    hostname = tools.format_url(agent_obj.hostname)
+    hostname = tools.format_url_prefix(agent_obj.hostname)
 
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
-    client = Operator(hostname, agent_obj.port, verbose, token=agent_obj.access_token)
+    client = Operator(hostname, agent_obj.port, verbose, token=agent_obj.access_token, certificate=agent_obj.ssl_public_cert)
 
     client_response = client.game.get_game_status(input_dict["game_name"])
 

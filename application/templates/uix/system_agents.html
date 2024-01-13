@@ -50,6 +50,13 @@
                             </div>
                         </div>
 
+                        <div class="form-group row">
+                            {{ new_agent_form.ssl_public_cert.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ new_agent_form.ssl_public_cert(class="form-control", type="text", value="", row="20", cols="10") }}
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
@@ -109,6 +116,13 @@
                             {{ new_agent_form.access_token.label(class="col-sm-2 col-form-label") }}
                             <div class="col-sm-10">
                             {{ update_agent_form.access_token(class="form-control", id="update-agent-access-token-input", type="text", value="") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ update_agent_form.ssl_public_cert.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ update_agent_form.ssl_public_cert(class="form-control", id="update-agent-ssl-cert-input", type="text", value="", row="20", cols="10") }}
                             </div>
                         </div>
 
@@ -256,6 +270,10 @@
                 $(badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
                 $('.' + agent_info_link_class).removeAttr("href")
             }
+            else if (agent_status == "SSLError" || agent_status == "SSLCertMissing"){
+                $(badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
+                $('.' + agent_info_link_class).removeAttr("href")
+            }
             else if (agent_status == "Error"){
                 $(badge).attr("class", "badge badge-warning agent-status-badge " + agent_id_class);
                 $('.' + agent_info_link_class).removeAttr("href")
@@ -275,11 +293,13 @@
             type: 'GET',
             dataType: 'json', // added data type
             success: function(data) {
+                console.log(data)
                 $('#update-agent-id-input')[0].value = agent_id;
                 $('#update-agent-name-input')[0].value = data[0]['name'];
                 $('#update-agent-hostname-input')[0].value = data[0]['hostname'];
                 $('#update-agent-port-input')[0].value = data[0]['port'];
                 $('#update-agent-access-token-input')[0].value = data[0]['access_token'];
+                $('#update-agent-ssl-cert-input')[0].value = data[0]['ssl_public_cert'];
             }
         });
 
