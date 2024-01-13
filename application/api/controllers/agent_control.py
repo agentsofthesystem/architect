@@ -33,7 +33,14 @@ def startup(request):
     logger.info("Running startup game server command via celery...")
 
     startup_game_server.apply_async(
-        [hostname, str(agent_obj.port), verbose, agent_obj.access_token, agent_obj.ssl_public_cert, game_name]
+        [
+            hostname,
+            str(agent_obj.port),
+            verbose,
+            agent_obj.access_token,
+            agent_obj.ssl_public_cert,
+            game_name,
+        ]
     )
 
     return True
@@ -63,7 +70,14 @@ def shutdown(request):
     logger.info("Shutdown startup game server command via celery...")
 
     shutdown_game_server.apply_async(
-        [hostname, str(agent_obj.port), verbose, agent_obj.access_token, agent_obj.ssl_public_cert, game_name]
+        [
+            hostname,
+            str(agent_obj.port),
+            verbose,
+            agent_obj.access_token,
+            agent_obj.ssl_public_cert,
+            game_name,
+        ]
     )
 
     return True
@@ -93,7 +107,14 @@ def restart(request):
     logger.info("Restart startup game server command via celery...")
 
     restart_game_server.apply_async(
-        [hostname, str(agent_obj.port), verbose, agent_obj.access_token, agent_obj.ssl_public_cert, game_name]
+        [
+            hostname,
+            str(agent_obj.port),
+            verbose,
+            agent_obj.access_token,
+            agent_obj.ssl_public_cert,
+            game_name,
+        ]
     )
 
     return True
