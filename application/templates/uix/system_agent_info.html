@@ -91,6 +91,77 @@
   </section>
   <!--end of section-->
 
+  <section class="height-5">
+    <div class="container">
+      <ul class="feature-list feature-list-sm row">
+        {% set is_disabled = "disabled='true'" if current_user.user_id != agent_info['agent']['owner_id'] else "" %}
+        <li class="col-sm">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between">
+              <div>
+                <span class="h6">Group Members</span>
+                <span class="badge badge-secondary">{{agent_info['num_groups']}}</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled list-spacing-sm">
+                {% for group in agent_info['groups'] %}
+                <li>
+                  <div class="input-group">
+                    <input class="form-control form-control-lg" type="text"
+                      value="{{group['name']}} (Owner: {{group['owner']['username']}})" disabled="true">
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary remove-group-from-agent" type="button"
+                        id="{{group['agent_group_member_id']}}" {{is_disabled}}><i
+                          class="icon-circle-with-cross"></i></button>
+                    </div>
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          <!--end of card-->
+        </li>
+        <!--end of col-->
+
+        <li class="col-sm">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between">
+              <div>
+                <span class="h6">Friend Members</span>
+                <span class="badge badge-secondary">{{agent_info['num_friends']}}</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled list-spacing-sm">
+                {% for friend in agent_info['friends'] %}
+                <li>
+                  <div class="input-group">
+                    <input class="form-control form-control-lg" type="text" value="{{friend['username']}}"
+                      disabled="true">
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary remove-friend-from-agent" type="button"
+                        id="{{friend['agent_friend_member_id']}}" {{is_disabled}}><i
+                          class="icon-remove-user"></i></button>
+                    </div>
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          <!--end of card-->
+        </li>
+        <!--end of col-->
+
+      </ul>
+      <!--end of row-->
+    </div>
+    <!--end of container-->
+  </section>
+  <!--end of section-->
+
   <section class="height-5" id="agent-info-waiting-section">
     <div class="container">
       <div class="text-center">
@@ -207,77 +278,6 @@
         <!--end of col-->
 
       </div>
-      <!--end of row-->
-    </div>
-    <!--end of container-->
-  </section>
-  <!--end of section-->
-
-  <section class="flush-with-above">
-    <div class="container">
-      <ul class="feature-list feature-list-sm row">
-        {% set is_disabled = "disabled='true'" if current_user.user_id != agent_info['agent']['owner_id'] else "" %}
-        <li class="col-sm">
-          <div class="card">
-            <div class="card-header d-flex justify-content-between">
-              <div>
-                <span class="h6">Group Members</span>
-                <span class="badge badge-secondary">{{agent_info['num_groups']}}</span>
-              </div>
-            </div>
-            <div class="card-body">
-              <ul class="list-unstyled list-spacing-sm">
-                {% for group in agent_info['groups'] %}
-                <li>
-                  <div class="input-group">
-                    <input class="form-control form-control-lg" type="text"
-                      value="{{group['name']}} (Owner: {{group['owner']['username']}})" disabled="true">
-                    <div class="input-group-append">
-                      <button class="btn btn-outline-secondary remove-group-from-agent" type="button"
-                        id="{{group['agent_group_member_id']}}" {{is_disabled}}><i
-                          class="icon-circle-with-cross"></i></button>
-                    </div>
-                  </div>
-                </li>
-                {% endfor %}
-              </ul>
-            </div>
-          </div>
-          <!--end of card-->
-        </li>
-        <!--end of col-->
-
-        <li class="col-sm">
-          <div class="card">
-            <div class="card-header d-flex justify-content-between">
-              <div>
-                <span class="h6">Friend Members</span>
-                <span class="badge badge-secondary">{{agent_info['num_friends']}}</span>
-              </div>
-            </div>
-            <div class="card-body">
-              <ul class="list-unstyled list-spacing-sm">
-                {% for friend in agent_info['friends'] %}
-                <li>
-                  <div class="input-group">
-                    <input class="form-control form-control-lg" type="text" value="{{friend['username']}}"
-                      disabled="true">
-                    <div class="input-group-append">
-                      <button class="btn btn-outline-secondary remove-friend-from-agent" type="button"
-                        id="{{friend['agent_friend_member_id']}}" {{is_disabled}}><i
-                          class="icon-remove-user"></i></button>
-                    </div>
-                  </div>
-                </li>
-                {% endfor %}
-              </ul>
-            </div>
-          </div>
-          <!--end of card-->
-        </li>
-        <!--end of col-->
-
-      </ul>
       <!--end of row-->
     </div>
     <!--end of container-->
@@ -534,11 +534,11 @@
 
     console.log("Sending get_action_result signal to websocket...")
 
-    var wait_time = 2000;
+    var wait_time = 5000;  // 5 seconds
 
     if (action == "restart"){
       console.log("Waiting a little long than usual because its a restart.")
-      wait_time = 15000;
+      wait_time = 20000;
     }
 
     $("#gameServerActionInProgress").modal('show');

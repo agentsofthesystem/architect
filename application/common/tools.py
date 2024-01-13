@@ -104,12 +104,17 @@ def _get_setting(setting_name: str, setting_objs: list):
 
 
 @staticmethod
-def format_url(input: str) -> str:
+def format_url_prefix(input: str) -> str:
     hostname = input
 
-    # Default to http since client doesn't yet support https, anyway.
+    # If user somehow put http:// in, update it to https://
+    if "http://" in input:
+        hostname = f"https://{input}"
+
+    # If just put in the domain name; eg.example.com
+    # The add https:// prefix.
     if "http://" not in input and "https://" not in input:
-        hostname = f"http://{input}"
+        hostname = f"https://{input}"
 
     return hostname
 

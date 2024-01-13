@@ -11,6 +11,7 @@ from wtforms import (
     SelectMultipleField,
 )
 from wtforms.validators import DataRequired
+from wtforms.widgets import TextArea
 
 from application.api.controllers import friends
 from application.api.controllers import groups
@@ -62,7 +63,9 @@ class NewAgentForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     hostname = StringField("Hostname", validators=[DataRequired()])
     port = IntegerField("Port", validators=[DataRequired()])
-    ssl_public_cert = StringField("Access Token", validators=[DataRequired()])
+    ssl_public_cert = StringField(
+        "SSL Public Certificate", widget=TextArea(), validators=[DataRequired()]
+    )
     access_token = StringField("Access Token", validators=[DataRequired()])
     send = SubmitField("Send")
 
@@ -74,6 +77,9 @@ class UpdateAgentForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     hostname = StringField("Hostname", validators=[DataRequired()])
     port = IntegerField("Port", validators=[DataRequired()])
+    ssl_public_cert = StringField(
+        "SSL Public Certificate", widget=TextArea(), validators=[DataRequired()]
+    )
     access_token = StringField("Access Token", validators=[DataRequired()])
 
     send = SubmitField("Send")

@@ -104,10 +104,15 @@ def create_agent(request) -> bool:
         port = data["port"]
         owner_id = data["owner_id"]
         access_token = data["access_token"]
+        ssl_public_cert = data["ssl_public_cert"]
 
     except KeyError:
         logger.error("Create Agent: Missing Form Input Data")
         flash("There was an internal error...", "danger")
+        return False
+
+    if "http://" in hostname:
+        flash("Warning: You must use https:// or just enter the domain name only.", "warning")
         return False
 
     # Owner ID prevents two accounts from adding the same agent.
@@ -125,6 +130,7 @@ def create_agent(request) -> bool:
     new_agent.port = port
     new_agent.owner_id = owner_id
     new_agent.access_token = access_token
+    new_agent.ssl_public_cert = ssl_public_cert
 
     try:
         DATABASE.session.add(new_agent)
@@ -146,10 +152,15 @@ def update_agent(request):
         port = data["port"]
         agent_id = data["agent_id"]
         access_token = data["access_token"]
+        ssl_public_cert = data["ssl_public_cert"]
 
     except KeyError:
         logger.error("Create Agent: Missing Form Input Data")
         flash("There was an internal error...", "danger")
+        return False
+
+    if "http://" in hostname:
+        flash("Warning: You must use https:// or just enter the domain name only.", "warning")
         return False
 
     agent_qry = Agents.query.filter_by(agent_id=agent_id)
@@ -162,6 +173,7 @@ def update_agent(request):
         "hostname": hostname,
         "port": port,
         "access_token": access_token,
+        "ssl_public_cert": ssl_public_cert,
     }
 
     try:
