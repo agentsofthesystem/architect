@@ -120,7 +120,11 @@ def signup(request):
 
     except KeyError:
         logger.error("SIGNUP: Missing Data")
-        flash("There was an internal error...", "danger")
+        flash("Missing form data. Try Again...", "danger")
+        return False
+
+    if user == email:
+        flash("Your username should not also be your email address. Try Again!", "warning")
         return False
 
     # If beta mode is enabled, restrict signup form.

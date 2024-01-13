@@ -27,13 +27,13 @@ def startup(request):
         logger.error(f"Startup Game Server: Agent ID {agent_id} does not exist!")
         return False
 
-    hostname = tools.format_url(agent_obj.hostname)
+    hostname = tools.format_url_prefix(agent_obj.hostname)
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
     logger.info("Running startup game server command via celery...")
 
     startup_game_server.apply_async(
-        [hostname, str(agent_obj.port), verbose, agent_obj.access_token, game_name]
+        [hostname, str(agent_obj.port), verbose, agent_obj.access_token, agent_obj.ssl_public_cert, game_name]
     )
 
     return True
@@ -57,13 +57,13 @@ def shutdown(request):
         logger.error(f"Shutdown Game Server: Agent ID {agent_id} does not exist!")
         return False
 
-    hostname = tools.format_url(agent_obj.hostname)
+    hostname = tools.format_url_prefix(agent_obj.hostname)
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
     logger.info("Shutdown startup game server command via celery...")
 
     shutdown_game_server.apply_async(
-        [hostname, str(agent_obj.port), verbose, agent_obj.access_token, game_name]
+        [hostname, str(agent_obj.port), verbose, agent_obj.access_token, agent_obj.ssl_public_cert, game_name]
     )
 
     return True
@@ -87,13 +87,13 @@ def restart(request):
         logger.error(f"Restart Game Server: Agent ID {agent_id} does not exist!")
         return False
 
-    hostname = tools.format_url(agent_obj.hostname)
+    hostname = tools.format_url_prefix(agent_obj.hostname)
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
     logger.info("Restart startup game server command via celery...")
 
     restart_game_server.apply_async(
-        [hostname, str(agent_obj.port), verbose, agent_obj.access_token, game_name]
+        [hostname, str(agent_obj.port), verbose, agent_obj.access_token, agent_obj.ssl_public_cert, game_name]
     )
 
     return True
