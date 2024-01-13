@@ -7,7 +7,9 @@ from operator_client import Operator
 
 
 @CELERY.task(bind=True)
-def startup_game_server(self, hostname: str, port: str, verbose: bool, token: str, certificate: str, game_name: str):
+def startup_game_server(
+    self, hostname: str, port: str, verbose: bool, token: str, certificate: str, game_name: str
+):
     logger.info(f"Staring up game: {game_name}")
 
     try:
@@ -30,7 +32,9 @@ def startup_game_server(self, hostname: str, port: str, verbose: bool, token: st
 
 
 @CELERY.task(bind=True)
-def shutdown_game_server(self, hostname: str, port: str, verbose: bool, token: str, certificate: str, game_name: str):
+def shutdown_game_server(
+    self, hostname: str, port: str, verbose: bool, token: str, certificate: str, game_name: str
+):
     logger.info(f"Shutting down game: {game_name}")
 
     try:
@@ -47,7 +51,9 @@ def shutdown_game_server(self, hostname: str, port: str, verbose: bool, token: s
 
 
 @CELERY.task(bind=True)
-def restart_game_server(self, hostname: str, port: str, verbose: bool, token: str, certificate: str, game_name: str):
+def restart_game_server(
+    self, hostname: str, port: str, verbose: bool, token: str, certificate: str, game_name: str
+):
     logger.info(f"Restarting game: {game_name}")
 
     try:

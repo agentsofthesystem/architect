@@ -80,7 +80,13 @@ def get_agent_info(input_dict):
 
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
-    client = Operator(hostname, agent_obj.port, verbose, token=agent_obj.access_token, certificate=agent_obj.ssl_public_cert)
+    client = Operator(
+        hostname,
+        agent_obj.port,
+        verbose,
+        token=agent_obj.access_token,
+        certificate=agent_obj.ssl_public_cert,
+    )
 
     client_response = client.architect.get_agent_info()
 
@@ -144,7 +150,13 @@ def get_action_result(input_dict):
 
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
-    client = Operator(hostname, agent_obj.port, verbose, token=agent_obj.access_token, certificate=agent_obj.ssl_public_cert)
+    client = Operator(
+        hostname,
+        agent_obj.port,
+        verbose,
+        token=agent_obj.access_token,
+        certificate=agent_obj.ssl_public_cert,
+    )
 
     client_response = client.game.get_game_status(input_dict["game_name"])
 
