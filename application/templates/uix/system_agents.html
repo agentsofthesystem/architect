@@ -270,6 +270,10 @@
                 $(badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
                 $('.' + agent_info_link_class).removeAttr("href")
             }
+            else if (agent_status == "InvalidAccessToken"){
+                $(badge).attr("class", "badge badge-warning agent-status-badge " + agent_id_class);
+                $('.' + agent_info_link_class).removeAttr("href")
+            }
             else if (agent_status == "SSLError" || agent_status == "SSLCertMissing"){
                 $(badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
                 $('.' + agent_info_link_class).removeAttr("href")

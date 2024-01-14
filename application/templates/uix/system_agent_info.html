@@ -162,17 +162,6 @@
   </section>
   <!--end of section-->
 
-  <section class="height-5" id="agent-info-waiting-section">
-    <div class="container">
-      <div class="text-center">
-        <div class="spinner-border text-success" style="width: 5rem; height: 5rem;" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!--end of section-->
-
   <section class="flush-with-above mt-1" id="agent-info-section">
 
     <div class="container">
@@ -284,17 +273,6 @@
   </section>
   <!--end of section-->
 
-  <section class="flush-with-above" id="agent-game-info-waiting-section">
-    <div class="container">
-      <div class="text-center">
-        <div class="spinner-border text-success" style="width: 5rem; height: 5rem;" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!--end of section-->
-
   <section class="flush-with-above" id="agent-game-info-section">
     <div class="container">
       <div class="row justify-content-between">
@@ -341,9 +319,10 @@
     })
 
     var agent_info_section = $("#agent-info-section")[0];
-    var agent_info_waiting_section = $("#agent-info-waiting-section")[0];
     var agent_game_info_section = $("#agent-game-info-section")[0];
-    var agent_game_info_waiting_section = $("#agent-game-info-waiting-section")[0];
+
+    $("#gameServerActionInProgress").modal('show');
+
 
     $(agent_info_section).hide();
     $(agent_game_info_section).hide()
@@ -364,6 +343,7 @@
 
       if (agent_info == "Error") {
         // Show the error modal...
+        $("#gameServerActionInProgress").modal('hide');
         $("#errorModal").modal('show');
         return;
       }
@@ -437,8 +417,7 @@
         game_server_table.appendChild(new_row)
       }
 
-      $(agent_info_waiting_section).hide();
-      $(agent_game_info_waiting_section).hide();
+      $("#gameServerActionInProgress").modal('hide');
       $(agent_info_section).show();
       $(agent_game_info_section).show();
 
