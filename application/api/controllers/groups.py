@@ -3,7 +3,7 @@ import json
 from flask import flash, url_for
 from flask_login import current_user
 
-from application.common import logger, tools
+from application.common import logger, toolbox
 from application.common.constants import GroupInviteStates
 from application.api.controllers.messages import create_direct_message
 from application.extensions import DATABASE
@@ -45,7 +45,7 @@ def get_owned_groups() -> list:
             member_id = member_dict["member_id"]
             member_obj = UserSql.query.filter_by(user_id=member_id).first()
             member_dict["user"] = member_obj.to_dict()
-            member_dict["user"]["is_friend"] = tools.is_friend(current_user.user_id, member_id)
+            member_dict["user"]["is_friend"] = toolbox.is_friend(current_user.user_id, member_id)
             members_list.append(member_dict)
 
         invite_objs = GroupInvites.query.filter_by(
@@ -59,7 +59,7 @@ def get_owned_groups() -> list:
             invite_dict = invite.to_dict()
             invite_obj = UserSql.query.filter_by(user_id=invite.invite_id).first()
             invite_dict["user"] = invite_obj.to_dict()
-            invite_dict["user"]["is_friend"] = tools.is_friend(
+            invite_dict["user"]["is_friend"] = toolbox.is_friend(
                 current_user.user_id, invite.invite_id
             )
             invitation_list.append(invite_dict)
@@ -100,7 +100,7 @@ def get_associated_groups() -> list:
             member_id = member_dict["member_id"]
             member_obj = UserSql.query.filter_by(user_id=member_id).first()
             member_dict["user"] = member_obj.to_dict()
-            member_dict["user"]["is_friend"] = tools.is_friend(current_user.user_id, member_id)
+            member_dict["user"]["is_friend"] = toolbox.is_friend(current_user.user_id, member_id)
             members_list.append(member_dict)
 
         group_dict["agent_count"] = AgentGroupMembers.query.filter_by(

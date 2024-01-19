@@ -318,12 +318,13 @@
       }
     })
 
+    // Takes out the agent id. So it doesn't show up in URL and give people ideas.
+    window.history.replaceState(null, "", "/app/system/agent/info");
+
     var agent_info_section = $("#agent-info-section")[0];
     var agent_game_info_section = $("#agent-game-info-section")[0];
 
     $("#gameServerActionInProgress").modal('show');
-
-
     $(agent_info_section).hide();
     $(agent_game_info_section).hide()
 
@@ -496,10 +497,7 @@
           wait_time)
         }
       }
-
-
     });
-
   });
 
   function handleActionResult(agent_id, action, game_name) {

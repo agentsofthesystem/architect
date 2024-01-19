@@ -15,7 +15,7 @@ from flask_login import current_user
 
 from application.api.controllers import users
 from application.common import logger
-from application.common.tools import _get_setting
+from application.common.toolbox import _get_setting
 from application.extensions import CSRF, DATABASE
 from application.models.user import UserSql
 from application.models.setting import SettingsSql
