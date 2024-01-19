@@ -1,7 +1,7 @@
 from flask import current_app
 
 from application.extensions import DATABASE
-from application.common.tools import _get_setting
+from application.common.toolbox import _get_setting
 from application.models.setting import SettingsSql
 
 SYSTEM_SETTINGS = {

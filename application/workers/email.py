@@ -6,7 +6,7 @@ from botocore.exceptions import ClientError
 from application.extensions import CELERY
 from application.common import logger
 from application.common.credentials import get_credentials
-from application.common.tools import _get_setting
+from application.common.toolbox import _get_setting
 from application.models.setting import SettingsSql
 
 

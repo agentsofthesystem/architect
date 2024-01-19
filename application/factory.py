@@ -21,7 +21,7 @@ from werkzeug.security import generate_password_hash
 from application.common import logger
 from application.common.credentials import get_credentials
 from application.common.user_loader import load_user  # noqa: F401
-from application.common.tools import MyAdminIndexView, _get_application_path
+from application.common.toolbox import MyAdminIndexView, _get_application_path
 from application.common.seed_data import seed_system_settings, update_system_settings
 from application.config.config import DefaultConfig
 from application.debugger import init_debugger

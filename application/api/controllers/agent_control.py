@@ -2,7 +2,7 @@ import json
 
 from flask import current_app
 
-from application.common import logger, tools
+from application.common import logger, toolbox
 from application.models.agent import Agents
 from application.workers.game_server_control import startup_game_server
 from application.workers.game_server_control import shutdown_game_server
@@ -27,7 +27,7 @@ def startup(request):
         logger.error(f"Startup Game Server: Agent ID {agent_id} does not exist!")
         return False
 
-    hostname = tools.format_url_prefix(agent_obj.hostname)
+    hostname = toolbox.format_url_prefix(agent_obj.hostname)
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
     logger.info("Running startup game server command via celery...")
@@ -64,7 +64,7 @@ def shutdown(request):
         logger.error(f"Shutdown Game Server: Agent ID {agent_id} does not exist!")
         return False
 
-    hostname = tools.format_url_prefix(agent_obj.hostname)
+    hostname = toolbox.format_url_prefix(agent_obj.hostname)
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
     logger.info("Shutdown startup game server command via celery...")
@@ -101,7 +101,7 @@ def restart(request):
         logger.error(f"Restart Game Server: Agent ID {agent_id} does not exist!")
         return False
 
-    hostname = tools.format_url_prefix(agent_obj.hostname)
+    hostname = toolbox.format_url_prefix(agent_obj.hostname)
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
     logger.info("Restart startup game server command via celery...")

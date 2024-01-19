@@ -239,10 +239,8 @@
         socket.on('connect', function() {
             for(let i = 0; i < agent_list.length; ++i){
                 var agent = agent_list[i];
-                setTimeout(() =>
-                    socket.emit('get_agent_status', {"agent_id": agent.id}),
-                    500
-                )
+                var agent_dict = {"agent_id": agent.id};
+                socket.emit('get_agent_status', agent_dict)
             }
         });
 

@@ -9,7 +9,7 @@ Docs:
 from flask import current_app
 from flask_socketio import emit
 
-from application.common import logger, tools
+from application.common import logger, toolbox
 from application.extensions import SOCKETIO
 from application.models.agent import Agents
 
@@ -37,7 +37,7 @@ def get_agent_status(input_dict):
         logger.critical("Agent ID Does not exist... cannot contact agent.")
         response.update({"status": "Error"})
 
-    hostname = tools.format_url_prefix(agent_obj.hostname)
+    hostname = toolbox.format_url_prefix(agent_obj.hostname)
 
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
@@ -76,7 +76,7 @@ def get_agent_info(input_dict):
         logger.critical("Agent ID Does not exist... cannot contact agent.")
         response.update({"agent_info": "Error"})
 
-    hostname = tools.format_url_prefix(agent_obj.hostname)
+    hostname = toolbox.format_url_prefix(agent_obj.hostname)
 
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
@@ -146,7 +146,7 @@ def get_action_result(input_dict):
         emit("respond_action_result", response, json=True, namespace="/system/agent/info")
         return
 
-    hostname = tools.format_url_prefix(agent_obj.hostname)
+    hostname = toolbox.format_url_prefix(agent_obj.hostname)
 
     verbose = current_app.config["OPERATOR_CLIENT_VERBOSE"]
 
