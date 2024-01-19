@@ -7,7 +7,7 @@ from application.api.controllers import agent_control
 from application.api.controllers import friends
 from application.api.controllers import groups
 from application.common import logger
-from application.common.tools import verified_required
+from application.common.decorators import verified_required
 from application.models.agent import Agents
 from application.models.agent import AgentFriendMembers
 from application.models.agent import AgentGroupMembers

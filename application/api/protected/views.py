@@ -18,11 +18,10 @@ from application.api.controllers import groups
 from application.api.controllers import messages
 from application.api.controllers import users
 from application.common import logger
-from application.common.tools import (
-    verified_required,
-    admin_required,
-    _get_setting,
-)
+from application.common.decorators import admin_required
+from application.common.decorators import agent_permission_required
+from application.common.decorators import verified_required
+from application.common.toolbox import _get_setting
 from application.extensions import DATABASE
 from application.models.user import UserSql
 from application.models.setting import SettingsSql
@@ -146,6 +145,7 @@ def system_agents():
 @protected.route("/system/agent/info/<int:agent_id>", methods=["GET", "POST"])
 @login_required
 @verified_required
+@agent_permission_required
 def system_agent_info(agent_id: int):
     # Get Agent Info.
     agent_obj = agents.get_agent_by_id(agent_id, as_obj=True)

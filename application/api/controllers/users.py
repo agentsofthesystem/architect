@@ -13,7 +13,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from application.api.controllers.friends import generate_friend_code
 from application.common import logger
-from application.common.tools import check_password
 from application.extensions import DATABASE
 from application.models.beta_user import BetaUser
 from application.models.setting import SettingsSql
@@ -402,11 +401,6 @@ def reset_password(request):
     if data["password"] != data["password2"]:
         logger.error("RESET: Passwords did not match!")
         flash("Password did not match. Try again!", "danger")
-        return False
-
-    # Check for password strength
-    if check_password(data["password"]) is False:
-        flash("Password must be at least 7 characters.", "danger")
         return False
 
     # Attempt to decode.
