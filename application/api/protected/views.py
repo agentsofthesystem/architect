@@ -142,6 +142,14 @@ def system_agents():
     )
 
 
+@protected.route("/system/agent/info", methods=["GET"])
+@login_required
+@verified_required
+def system_agent_info_catch():
+    """This will take the user back to the system agents list page."""
+    return redirect(url_for("protected.system_agents"))
+
+
 @protected.route("/system/agent/info/<int:agent_id>", methods=["GET", "POST"])
 @login_required
 @verified_required

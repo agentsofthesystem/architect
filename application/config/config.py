@@ -44,8 +44,6 @@ class DefaultConfig:
     # Log/Verbosity Settings
     OPERATOR_CLIENT_VERBOSE = False
 
-    RPC_PORT = 4242
-
     ######################################################################
     # Non - Re-Configurable Settings
     ######################################################################

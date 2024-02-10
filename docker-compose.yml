@@ -24,7 +24,7 @@ services:
     depends_on:
       - "tasks"
     image: architect:dev_test
-    #restart: on-failure
+    restart: on-failure
     build:
       context: ./
       dockerfile: Dockerfile
@@ -43,7 +43,7 @@ services:
   tasks:
     profiles: ["dev", "deploy"]
     image: architect:dev_test
-    #restart: on-failure
+    restart: on-failure
     build:
       context: ./
       dockerfile: Dockerfile
