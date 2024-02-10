@@ -304,6 +304,23 @@
 <script>
 
   var socket = io("/system/agent/info");
+  var agent_info_base_url = "/app/system/agent/info"
+
+  function reloadAgentInfo(agent_id){
+    document.location.href = agent_info_base_url + '/' + agent_id;
+  }
+
+  document.addEventListener('keydown', function(event) {
+    // Check if F5 key was pressed
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
+
+    if (event.keyCode === 116) {
+        // Prevent the default behavior of the F5 key (page reload)
+        event.preventDefault();
+
+        reloadAgentInfo(agent_id);
+    }
+});
 
   $(document).ready(function () {
 
@@ -319,7 +336,7 @@
     })
 
     // Takes out the agent id. So it doesn't show up in URL and give people ideas.
-    window.history.replaceState(null, "", "/app/system/agent/info");
+    window.history.replaceState(null, "", agent_info_base_url);
 
     var agent_info_section = $("#agent-info-section")[0];
     var agent_game_info_section = $("#agent-game-info-section")[0];
@@ -447,7 +464,7 @@
 
       if (attempt_number > attempt_limit) {
         console.log("Result Attempt limit reached.");
-        location.reload();
+        reloadAgentInfo(agent_id);
         return
       }
 
@@ -458,7 +475,7 @@
           console.log("Game Server has reached started state. Action is finished!")
           $("#gameServerActionInProgress").modal('hide');
           setTimeout(() =>
-            location.reload(),
+            reloadAgentInfo(agent_id),
             500
           )
         }
@@ -481,7 +498,7 @@
           console.log("Game Server has reached shutdown state. Action is finished!")
           $("#gameServerActionInProgress").modal('hide');
           setTimeout(() =>
-            location.reload(),
+            reloadAgentInfo(agent_id),
             500
           )
         }
@@ -608,7 +625,9 @@
   };
 
   $(".remove-group-from-agent").click(function () {
+
     console.log("Removing Agent Group Membership ID: " + this.id)
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
 
     $.ajax({
       type: "DELETE",
@@ -616,11 +635,11 @@
       contentType: 'application/json',
       success: function () {
         console.log("Friend Agent Group Member ID" + this.id);
-        location.reload();
+        reloadAgentInfo(agent_id);
       },
       error: function () {
         console.log('error!')
-        location.reload();
+        reloadAgentInfo(agent_id);
       }
     });
 
@@ -628,7 +647,9 @@
   });
 
   $(".remove-friend-from-agent").click(function () {
+
     console.log("Removing Agent Friend Membership ID: " + this.id)
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
 
     $.ajax({
       type: "DELETE",
@@ -636,11 +657,11 @@
       contentType: 'application/json',
       success: function () {
         console.log("Friend Agent Group Member ID" + this.id);
-        location.reload();
+        reloadAgentInfo(agent_id);
       },
       error: function () {
         console.log('error!')
-        location.reload();
+        reloadAgentInfo(agent_id);
       }
     });
 
