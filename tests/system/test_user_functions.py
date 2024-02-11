@@ -7,7 +7,8 @@ from selenium.webdriver.common.keys import Keys
 from werkzeug.security import generate_password_hash
 
 from application.config.config import DefaultConfig
-from application.models.user import User
+
+# from application.models.user import UserSql
 
 DOMAIN = "@REPLACE_APP_NAME.com"
 

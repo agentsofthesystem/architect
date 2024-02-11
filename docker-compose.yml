@@ -3,6 +3,11 @@ version: "3.9"
 # NOTE - Docker Compose is STRICTLY Meant for develop purpose.
 
 x-common-variables: &common-variables
+
+  # Only set these in compose file.  Leave config.py as it is.
+  DEBUG: True
+  ENV: development
+
   SQL_DATABASE_USER: admin
   SQL_DATABASE_PASS: REPLACEME
   SQL_DATABASE_SERVER: mariadb-service
