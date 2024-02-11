@@ -1,11 +1,11 @@
-from application.models.user import User
+from application.models.user import UserSql
 from werkzeug.security import generate_password_hash
 
 
 class TestSignin:
     @classmethod
     def setup_class(cls):
-        test_item = User()
+        test_item = UserSql()
         test_item.username = "test"
         test_item.email = "test@test.com"
         test_item.password = generate_password_hash("password")
@@ -13,7 +13,7 @@ class TestSignin:
 
     @classmethod
     def teardown_class(cls):
-        users = User.objects(email="test@test.com")
+        users = UserSql.objects(email="test@test.com")
         for user in users:
             user.delete()
 

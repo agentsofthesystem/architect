@@ -12,7 +12,7 @@ from application.factory import create_app
 def client():
     os.environ["ENV"] = "TEST"
 
-    config = DefaultConfig()
+    config = DefaultConfig(deploy_type="python")
 
     config.DEBUG = False
     config.ENV = "production"

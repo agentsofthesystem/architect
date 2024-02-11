@@ -1,5 +1,5 @@
-from application.api.workers.email import emailer
-from application.models.user import User
+from application.workers.email import emailer
+from application.models.user import UserSql
 from kombu.exceptions import OperationalError
 
 
@@ -22,7 +22,7 @@ class TestSignup:
         location = resp.headers["location"]
         assert location == "http://localhost/app/main"
 
-        obj = User.objects(email="test@test.com")
+        obj = UserSql.objects(email="test@test.com")
         obj[0].delete()
 
     def test_good_signup_with_email_error(self, client, mocker):
@@ -44,5 +44,5 @@ class TestSignup:
         location = resp.headers["location"]
         assert location == "http://localhost/app/main"
 
-        obj = User.objects(email="test@test.com")
+        obj = UserSql.objects(email="test@test.com")
         obj[0].delete()
