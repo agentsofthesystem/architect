@@ -165,13 +165,14 @@ def signup(request):
             return True
 
         # Sender, Subject, recipient, html
+        origin_host = request.host
 
         # Send welcome email
-        subject = f"Welcome to {current_app.config['APP_PRETTY_NAME']}!"
+        subject = "Welcome to Agents of the System!"
         msg = render_template(
             "email/welcome.html",
             pretty_name=current_app.config["APP_PRETTY_NAME"],
-            app_site=current_app.config["APP_WEBSITE"],
+            app_site=origin_host,
         )
         emailer.apply_async(
             [current_app.config["DEFAULT_MAIL_SENDER"], subject, new_user.email, msg]
@@ -190,7 +191,7 @@ def signup(request):
             "email/verify.html",
             verify_link=verify_link,
             pretty_name=current_app.config["APP_PRETTY_NAME"],
-            app_site=current_app.config["APP_WEBSITE"],
+            app_site=origin_host,
         )
         emailer.apply_async(
             [current_app.config["DEFAULT_MAIL_SENDER"], subject, new_user.email, msg],
