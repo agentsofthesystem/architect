@@ -1,9 +1,10 @@
-from flask import flash
+from flask import flash, url_for
 from flask_login import current_user
 
-from application.api.controllers import friends
-from application.api.controllers import groups
-from application.api.controllers import users
+from application.api.controllers import friends as friend_control
+from application.api.controllers import groups as group_control
+from application.api.controllers import messages as message_control
+from application.api.controllers import users as user_control
 from application.common import constants, logger
 from application.common.exceptions import InvalidUsage
 from application.extensions import DATABASE
@@ -40,7 +41,7 @@ def get_agents_by_owner(owner_id: int) -> []:
 
 def get_associated_agents() -> dict:
     # Get groups, that user belongs to.
-    associated_groups = groups.get_associated_groups()
+    associated_groups = group_control.get_associated_groups()
 
     # Build agent id list from groups
     combined_agent_list = []
@@ -55,7 +56,7 @@ def get_associated_agents() -> dict:
     # Check on direct agents from friends. Build list first, get the agents owned by friends,
     # and finally check for agent relationships.
     friend_id_list = []
-    friends_list = friends.get_my_friends()
+    friends_list = friend_control.get_my_friends()
 
     for friend in friends_list:
         if current_user.user_id == friend["initiator_id"]:
@@ -89,7 +90,7 @@ def get_associated_agents() -> dict:
     # Pack in the user information.
     for agent in agent_items:
         owner_id = agent["owner_id"]
-        owner_obj = users.get_user_by_id(owner_id)
+        owner_obj = user_control.get_user_by_id(owner_id)
         agent["owner"] = owner_obj.to_dict()
 
     return agent_items
@@ -249,7 +250,27 @@ def share_agent_with_group(request) -> bool:
         flash("Could not Share Agent To Group. Database Error!", "danger")
         return False
 
-    # TODO - Send message to users in group that they were added to an agent.
+    agent_obj = get_agent_by_id(agent_id=agent_id, as_obj=True)
+    group_obj = group_control.get_group_by_id(group_id, as_obj=True)
+    group_members = group_obj.members.all()
+
+    subject = "Agent Shared via Group"
+    agent_href = url_for("protected.system_agent_info", agent_id=agent_id)
+    message = (
+        f"<p>Access granted to Agent: {agent_obj.name}.</p>"
+        f"<p>You has access to this agent because you belong to group, {group_obj.name}.</p>"
+        f'<p>Go to the <a href="{agent_href}">Agent Info Page</a> to and have a look...</p>'
+    )
+
+    for member in group_members:
+        # Technically, the owning user is also a member of the group. Skip because do not
+        # need to send message to self.
+        if member.member_id == current_user.user_id:
+            continue
+
+        message_control.create_direct_message(
+            current_user.user_id, member.member_id, message, subject
+        )
 
     flash("Successfully shared Agent with Group!", "info")
 
@@ -274,6 +295,8 @@ def share_agent_with_friend(request) -> bool:
 
     friend_user_id = friend_list[0]
 
+    agent_obj = get_agent_by_id(agent_id, as_obj=True)
+
     share_obj = AgentFriendMembers.query.filter_by(
         agent_id=agent_id, friend_member_id=friend_user_id
     ).first()
@@ -293,6 +316,17 @@ def share_agent_with_friend(request) -> bool:
         logger.critical(error)
         flash("Could not Share Agent With Friend. Database Error!", "danger")
         return False
+
+    subject = "Agent Shared via Friendship"
+    agent_href = url_for("protected.system_agent_info", agent_id=agent_id)
+    message = (
+        f"<p>Access granted to Agent, {agent_obj.name}.</p>"
+        "<p>You will have access to this agent regardless of belonging "
+        "to a group which also has access.</p>"
+        f'<p>Go to the <a href="{agent_href}">Agent Info Page</a> to and have a look..</p>'
+    )
+
+    message_control.create_direct_message(current_user.user_id, friend_user_id, message, subject)
 
     flash("Successfully shared Agent with Friend!", "info")
 
@@ -327,6 +361,9 @@ def remove_group_membership(membership_id: int) -> bool:
         flash("Error: Unable to remove group from agent because it doesn't exist!", "danger")
         return False
 
+    agent_id = membership_obj.agent_id
+    group_id = membership_obj.group_member_id
+
     try:
         DATABASE.session.delete(membership_obj)
         DATABASE.session.commit()
@@ -335,7 +372,29 @@ def remove_group_membership(membership_id: int) -> bool:
         flash("Could not remove group from agent. Database Error!", "danger")
         return False
 
-    flash("Group Member Removed From Agent!", "info")
+    agent_obj = get_agent_by_id(agent_id=agent_id, as_obj=True)
+    group_obj = group_control.get_group_by_id(group_id, as_obj=True)
+    group_members = group_obj.members.all()
+
+    subject = "Group access to Agent revoked."
+    message = (
+        f"<p>Access Revoked from Agent: {agent_obj.name}.</p>"
+        f"<p>The group, {group_obj.name}, no longer has access to the agent.</p>"
+        f"<p>That means you no longer have access to this agent unless you have direct access "
+        "granted via friendship</p>"
+    )
+
+    for member in group_members:
+        # Technically, the owning user is also a member of the group. Skip because do not
+        # need to send message to self.
+        if member.member_id == current_user.user_id:
+            continue
+
+        message_control.create_direct_message(
+            current_user.user_id, member.member_id, message, subject
+        )
+
+    flash("Group Membership Removed From Agent!", "info")
 
     return True
 
@@ -349,6 +408,8 @@ def remove_friend_membership(membership_id: int) -> bool:
         flash("Error: Unable to remove friend from agent because it doesn't exist!", "danger")
         return False
 
+    friend_member_id = membership_obj.friend_member_id
+
     try:
         DATABASE.session.delete(membership_obj)
         DATABASE.session.commit()
@@ -357,7 +418,16 @@ def remove_friend_membership(membership_id: int) -> bool:
         flash("Could not remove friend from agent. Database Error!", "danger")
         return False
 
-    # TODO - Message user that their access to the agent has been removed.
+    agent_obj = get_agent_by_id(membership_obj.agent_id, as_obj=True)
+
+    subject = "Agent Access Revoked"
+    message = (
+        f"<p>Access revoked for Agent, {agent_obj.name}.</p>"
+        "<p>You may still have access to this agent if you belong to a group with access.</p>"
+        "<p>However, if you only had access via friendship then you will not.</p>"
+    )
+
+    message_control.create_direct_message(current_user.user_id, friend_member_id, message, subject)
 
     flash("Friend Removed From Agent!", "info")
 

@@ -29,6 +29,9 @@ def create_global_message(message, subject) -> None:
 
 
 def create_direct_message(sender_id, recipient_id, message, subject) -> None:
+    # TODO - Future Feature: Update DMs to alert users that they received a message via email.
+    # TODO - Future Feature: Allow users to opt out of both DMs and/or Emails.
+
     new_message = Messages()
 
     new_message.message = message

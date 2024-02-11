@@ -5,7 +5,7 @@ from flask_login import current_user
 
 from application.common import logger, toolbox
 from application.common.constants import GroupInviteStates
-from application.api.controllers.messages import create_direct_message
+from application.api.controllers import messages as message_control
 from application.extensions import DATABASE
 from application.models.agent_group_member import AgentGroupMembers
 from application.models.group import Groups
@@ -14,15 +14,16 @@ from application.models.group_member import GroupMembers
 from application.models.user import UserSql
 
 
-def get_group_by_id(object_id: int) -> dict:
-    group_obj = Groups.query.filter_by(group_id=object_id).first()
+def get_group_by_id(object_id: int, as_obj: bool = False) -> dict:
+    group_qry = Groups.query.filter_by(group_id=object_id)
+    group_obj = group_qry.first()
 
     if group_obj is None:
         message = f"Group ID {object_id} does not exist!"
         flash(message)
         return message, 400
 
-    return group_obj.to_dict()
+    return group_obj if as_obj else group_obj.to_dict()
 
 
 def get_owned_groups() -> list:
@@ -257,6 +258,21 @@ def add_friend_to_group(request) -> bool:
 
     users_added = 0
 
+    # Get group name
+    group_obj = Groups.query.filter_by(group_id=group_id).first()
+
+    if group_obj is None:
+        flash(f"Error: Group ID {group_id} does not exist... something is wrong!")
+        return False
+
+    group_name = group_obj.name
+    subject = "Added to Group!"
+    group_href = url_for("protected.system_groups")
+    message = (
+        f"<p>You have been added to group, {group_name}, by the group owner. Go to the "
+        f'<a href="{group_href}">Groups Page</a> to and have a look..</p>'
+    )
+
     for user_id in friends_list:
         # Make sure friend isn't already in the group.
         member_obj = GroupMembers.query.filter_by(group_id=group_id, member_id=user_id).first()
@@ -273,6 +289,8 @@ def add_friend_to_group(request) -> bool:
         new_group_member.member_id = user_id
         DATABASE.session.add(new_group_member)
         users_added += 1
+
+        message_control.create_direct_message(group_obj.owner_id, user_id, message, subject)
 
     if users_added > 0:
         try:
@@ -374,7 +392,7 @@ def invite_friend_to_group(request) -> bool:
         f'<a href="{group_href}">Groups Page</a> to and have a look..</p>'
     )
 
-    create_direct_message(requestor_id, group_obj.owner_id, message, subject)
+    message_control.create_direct_message(requestor_id, group_obj.owner_id, message, subject)
 
     flash("The owner of the group will Approve/Reject the invite.", "info")
 
@@ -404,7 +422,7 @@ def remove_user_from_group(group_id: int, member_id: int) -> bool:
     subject = f"Removed from group, {group_obj.name}."
     message = f"<p>You have been removed from the group, {group_obj.name}. </p>"
 
-    create_direct_message(group_obj.owner_id, member_id, message, subject)
+    message_control.create_direct_message(group_obj.owner_id, member_id, message, subject)
 
     flash("User was removed from group.", "info")
 
@@ -456,7 +474,7 @@ def transfer_group(request) -> bool:
         f'<a href="{friend_href}">Groups Page</a> to and have a look..</p>'
     )
 
-    create_direct_message(old_owner_id, new_owner_id, message, subject)
+    message_control.create_direct_message(old_owner_id, new_owner_id, message, subject)
 
     flash(f"Group, {group_name}, successfully transferred.", "info")
 
@@ -558,12 +576,20 @@ def resolve_group_invitation(request) -> bool:
             f'<a href="{group_href}">Groups Page</a> to and have a look...</p>'
         )
 
-        create_direct_message(group_obj.owner_id, invite_id, message, subject)
+        message_control.create_direct_message(group_obj.owner_id, invite_id, message, subject)
 
     else:
         update_dict = {"state": GroupInviteStates.REJECTED.value}
         flash_message = f"The user, {invited_user_obj.username}, was not admitted to the group."
         flash_message_type = "warning"
+
+        # DM The user that made the request to let that person know the invite was rejected.
+        subject = "User Invite Rejected"
+        message = (
+            f"The group owner has decided not to admit user, {invited_user_obj.username}, "
+            f"to the group, {group_obj.name}"
+        )
+        message_control.create_direct_message(group_obj.owner_id, requestor_id, message, subject)
 
     invitation_qry.update(update_dict)
 

@@ -57,7 +57,7 @@ def upgrade():
         sa.Column("sender_id", sa.Integer(), nullable=False),
         sa.Column("recipient_id", sa.Integer(), nullable=True),
         sa.Column("subject", sa.String(length=256), nullable=False),
-        sa.Column("message", sa.String(length=256), nullable=False),
+        sa.Column("message", sa.String(length=512), nullable=False),
         sa.Column("is_global", sa.Boolean(), nullable=False),
         sa.Column("timestamp", sa.DateTime(), nullable=False),
         sa.PrimaryKeyConstraint("message_id"),
