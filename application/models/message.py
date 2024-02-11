@@ -17,7 +17,7 @@ class Messages(PaginatedApi, DATABASE.Model):
     )
 
     subject = DATABASE.Column(DATABASE.String(256), nullable=False)
-    message = DATABASE.Column(DATABASE.String(256), nullable=False)
+    message = DATABASE.Column(DATABASE.String(512), nullable=False)
 
     is_global = DATABASE.Column(DATABASE.Boolean, nullable=False)
     timestamp = DATABASE.Column(

@@ -113,7 +113,7 @@ def create_new_friend_request(request) -> bool:
         return False
 
     # Don't need to bother if you're already friends!
-    # TODO - Add another check here.
+    # TODO - Need to turn this if statement in to a function like, if toolbox.is_friends(id1, id2).
     if (
         Friends.query.filter_by(
             initiator_id=current_user.user_id, receiver_id=user_obj.user_id
@@ -177,7 +177,6 @@ def create_new_friend_request(request) -> bool:
         f'<a href="{friend_href}">Friends Page</a> to respond.</p>'
     )
 
-    # TODO - Update DMs to alert users that they received a message via email.
     message_control.create_direct_message(new_fr.sender_id, new_fr.recipient_id, message, subject)
 
     return True
@@ -241,6 +240,12 @@ def update_friend_request(object_id: int, payload: dict) -> bool:
 
         fr_qry.update({"state": FriendRequestStates.ACCEPTED.value})
         flash("Friend Request was Accepted.", "info")
+
+        subject = "Friend Request - Accepted"
+        message = f"Your friend request to, {current_user.username}, was accepted!"
+        message_control.create_direct_message(
+            current_user.user_id, fr_obj.sender_id, message, subject
+        )
 
     elif new_status == "REJECTED":
         fr_qry.update({"state": FriendRequestStates.REJECTED.value})
