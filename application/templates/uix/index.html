@@ -4,19 +4,23 @@
     <body>
     {% include 'uix/layout/landing_topbar.html' %}
 
+    {% include 'uix/layout/product_menu.html' %}
+    {% include 'uix/layout/docs_menu.html' %}
+
     <div class="main-container">
 
         <section class="space-lg bg-white">
             <div class="container">
               <div class="row align-items-center justify-content-around">
                 <div class="col-12 col-md-6 col-lg-5 text-center text-md-left section-intro">
-                  <h1 class="display-5"><strong>Agents of the System!</strong></h1>
+                  <h1 class="display-5"><strong>Agents of the System</strong></h1>
                   <span class="lead">
-                    Join forces with Agent Smith and The Architect to manage your Game Servers on
-                    directly on your own hardware.  Make crews made up of your friends and manage
-                    your programs your way.
+                    Join forces with Agent Smith and The Architect to manage your Dedicated Game Servers
+                    directly on your own hardware.  Make friend groups and manage
+                    your servers your way.  A distributed approach to collaborative Dedicated Game
+                    Server administration.
                   </span>
-                  <a href="/signup" class="btn btn-success btn-lg">Get started</a>
+                  <a href="/signup" class="btn btn-success btn-lg">Be a part of The System</a>
                 </div>
                 <!--end of col-->
                 <div class="col-12 col-md-6 col-lg-6">
@@ -31,17 +35,141 @@
         <!--end of section-->
 
         <section>
+          <div class="container">
+            <div class="row justify-content-center text-center section-intro">
+              <div class="col-12 col-md-9 col-lg-8">
+                <span class="title-decorative aos-init aos-animate" data-aos="fade-up" data-aos-delay="10">Enter</span>
+                <h2 class="display-4 aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">What are the Agents of the System?</h2>
+                <span class="lead aos-init aos-animate" data-aos="fade-up" data-aos-delay="200">The Architect in the Cloud & Agent Smith on the Ground.  Stay on the ground or use both. Your choice.</span>
+              </div>
+              <!--end of col-->
+            </div>
+            <!--end of row-->
+
+            <div class="row justify-content-around">
+              <div class="col-12 col-md-6 col-lg-5 aos-init aos-animate" data-aos="fade-up" data-aos-delay="10">
+                <i class="text-teal h1 icon-fingerprint"></i>
+                <h5>The Architect</h5>
+                <p>
+                  A Cloud Hosted Control Panel and Social Platform.
+                </p>
+                <div class="card">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                      <div class="media">
+                        <i class="icon-hand mr-2"></i>
+                        <div class="media-body">
+                          <h6>Agents</h6>
+                          <p>
+                            As you might imagine... Agents need to be controlled.  In the Cloud a puppet master
+                            hides.
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                    <li class="list-group-item">
+                      <div class="media">
+                        <i class="icon-layers mr-2"></i>
+                        <div class="media-body">
+                          <h6>Collaboration</h6>
+                          <p>
+                            Build up a network of friends, create groups. Collectively pool as many Agent Smith
+                            copies as you like and share access.
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                    <li class="list-group-item">
+                      <div class="media">
+                        <i class="icon-hand mr-2"></i>
+                        <div class="media-body">
+                          <h6>Automation</h6>
+                          <p>
+                            Don't like getting a text from your best friend at 2am: "The Server Went down?!".  Let
+                            The Architect handle that for you instead....  What about: "The server needs updating."
+                            Delegate administration to your group or individuals.
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!--end of col-->
+              <div class="col-12 col-md-6 col-lg-5 aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">
+                <i class="text-purple h1 icon-tablet-mobile-combo"></i>
+                <h5>Agent Smith</h5>
+                <p>
+                  A self-contained Python Based Agent Software that can act alone or as a part of a larger system.
+                </p>
+                <div class="card">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                      <div class="media">
+                        <i class="icon-credit-card mr-2"></i>
+                        <div class="media-body">
+                          <h6>Dedicated Server Management</h6>
+                          <p>
+                            Installs, maintains, and provides server management capability.
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                    <li class="list-group-item">
+                      <div class="media">
+                        <i class="icon-credit-card mr-2"></i>
+                        <div class="media-body">
+                          <h6>Control</h6>
+                          <p>
+                            Provide an API, Tokenized Access, and secure SSL communication to any
+                            friend you want or submit to the Architect.
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                    <li class="list-group-item">
+                      <div class="media">
+                        <i class="icon-game-controller mr-2"></i>
+                        <div class="media-body">
+                          <h6>Transformation</h6>
+                          <p>
+                            Turn any PC into a potential host... That's how Agent Smith Rolls.
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!--end of col-->
+            </div>
+            <!--end of row-->
+
+            <div class="row justify-content-center text-center section-outro">
+              <div class="col-lg-4 col-md-5">
+                <h6>You're an Agent too</h6>
+                <p>Everyone is a part of The System.</p>
+              </div>
+              <!--end of col-->
+            </div>
+            <!--end of row-->
+
+          </div>
+          <!--end of container-->
+        </section>
+
+        <section>
 
             <div class="container">
 
               <div class="row justify-content-center text-center section-intro">
 
                 <div class="col-12 col-md-9 col-lg-8">
-                  <span class="title-decorative" data-aos="fade-up" data-aos-delay="10">Feature List</span>
+                  <span class="title-decorative" data-aos="fade-up" data-aos-delay="10">Features</span>
                   <h2 class="display-4" data-aos="fade-up" data-aos-delay="100">Why Agents of the System?</h2>
-                  <span class="lead" data-aos="fade-up" data-aos-delay="200">Easy... </span>
                 </div>
                 <!--end of col-->
+
               </div>
               <!--end of row-->
 
@@ -49,6 +177,7 @@
 
                 <div class="col-12 col-lg-6 mb-4">
                   <div class="tab-content">
+                    <!-- One of these for each tab panel, potentially.-->
                     <div class="tab-pane fade show active" id="content-1" role="tabpanel">
                       <img alt="Image" class="img-fluid w-100" src="{{ url_for('static', filename='uix/assets/img/graphic-bike.svg') }}" />
                     </div>
@@ -64,7 +193,8 @@
                         <div class="card-body">
                           <h5>Free & Open Source</h5>
                           <p>
-                            Agents Of the System is 100% free and licensed under an AGPL-v3 license. All of our code is completely open source as well.
+                            Agents Of the System is 100% free to use and partially open source. The Agent Smith codebase is openly
+                            published so you inspect what is actually running on your PC.
                           </p>
                         </div>
                       </a>
@@ -73,10 +203,11 @@
                     <li data-aos="fade-up" data-aos-delay="100">
                       <a class="card" data-toggle="tab" href="#content-2" role="tab" aria-controls="content-2" aria-selected="false">
                         <div class="card-body">
-                          <h5>Cloud Oriented</h5>
+                          <h5>Hybrid - Scalable Distributed Cloud Approach</h5>
                           <p>
-                            Self-Host or use our Cloud Option, it's entirely up to you.  Just want to use Agent-Smith without the Architect,
-                            that's okay.
+                            Self-Host your dedicated server(s) with Agent Smith and collaborate in the cloud using The Architect.
+                            Take it as far as your friend group needs.  All communications are secured using <strong>SSL</strong> encryption backed
+                            by <strong>Nginx</strong>.
                           </p>
                         </div>
                       </a>
@@ -85,35 +216,11 @@
                     <li data-aos="fade-up" data-aos-delay="150">
                       <a class="card" data-toggle="tab" href="#content-3" role="tab" aria-controls="content-3" aria-selected="false">
                         <div class="card-body">
-                          <h5>Keep it Simple Stupid</h5>
-                          <p>
-                            Many other tools make use of Docker, and that's great, but realistically how many people know how to set that up fast? Agent Smith
-                            allows supported game servers to be directly installed on your machine using Steam as the source.
-                          </p>
-                        </div>
-                      </a>
-                    </li>
-
-                    <li data-aos="fade-up" data-aos-delay="200">
-                      <a class="card" data-toggle="tab" href="#content-4" role="tab" aria-controls="content-4" aria-selected="false">
-                        <div class="card-body">
                           <h5>User Friendly</h5>
                           <p>
-                            We don't use the shiniest Web Front End, but this tool is friend oriented and is dead simple to use.
-                            You're even free to ditch it and simply use the Agent Smith client.
-                            You become the <a href="https://github.com/agentsofthesystem/operator" target="_blank">operator!</a>
-                          </p>
-                        </div>
-                      </a>
-                    </li>
-
-                    <li data-aos="fade-up" data-aos-delay="250">
-                      <a class="card" data-toggle="tab" href="#content-5" role="tab" aria-controls="content-5 " aria-selected="false">
-                        <div class="card-body">
-                          <h5>Developer Friendly</h5>
-                          <p>
-                            The Author respects every open source project, but wanted to build one that was as close to 99.9% Python
-                            based as possible to open the door to as many contributors as possible.
+                            No need to set anything up beyond Agent Smith.  No special pre-requisite software to install.
+                            Simply download and run it.  Written 99% in python and made to run self-contained.  Everything
+                            else is in the Cloud. No setup required.
                           </p>
                         </div>
                       </a>
