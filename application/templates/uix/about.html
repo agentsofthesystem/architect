@@ -2,15 +2,20 @@
 <html lang="en">
     {% include 'uix/layout/head.html' %}
     <body>
-    {% include 'uix/layout/landing_topbar.html' %}
 
-    <div class="main-container">
+      {% include 'uix/layout/landing_topbar.html' %}
+
+      <div class="main-container">
+
         <section class="bg-white">
           <div class="container">
             <div class="row justify-content-center">
-              <div class="col-12 col-md-10 col-lg-7">
-                <h1 class="display-4">About - {{pretty_name}}</h1>
-                <span class="lead">And the Agents of the System...</span>
+              <div class="col-12 col-md-9 col-lg-8 text-center">
+                <h1 class="display-3">The Team</h1>
+                <span class="lead">
+                  A software engineer with a passion for software development, making your Self Game
+                  Server Hosting Experience as collaborative and easy as possible.
+                </span>
               </div>
               <!--end of col-->
             </div>
@@ -19,22 +24,53 @@
           <!--end of container-->
         </section>
         <!--end of section-->
-        <section>
-          <article class="container">
-            <div class="row justify-content-center">
-              <div class="col-12 col-md-8 col-lg-6">
-                <p>
-                  Write a new description about Agents of the System, The Architect, and Agent Smith.
-                </p>
-              </div>
 
+        <section class="bg-white">
+          <div class="container">
+            <div class="border rounded row justify-content-center">
+              <div class="col-12 col-md-9 col-lg-8 text-center">
+                <h1 class="display-3">Mission</h1>
+                <span class="lead">
+                  Agents of the System exists to empower friend groups to quickly and easily set up
+                  their Dedicated Game Servers.
+                </span>
+              </div>
+              <!--end of col-->
             </div>
             <!--end of row-->
-          </article>
+          </div>
           <!--end of container-->
         </section>
+        <!--end of section-->
+
+        <section class="bg-dark">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-12 col-md-8">
+                <div class="media">
+                  <img class="mr-md -5 avatar avatar-xlg" src="{{ url_for('static', filename='uix/assets/img/app-logo.svg') }}" />
+                  <div class="media-body">
+                    <div class="mb-3">
+                      <h1 class="h2 mb-2">Joshua Reed</h1>
+                      <span class="text-muted">Founder, Software Engineer, Gamer, Maker, Pilot...</span>
+                    </div>
+                    <p>
+                      He is ...
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!--end of col-->
+            </div>
+            <!--end of row-->
+          </div>
+          <!--end of container-->
+        </section>
+        <!--end of section-->
+
         {% include 'uix/layout/footer.html' %}
-    </div>
-    {% include 'uix/layout/scripts.html' %}
+
+      </div>
+      {% include 'uix/layout/scripts.html' %}
     </body>
 </html>

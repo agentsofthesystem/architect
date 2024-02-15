@@ -1,29 +1,37 @@
 <!doctype html>
 <html lang="en">
-    {% include 'uix/layout/head.html' %}
-    <body>
-    {% include 'uix/layout/landing_topbar.html' %}
+{% include 'uix/layout/head.html' %}
 
-    <div class="main-container">
-        <section class="bg-white">
-          <div class="container">
-            <div class="row justify-content-center">
-              <div class="col-12 col-md-10 col-lg-7">
-                <h1 class="display-4">Terms & Conditions</h1>
-                <p>TBD</p>
-                </div>
-              </div>
-              <!--end of col-->
-            </div>
-            <!--end of row-->
+<body>
+  {% include 'uix/layout/landing_topbar.html' %}
+
+  <div class="main-container">
+    <section class="bg-white">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-12 col-md-10 col-lg-7">
+            <h1 class="display-4">Terms & Conditions</h1>
+            <p>
+              Agents of the System is Free software. The open source components are licensed and
+              this web application is a free tool.
+            </p>
+            <p>
+              This software comes with no warranty.  Use at your own risk.
+            </p>
           </div>
-          <!--end of container-->
-        </section>
-        <!--end of section-->
-        
+        </div>
+        <!--end of col-->
+      </div>
+      <!--end of row-->
+  </div>
+  <!--end of container-->
+  </section>
+  <!--end of section-->
 
-        {% include 'uix/layout/footer.html' %}
-    </div>
-    {% include 'uix/layout/scripts.html' %}
-    </body>
+
+  {% include 'uix/layout/footer.html' %}
+  </div>
+  {% include 'uix/layout/scripts.html' %}
+</body>
+
 </html>

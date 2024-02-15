@@ -4,9 +4,6 @@
     <body>
     {% include 'uix/layout/landing_topbar.html' %}
 
-    {% include 'uix/layout/product_menu.html' %}
-    {% include 'uix/layout/docs_menu.html' %}
-
     <div class="main-container">
 
         <section class="space-lg bg-white">
@@ -20,7 +17,7 @@
                     your servers your way.  A distributed approach to collaborative Dedicated Game
                     Server administration.
                   </span>
-                  <a href="/signup" class="btn btn-success btn-lg">Be a part of The System</a>
+                  <a href="/signup" class="btn btn-success btn-lg">Join The System</a>
                 </div>
                 <!--end of col-->
                 <div class="col-12 col-md-6 col-lg-6">
@@ -38,9 +35,8 @@
           <div class="container">
             <div class="row justify-content-center text-center section-intro">
               <div class="col-12 col-md-9 col-lg-8">
-                <span class="title-decorative aos-init aos-animate" data-aos="fade-up" data-aos-delay="10">Enter</span>
                 <h2 class="display-4 aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">What are the Agents of the System?</h2>
-                <span class="lead aos-init aos-animate" data-aos="fade-up" data-aos-delay="200">The Architect in the Cloud & Agent Smith on the Ground.  Stay on the ground or use both. Your choice.</span>
+                <span class="lead aos-init aos-animate" data-aos="fade-up" data-aos-delay="200">The Architect in the Cloud & Agent Smith on the Ground.  Stick with Agent Smith or join forces with The Architect. The choice is yours.</span>
               </div>
               <!--end of col-->
             </div>
@@ -147,8 +143,8 @@
 
             <div class="row justify-content-center text-center section-outro">
               <div class="col-lg-4 col-md-5">
-                <h6>You're an Agent too</h6>
-                <p>Everyone is a part of The System.</p>
+                <h6>The System</h6>
+                <p>All the software tools together collectively make up Agents of The System.</p>
               </div>
               <!--end of col-->
             </div>
@@ -157,6 +153,7 @@
           </div>
           <!--end of container-->
         </section>
+        <!--end of section-->
 
         <section>
 
@@ -165,7 +162,6 @@
               <div class="row justify-content-center text-center section-intro">
 
                 <div class="col-12 col-md-9 col-lg-8">
-                  <span class="title-decorative" data-aos="fade-up" data-aos-delay="10">Features</span>
                   <h2 class="display-4" data-aos="fade-up" data-aos-delay="100">Why Agents of the System?</h2>
                 </div>
                 <!--end of col-->
@@ -179,7 +175,7 @@
                   <div class="tab-content">
                     <!-- One of these for each tab panel, potentially.-->
                     <div class="tab-pane fade show active" id="content-1" role="tabpanel">
-                      <img alt="Image" class="img-fluid w-100" src="{{ url_for('static', filename='uix/assets/img/graphic-bike.svg') }}" />
+                      <img alt="Image" class="img-fluid w-100" src="{{ url_for('static', filename='uix/assets/img/graphic-imac-interface.svg') }}" />
                     </div>
                   </div>
                 </div>
@@ -235,7 +231,9 @@
             <!--end of container-->
         </section>
         <!--end of section-->
+
         {% include 'uix/layout/footer.html' %}
+
     </div>
 
     {% include 'uix/layout/scripts.html' %}
