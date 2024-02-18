@@ -78,3 +78,29 @@ def restart_game_server(
 
     self.update_state(state="SUCCESS")
     return {"status": "Task Completed!"}
+
+
+@CELERY.task(bind=True)
+def update_game_server(
+    self, hostname: str, port: str, verbose: bool, token: str, certificate: str, game_name: str
+):
+    logger.info(f"Updating game: {game_name}")
+
+    try:
+        client = Operator(hostname, port, verbose, token=token, certificate=certificate)
+
+        steam_install_dir = client.app.get_setting_by_name("steam_install_dir")
+        game_info = client.game.get_game_by_name(game_name)
+
+        steam_id = game_info["items"][0]["game_steam_id"]
+        install_path = game_info["items"][0]["game_install_dir"]
+
+        client.steam.update_steam_app(steam_install_dir, steam_id, install_path)
+
+    except Exception as error:
+        logger.critical(error)
+        self.update_state(state="FAILURE")
+        return
+
+    self.update_state(state="SUCCESS")
+    return {"status": "Task Completed!"}
