@@ -282,6 +282,7 @@
               <tr>
                 <th scope="col">Game Server </th>
                 <th scope="col">PID</th>
+                <th scope="col">Last Update</th>
                 <th scope="col">Status</th>
                 <th scope="col">Action</th>
               </tr>
@@ -393,6 +394,7 @@
 
         let game_server_name = game['game_name'];
         let game_server_pretty_name = game['game_pretty_name'];
+        let game_last_update = game['game_last_update']
         let game_server_pid = game['game_pid'] == null ? "N/A" : game['game_pid'];
         let game_server_status_badge = game['game_status'] == "Not Running" ? "badge-danger" : "badge-success";
         let game_server_status = game['game_status'];
@@ -408,12 +410,14 @@
         else {
           drop_down_menu = `
             <a class="dropdown-item start-game-server" onclick="startupGameServer('${game_server_name}')">Start Server</a>
+            <a class="dropdown-item update-game-server" onclick="updateGameServer('${game_server_name}')">Update</a>
           `
         }
 
         new_row.innerHTML = `
           <td>${game_server_pretty_name}</td>
           <td>${game_server_pid}</td>
+          <td>${game_last_update}</td>
           <td><span class="badge ${game_server_status_badge}">${game_server_status}</span></td>
           <td>
             <div class="dropdown">
@@ -514,39 +518,52 @@
           wait_time)
         }
       }
+      else if (action == "update") {
+        if ( status == "complete"){
+          console.log("Game server update has completed updating. Action is finished!")
+          $("#gameServerActionInProgress").modal('hide');
+          setTimeout(() =>
+            reloadAgentInfo(agent_id),
+            500
+          )
+        }
+        else{
+          setTimeout(() =>
+            socket.emit("get_action_result", {
+                "agent_id": agent_id,
+                "action": action,
+                "game_name": game_name,
+                "attempt_number": attempt_number + 1
+              }
+            ),
+          wait_time)
+        }
+      }
     });
   });
 
-  function handleActionResult(agent_id, action, game_name) {
+  function updateGameServer(game_name) {
 
-    if (action == "error") {
-      // Show modal with error...
-      $("#errorModal").modal('show');
-      $("#gameServerActionInProgress").modal('hide');
-      return
-    }
+    console.log("Updating Game Server for " + game_name);
 
-    console.log("Sending get_action_result signal to websocket...")
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var json_data = `{"agent_id": ${agent_id}, "game_name": "${game_name}"}`;
 
-    var wait_time = 5000;  // 5 seconds
-
-    if (action == "restart"){
-      console.log("Waiting a little long than usual because its a restart.")
-      wait_time = 20000;
-    }
-
-    $("#gameServerActionInProgress").modal('show');
-
-    setTimeout(() =>
-      socket.emit("get_action_result", {
-        "agent_id": agent_id,
-        "action": action,
-        "game_name": game_name,
-        "attempt_number": 0
+    $.ajax({
+      type: "POST",
+      url: "/app/backend/game/server/control/update",
+      contentType: 'application/json',
+      dataType: "json",
+      data: JSON.stringify(json_data),
+      success: function () {
+        console.log("Updating Game Server for " + game_name + ' on agent id: ' + agent_id);
+        handleActionResult(agent_id, "update", game_name);
+      },
+      error: function () {
+        console.log('error!');
+        handleActionResult(agent_id, "error", game_name);
       }
-      ),
-      wait_time  // Wait a bit to give the server a chance to do...
-    )
+    });
 
   };
 
@@ -622,6 +639,39 @@
       }
 
     });
+  };
+
+  function handleActionResult(agent_id, action, game_name) {
+
+    if (action == "error") {
+      // Show modal with error...
+      $("#errorModal").modal('show');
+      $("#gameServerActionInProgress").modal('hide');
+      return
+    }
+
+    console.log("Sending get_action_result signal to websocket...")
+
+    var wait_time = 5000;  // 5 seconds
+
+    if (action == "restart"){
+      console.log("Waiting a little long than usual because its a restart.")
+      wait_time = 20000;
+    }
+
+    $("#gameServerActionInProgress").modal('show');
+
+    setTimeout(() =>
+      socket.emit("get_action_result", {
+        "agent_id": agent_id,
+        "action": action,
+        "game_name": game_name,
+        "attempt_number": 0
+      }
+      ),
+      wait_time  // Wait a bit to give the server a chance to do...
+    )
+
   };
 
   $(".remove-group-from-agent").click(function () {

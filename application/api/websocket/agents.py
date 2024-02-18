@@ -138,6 +138,14 @@ def get_action_result(input_dict):
         }
     )
 
+    command_action = input_dict["action"]
+
+    # Ensure the command action supplied is valid.
+    if command_action not in ["startup", "shutdown", "restart", "update"]:
+        response.update({"result": "Error"})
+        emit("respond_action_result", response, json=True, namespace="/system/agent/info")
+        return
+
     agent_obj = Agents.query.filter_by(agent_id=input_dict["agent_id"]).first()
 
     if agent_obj is None:
@@ -158,12 +166,23 @@ def get_action_result(input_dict):
         certificate=agent_obj.ssl_public_cert,
     )
 
-    client_response = client.game.get_game_status(input_dict["game_name"])
+    if command_action in ["startup", "shutdown", "restart"]:
+        client_response = client.game.get_game_status(input_dict["game_name"])
 
-    if client_response is None:
-        logger.error("Contacted agent, but it did not respond.")
-        response.update({"result": "Error"})
+        if client_response is None:
+            logger.error("Contacted agent, but it did not respond.")
+            response.update({"result": "Error"})
+        else:
+            response.update({"result": client_response})
     else:
-        response.update({"result": client_response})
+        client_response = client.game.get_game_by_name(input_dict["game_name"])
+        action = client_response["actions"][0]
+        if action["type"] != "updating":
+            response.update({"result": "Error"})
+        else:
+            thread_ident = action["result"]
+            thread_alive = client.app.is_thread_alive(thread_ident)
+            update_state = {"status": "updating"} if thread_alive else {"status": "complete"}
+            response.update({"result": update_state})
 
     emit("respond_action_result", response, json=True, namespace="/system/agent/info")

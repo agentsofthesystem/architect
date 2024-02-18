@@ -35,7 +35,7 @@ class GroupInvitesBackendApi(MethodView):
 
 class GameServerControlBackendApi(MethodView):
     def __init__(self) -> None:
-        self.valid_commands = ["startup", "shutdown", "restart"]
+        self.valid_commands = ["startup", "shutdown", "restart", "update"]
 
     @login_required
     @verified_required
@@ -55,6 +55,8 @@ class GameServerControlBackendApi(MethodView):
             command_success = agent_control.shutdown(request)
         elif command == "restart":
             command_success = agent_control.restart(request)
+        elif command == "update":
+            command_success = agent_control.update(request)
 
         return ("Success", 204) if command_success else ("Error!", 500)
 
