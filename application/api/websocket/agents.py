@@ -139,6 +139,7 @@ def get_action_result(input_dict):
     )
 
     command_action = input_dict["action"]
+    game_name = input_dict["game_name"]
 
     # Ensure the command action supplied is valid.
     if command_action not in ["startup", "shutdown", "restart", "update"]:
@@ -183,6 +184,23 @@ def get_action_result(input_dict):
             thread_ident = action["result"]
             thread_alive = client.app.is_thread_alive(thread_ident)
             update_state = {"status": "updating"} if thread_alive else {"status": "complete"}
+
+            if not thread_alive:
+                # Get the game now, that it's been updated, and update the agent so that it
+                # knows what the current build id is.
+                game_data = client.game.get_game_by_name(game_name)
+                game_id = game_data["items"][0]["game_id"]
+                steam_id = game_data["items"][0]["game_steam_id"]
+                game_install_path = game_data["items"][0]["game_install_dir"]
+                steam_install_dir = client.app.get_setting_by_name("steam_install_dir")
+
+                steam_build_id = client.steam.get_steam_app_build_id(
+                    steam_install_dir, game_install_path, steam_id
+                )
+
+                if steam_build_id:
+                    client.game.update_game_data(game_id, game_steam_build_id=steam_build_id)
+
             response.update({"result": update_state})
 
     emit("respond_action_result", response, json=True, namespace="/system/agent/info")

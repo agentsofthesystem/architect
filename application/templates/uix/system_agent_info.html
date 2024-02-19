@@ -283,6 +283,8 @@
                 <th scope="col">Game Server </th>
                 <th scope="col">PID</th>
                 <th scope="col">Last Update</th>
+                <th scope="col">Build</th>
+                <th scope="col">Branch</th>
                 <th scope="col">Status</th>
                 <th scope="col">Action</th>
               </tr>
@@ -398,6 +400,8 @@
         let game_server_pid = game['game_pid'] == null ? "N/A" : game['game_pid'];
         let game_server_status_badge = game['game_status'] == "Not Running" ? "badge-danger" : "badge-success";
         let game_server_status = game['game_status'];
+        let game_steam_build_id = game['game_steam_build_id']
+        let game_steam_build_branch = game['game_steam_build_branch']
         let drop_down_menu = ''
 
         // Show the correct set of buttons.
@@ -418,6 +422,8 @@
           <td>${game_server_pretty_name}</td>
           <td>${game_server_pid}</td>
           <td>${game_last_update}</td>
+          <td>${game_steam_build_id}</td>
+          <td>${game_steam_build_branch}</td>
           <td><span class="badge ${game_server_status_badge}">${game_server_status}</span></td>
           <td>
             <div class="dropdown">
