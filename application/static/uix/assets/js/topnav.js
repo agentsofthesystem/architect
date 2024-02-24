@@ -39,8 +39,10 @@ $(document).ready(function($){
 
     function showProductMenu(){
 
+        // Hide both for good measure
         if(is_doc_menu_open){
             hideDocMenu();
+            hideProductMenu();
         }
 
         $('.' + product_menu_class)[0].style = 'display: block;';
@@ -48,6 +50,7 @@ $(document).ready(function($){
         resetOpacity(product_menu_class);
         fadeElementIn(product_menu_class);
         is_product_menu_open = true;
+        //console.log("Showing Product Menu")
     }
 
     function hideProductMenu(){
@@ -55,11 +58,14 @@ $(document).ready(function($){
         $('.main-container')[0].style = '';
         resetOpacity(product_menu_class);
         is_product_menu_open = false;
+        //console.log("Hiding Product Menu")
     }
 
     function showDocMenu(){
 
+        // Hide both for good measure
         if(is_product_menu_open){
+            hideDocMenu();
             hideProductMenu();
         }
 
@@ -68,6 +74,7 @@ $(document).ready(function($){
         resetOpacity(docs_menu_class);
         fadeElementIn(docs_menu_class);
         is_doc_menu_open = true;
+        //console.log("Showing Doc Menu")
     }
 
     function hideDocMenu(){
@@ -75,12 +82,14 @@ $(document).ready(function($){
         $('.main-container')[0].style = '';
         resetOpacity(docs_menu_class);
         is_doc_menu_open = false;
+        //console.log("Hiding Doc Menu")
     }
 
     if(product_link != null){
 
         document.getElementById('product-topnav-item').onmouseover = function() {
 
+            // Toggle on/off
             if( !is_on_product_menu_item){
                 showProductMenu();
             }
@@ -97,6 +106,7 @@ $(document).ready(function($){
     if(docs_link != null){
         document.getElementById('docs-topnav-item').onmouseover = function() {
 
+            // Toggle on/off
             if( !is_on_doc_menu_item){
                 showDocMenu();
             }
