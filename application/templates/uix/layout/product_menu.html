@@ -6,19 +6,46 @@
 
       <div class="row justify-content-around mb-4">
         <div class="col-12 col-md-6 col-lg-5 aos-init aos-animate" data-aos="fade-up" data-aos-delay="10">
-          <i class="text-teal h1 icon-fingerprint"></i>
+          <img class="avatar rounded avatar-sm mb-2" src="{{ url_for('static', filename='uix/assets/img/app-logo.svg') }}" />
           <h5>The Architect</h5>
           <div class="card">
             <ul class="list-group list-group-flush">
 
               <li class="list-group-item">
                 <div class="media">
-                  <i class="icon-hand mr-2"></i>
                   <div class="media-body">
-                    <h6>Cloud Application</h6>
+                    <h6>Agents of the System - Cloud</h6>
                     <p>
-                      A short description of the aforementioned facet to easily digest. No need to divulge too much information in this text area.
+                      Deployed and maintained by the team behind Agents of the System. The easiest way
+                      to get started managing and collaborating with your dedicated servers.
                     </p>
+                    <p><a href="{{url_for('public.signup')}}">Get started with Agents of the System.</a></p>
+                  </div>
+                </div>
+              </li>
+
+              <li class="list-group-item">
+                <div class="media">
+                  <div class="media-body">
+                    <h6>Collaboration</h6>
+                    <p>
+                      Allows users of the system to share Agent Smith instances across friend groups, and
+                      share the ability to manage Game Servers.
+                    </p>
+                  </div>
+                </div>
+              </li>
+
+              <li class="list-group-item">
+                <div class="media">
+                  <div class="media-body">
+                    <h6>Automation & Control</h6>
+                    <p>
+                      Control your game server with the ability to remotely Startup, Shutdown,
+                      Restart and update.  Future versions of The Architect will seek to add additional
+                      automation; eg scheduling & watchdogs.
+                    </p>
+                    <p><a href="https://github.com/orgs/agentsofthesystem/projects/4" target="_blank">Check out our development progress for Beta.</a></p>
                   </div>
                 </div>
               </li>
@@ -28,18 +55,47 @@
         </div>
         <!--end of col-->
         <div class="col-12 col-md-6 col-lg-5 aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">
-          <i class="text-purple h1 icon-tablet-mobile-combo"></i>
+          <img class="avatar rounded avatar-sm mb-2" src="{{ url_for('static', filename='uix/assets/img/agent-black.svg') }}"/>
           <h5>Agent Smith</h5>
           <div class="card">
             <ul class="list-group list-group-flush">
+
               <li class="list-group-item">
                 <div class="media">
-                  <i class="icon-credit-card mr-2"></i>
                   <div class="media-body">
-                    <h6>Payment</h6>
+                    <h6>Hosting</h6>
                     <p>
-                      A short description of the aforementioned facet to easily digest. No need to divulge too much information in this text area.
+                      Easy to run. Open Source.  No special requirements to host as many Dedicated
+                      Game Severs as you want on your own PC, or among a number of PCs in your friend
+                      group.
                     </p>
+                    <p><a href="https://github.com/agentsofthesystem/agent-smith/releases" target="_blank">Get Agent Smith for Free</a></p>
+                  </div>
+                </div>
+              </li>
+
+              <li class="list-group-item">
+                <div class="media">
+                  <div class="media-body">
+                    <h6>All your Games</h6>
+                    <p>
+                      If you can get a dedicated server via steam, then so can we.  Agent Smith
+                      has a number of supported games but the list can grow any time.
+                    </p>
+                    <p><a href="https://github.com/agentsofthesystem/agent-smith/blob/develop/README.md#supported-games" target="_blank">Supported Games</a></p>
+                  </div>
+                </div>
+              </li>
+
+              <li class="list-group-item">
+                <div class="media">
+                  <div class="media-body">
+                    <h6>Transparency</h6>
+                    <p>
+                      Agent Smith is 100% published on GitHub for your inspection, so you can be
+                      confident about what's actually running on your PC.
+                    </p>
+                    <p><a href="https://github.com/agentsofthesystem/agent-smith" target="_blank">Source Code Here</a></p>
                   </div>
                 </div>
               </li>
@@ -51,19 +107,38 @@
       </div>
       <!--end of row-->
 
+      <div class="row border-top border-dark mb-4">
+
+      </div>
+
       <div class="row justify-content-around">
         <div class="col-12 col-md-6 col-lg-5 aos-init aos-animate" data-aos="fade-up" data-aos-delay="10">
-          <i class="text-teal h1 icon-fingerprint"></i>
-          <h5>Collaboration</h5>
+          <img class="avatar rounded avatar-sm mb-2" src="{{ url_for('static', filename='uix/assets/img/operator-black.svg') }}"/>
+          <h5>Operator</h5>
           <div class="card">
             <ul class="list-group list-group-flush">
+
               <li class="list-group-item">
                 <div class="media">
-                  <i class="icon-hand mr-2"></i>
                   <div class="media-body">
-                    <h6>Media</h6>
+                    <h6>Self Service</h6>
                     <p>
-                      A short description of the aforementioned facet to easily digest. No need to divulge too much information in this text area.
+                      Are you tech-savvy. Like Python?  Well Agent Smith has an Operator handy to
+                      provide client access.
+                    </p>
+                    <p><a > Check out the Operator Here</a></p>
+                  </div>
+                </div>
+              </li>
+
+              <li class="list-group-item">
+                <div class="media">
+                  <div class="media-body">
+                    <h6>Security Focus</h6>
+                    <p>
+                      The Architect uses an Operator client to talk to all Agent Smith instances.  Operator
+                      secures communication with SSL encryption and tokenized authentication.  Prevents
+                      just anyone from controlling your Agent!
                     </p>
                   </div>
                 </div>
@@ -74,24 +149,7 @@
         </div>
         <!--end of col-->
         <div class="col-12 col-md-6 col-lg-5 aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">
-          <i class="text-purple h1 icon-tablet-mobile-combo"></i>
-          <h5>Server Controls</h5>
-          <div class="card">
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item">
-                <div class="media">
-                  <i class="icon-credit-card mr-2"></i>
-                  <div class="media-body">
-                    <h6>Payment</h6>
-                    <p>
-                      A short description of the aforementioned facet to easily digest. No need to divulge too much information in this text area.
-                    </p>
-                  </div>
-                </div>
-              </li>
 
-            </ul>
-          </div>
         </div>
         <!--end of col-->
       </div>
