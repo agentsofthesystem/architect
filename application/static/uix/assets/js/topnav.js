@@ -34,31 +34,47 @@ $(document).ready(function($){
 
     is_on_product_menu_item = false;
     is_on_doc_menu_item = false;
+    is_product_menu_open = false;
+    is_doc_menu_open = false;
 
     function showProductMenu(){
+
+        if(is_doc_menu_open){
+            hideDocMenu();
+        }
+
         $('.' + product_menu_class)[0].style = 'display: block;';
         $(main_container_class)[0].style = 'display: none;';
         resetOpacity(product_menu_class);
         fadeElementIn(product_menu_class);
+        is_product_menu_open = true;
     }
 
-    function  hideProductMenu(){
+    function hideProductMenu(){
         $('.' + product_menu_class)[0].style = 'display: none; opacity: 0;';
         $('.main-container')[0].style = '';
         resetOpacity(product_menu_class);
+        is_product_menu_open = false;
     }
 
     function showDocMenu(){
+
+        if(is_product_menu_open){
+            hideProductMenu();
+        }
+
         $('.' + docs_menu_class)[0].style = '';
         $('.main-container')[0].style = 'display: none;';
         resetOpacity(docs_menu_class);
         fadeElementIn(docs_menu_class);
+        is_doc_menu_open = true;
     }
 
     function hideDocMenu(){
         $('.' + docs_menu_class)[0].style = 'display: none;';
         $('.main-container')[0].style = '';
         resetOpacity(docs_menu_class);
+        is_doc_menu_open = false;
     }
 
     if(product_link != null){
