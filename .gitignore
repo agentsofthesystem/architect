@@ -1,13 +1,17 @@
+# Specific files/folders
 geckodriver.log
 .spyproject
-backend/db/*.db
 __pycache__
-source/__pycache__*
-app/__pycache__*
 process.yml
 logs/
 bin/
-celerybeat-schedule*
 htmlcov/
-.coverage*
 venv/
+
+# Patterns
+backend/db/*.db
+source/__pycache__*
+app/__pycache__*
+celerybeat-schedule*
+.coverage*
+*.Identifier

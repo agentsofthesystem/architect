@@ -32,39 +32,67 @@ $(document).ready(function($){
     product_menu_class = 'product-topnav-child-menu'
     docs_menu_class = 'docs-topnav-child-menu'
 
+    is_on_product_menu_item = false;
+    is_on_doc_menu_item = false;
+
+    function showProductMenu(){
+        $('.' + product_menu_class)[0].style = 'display: block;';
+        $(main_container_class)[0].style = 'display: none;';
+        resetOpacity(product_menu_class);
+        fadeElementIn(product_menu_class);
+    }
+
+    function  hideProductMenu(){
+        $('.' + product_menu_class)[0].style = 'display: none; opacity: 0;';
+        $('.main-container')[0].style = '';
+        resetOpacity(product_menu_class);
+    }
+
+    function showDocMenu(){
+        $('.' + docs_menu_class)[0].style = '';
+        $('.main-container')[0].style = 'display: none;';
+        resetOpacity(docs_menu_class);
+        fadeElementIn(docs_menu_class);
+    }
+
+    function hideDocMenu(){
+        $('.' + docs_menu_class)[0].style = 'display: none;';
+        $('.main-container')[0].style = '';
+        resetOpacity(docs_menu_class);
+    }
+
     if(product_link != null){
 
         document.getElementById('product-topnav-item').onmouseover = function() {
-            // do something like for example change the class of a div to change its color :
-            $('.' + product_menu_class)[0].style = 'display: block;';
-            $(main_container_class)[0].style = 'display: none;';
-            resetOpacity(product_menu_class);
-            fadeElementIn(product_menu_class);
-        };
 
-        document.getElementById('product-topnav-item').onmouseout = function() {
-            // do something like for example change the class of a div to change its color :
-            $('.' + product_menu_class)[0].style = 'display: none; opacity: 0;';
-            $('.main-container')[0].style = '';
-            resetOpacity(product_menu_class);
+            if( !is_on_product_menu_item){
+                showProductMenu();
+            }
+            else{
+                hideProductMenu();
+                is_on_product_menu_item = false;
+                return
+            }
+
+            is_on_product_menu_item = !is_on_product_menu_item;
         };
     }
 
     if(docs_link != null){
         document.getElementById('docs-topnav-item').onmouseover = function() {
-            // do something like for example change the class of a div to change its color :
-            $('.' + docs_menu_class)[0].style = '';
-            $('.main-container')[0].style = 'display: none;';
-            resetOpacity(docs_menu_class);
-            fadeElementIn(docs_menu_class);
+
+            if( !is_on_doc_menu_item){
+                showDocMenu();
+            }
+            else{
+                hideDocMenu();
+                is_on_doc_menu_item = false;
+                return
+            }
+
+            is_on_doc_menu_item = !is_on_doc_menu_item;
         };
 
-        document.getElementById('docs-topnav-item').onmouseout = function() {
-            // do something like for example change the class of a div to change its color :
-            $('.' + docs_menu_class)[0].style = 'display: none;';
-            $('.main-container')[0].style = '';
-            resetOpacity(docs_menu_class);
-        };
     }
 
 });
