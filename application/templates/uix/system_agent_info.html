@@ -402,6 +402,7 @@
         let game_server_status = game['game_status'];
         let game_steam_build_id = game['game_steam_build_id']
         let game_steam_build_branch = game['game_steam_build_branch']
+        let game_update_badge = game['update_required'] == true ? '<span class="badge badge-danger">*</span>' : "";
         let drop_down_menu = ''
 
         // Show the correct set of buttons.
@@ -422,7 +423,7 @@
           <td>${game_server_pretty_name}</td>
           <td>${game_server_pid}</td>
           <td>${game_last_update}</td>
-          <td>${game_steam_build_id}</td>
+          <td>${game_steam_build_id} ${game_update_badge}</td>
           <td>${game_steam_build_branch}</td>
           <td><span class="badge ${game_server_status_badge}">${game_server_status}</span></td>
           <td>
