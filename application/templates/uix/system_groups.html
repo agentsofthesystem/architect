@@ -174,15 +174,14 @@
     </div>
 </div>
 
+{% if is_empty %}
 <div class="col text-center">
-
-    {% if is_empty %}
-        {% include "uix/groups_empty_state.html" %}
-    {% else %}
-        {% include "uix/system_group_list.html" %}
-    {% endif %}
-
+    {% include "uix/groups_empty_state.html" %}
 </div>
+{% else %}
+    {% include "uix/system_group_list.html" %}
+{% endif %}
+
 {% endblock %}
 
 {% block scripts %}
