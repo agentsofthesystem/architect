@@ -3,9 +3,9 @@
 <section class="flush-with-above">
   <div class="container">
 
-    <div class="row">
+    <div class="row d-flex justify-content-center">
 
-      <div class="col">
+      <div class="col text-center">
 
         <div id="accordion">
 
@@ -13,43 +13,35 @@
           <div class="card">
 
             <div class="card-header" id="group-heading-{{group['group_id']}}">
-              <div class="row d-flex justify-content-center">
+              <div class="row d-flex justify-content-center align-middle">
                 <div class="col-sm">
                   <button class="btn btn-lg btn-success" data-toggle="collapse" data-target="#collapseGroup{{group['group_id']}}" aria-expanded="true" aria-controls="collapseGroup{{group['group_id']}}">Members</button>
                 </div>
                 <div class="col-sm" >
-                  <div class="row d-flex justify-content-md-center">
-                    <ul class="list-inline">
-                      <li class="list-inline-item"><h5>Name: </h5></li>
-                      <li class="list-inline-item"><p> {{group['name']}}</p></li>
-                    </ul>
-                  </div>
+                  <ul class="list-inline">
+                    <li class="list-inline-item"><h5>Name: </h5></li>
+                    <li class="list-inline-item"><p> {{group['name']}}</p></li>
+                  </ul>
                 </div>
                 <div class="col-sm" >
-                  <div class="row d-flex justify-content-md-center">
-                    <ul class="list-inline">
-                      <li class="list-inline-item"><h5>Owner: </h5></li>
-                      <li class="list-inline-item"><p> {{group['owner']['username']}}</p></li>
-                    </ul>
-                  </div>
+                  <ul class="list-inline">
+                    <li class="list-inline-item"><h5>Owner: </h5></li>
+                    <li class="list-inline-item"><p> {{group['owner']['username']}}</p></li>
+                  </ul>
                 </div>
                 <div class="col-sm">
-                  <div class="row d-flex justify-content-md-center">
-                    <ul class="list-inline">
-                      <li class="list-inline-item"><h5>Members: </h5></li>
-                      <li class="list-inline-item"><p> {{group['member_count']}}</p></li>
-                    </ul>
-                  </div>
+                  <ul class="list-inline">
+                    <li class="list-inline-item"><h5>Members: </h5></li>
+                    <li class="list-inline-item"><p> {{group['member_count']}}</p></li>
+                  </ul>
                 </div>
                 <div class="col-sm">
-                  <div class="row d-flex justify-content-md-center">
-                    <ul class="list-inline">
-                      <li class="list-inline-item"><h5>Agents: </h5></li>
-                      <li class="list-inline-item"><p> {{group['agent_count']}}</p></li>
-                    </ul>
-                  </div>
+                  <ul class="list-inline">
+                    <li class="list-inline-item"><h5>Agents: </h5></li>
+                    <li class="list-inline-item"><p> {{group['agent_count']}}</p></li>
+                  </ul>
                 </div>
-                <div class="col-sm">
+                <div class="col-sm p-1">
                   {% if current_user.user_id == group['owner_id'] %}
                   <div class="dropdown">
                     <button class="btn btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
