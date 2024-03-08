@@ -44,7 +44,7 @@
         <div class="col">
           <div class="media align-items-center">
             {% if current_user.user_id == agent_info['agent']['owner_id'] %}
-            <img alt="I own this Agent" src="{{ url_for('static', filename='uix/assets/img/agent.png') }}"
+            <img alt="I own this Agent" src="{{ url_for('static', filename='uix/assets/img/agent-black.png') }}"
               class="avatar avatar-lg avatar-square rounded" />
             {% else %}
             <img alt="Shared Agent" src="{{ url_for('static', filename='uix/assets/img/agent-green.png') }}"
