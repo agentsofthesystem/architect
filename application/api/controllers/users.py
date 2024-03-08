@@ -12,7 +12,7 @@ from kombu.exceptions import OperationalError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from application.api.controllers.friends import generate_friend_code
-from application.common import logger
+from application.common import logger, constants
 from application.extensions import DATABASE
 from application.models.beta_user import BetaUser
 from application.models.setting import SettingsSql
@@ -102,7 +102,10 @@ def signin(request):
     logger.info(f"SIGNIN: Remember User: {lm_remember}")
 
     session.permanent = True
-    login_user(user_obj, remember=lm_remember, duration=timedelta(hours=24))
+
+    login_user(
+        user_obj, remember=lm_remember, duration=current_app.config["PERMANENT_SESSION_LIFETIME"]
+    )
 
     return True
 
@@ -167,35 +170,22 @@ def signup(request):
         # Sender, Subject, recipient, html
         origin_host = request.host
 
-        # Send welcome email
-        subject = "Welcome to Agents of the System!"
-        msg = render_template(
-            "email/welcome.html",
-            pretty_name=current_app.config["APP_PRETTY_NAME"],
-            app_site=origin_host,
-        )
-        emailer.apply_async(
-            [current_app.config["DEFAULT_MAIL_SENDER"], subject, new_user.email, msg]
-        )
-
-        # Send email verification email.
-        subject = f"{current_app.config['APP_PRETTY_NAME']} - Verify Email."
-        origin_host = request.host
-
         if isinstance(token, str):
             verify_link = f"http://{origin_host}/verify?token={token}"
         else:
             verify_link = f"http://{origin_host}/verify?token={token.decode()}"
 
+        # Send welcome email with verification link
+        subject = "Welcome to Agents of the System!"
         msg = render_template(
-            "email/verify.html",
+            "email/welcome.html",
             verify_link=verify_link,
             pretty_name=current_app.config["APP_PRETTY_NAME"],
             app_site=origin_host,
         )
         emailer.apply_async(
             [current_app.config["DEFAULT_MAIL_SENDER"], subject, new_user.email, msg],
-            eta=now + timedelta(seconds=60),
+            countdown=constants.DEFAULT_EMAIL_DELAY_SECONDS,
         )
 
     except OperationalError as error:
