@@ -4,8 +4,7 @@ import os
 
 from datetime import timedelta
 
-from application.common import logger
-from application.common.constants import _DeployTypes
+from application.common import logger, constants
 
 
 class DefaultConfig:
@@ -54,7 +53,7 @@ class DefaultConfig:
     FLASK_RUN_HOST = "0.0.0.0"
     FLASK_RUN_PORT = "3000"
     WTF_CSRF_ENABLED = True
-    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=constants.DEFAULT_SESSION_HOURS)
     IS_SEEDED = True
 
     # SQL Database Settings
@@ -82,7 +81,7 @@ class DefaultConfig:
     FLASK_ADMIN_SWATCH = "cosmo"  # See https://bootswatch.com/3/ for swatches
 
     def __init__(self, deploy_type):
-        configuration_options = [el.value for el in _DeployTypes]
+        configuration_options = [el.value for el in constants._DeployTypes]
 
         if deploy_type not in configuration_options:
             logger.info(
