@@ -1,69 +1,63 @@
-<section class="flush-with-above">
 
-  <div class="container">
+<div class="row justify-content-center">
 
-    <div class="row">
+  <div class="col text-center">
+    <table class="table table-borderless table-hover align-items-center">
+      <thead>
+        <tr>
+          <th scope="col"><strong>Friend Requests:</strong></th>
+          <th scope="col">Request Type</th>
+          <th scope="col">Username</th>
+          <th scope="col">Status</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
 
-      <div class="col">
-        <table class="table table-borderless table-hover align-items-center">
-          <thead>
-            <tr>
-              <th scope="col"><strong>Friend Requests:</strong></th>
-              <th scope="col">Request Type</th>
-              <th scope="col">User</th>
-              <th scope="col">Status</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-
-            {% for request in friend_requests %}
-            <tr class="bg-white">
-              <td>
-                <a class="align-items-center">
-                  <img alt="" src="{{ url_for('static', filename='uix/assets/img/agent-black.svg') }}" class="avatar rounded avatar-sm" />
-                </a>
-              </td>
-              <td>{{request['request_type']}}</td>
+        {% for request in friend_requests %}
+        <tr class="bg-white">
+          <td>
+            <a class="align-items-center">
+              <img alt="" src="{{ url_for('static', filename='uix/assets/img/agent-black.svg') }}" class="avatar rounded avatar-sm" />
+            </a>
+          </td>
+          <td>{{request['request_type']}}</td>
+          {% if request['request_type'] == "Incoming"  %}
+            <td>{{request['sender']['username']}}</td>
+          {% else %}
+            <td>{{request['recipient']['username']}}</td>
+          {% endif %}
+          <td>Pending</td>
+          <td>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="icon-dots-three-horizontal"></i>
+              </button>
               {% if request['request_type'] == "Incoming"  %}
-                <td>{{request['sender']['username']}}</td>
+              <div class="dropdown-menu dropdown-menu-sm">
+                <a class="dropdown-item accept-friend-request" id="{{request['request_id']}}">Accept</a>
+                <a class="dropdown-item reject-friend-request" id="{{request['request_id']}}">Reject</a>
+              </div>
               {% else %}
-                <td>{{request['recipient']['username']}}</td>
+              <div class="dropdown-menu dropdown-menu-sm">
+                <a class="dropdown-item cancel-friend-request" id="{{request['request_id']}}">Cancel</a>
+              </div>
               {% endif %}
-              <td>Pending</td>
-              <td>
-                <div class="dropdown">
-                  <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="icon-dots-three-horizontal"></i>
-                  </button>
-                  {% if request['request_type'] == "Incoming"  %}
-                  <div class="dropdown-menu dropdown-menu-sm">
-                    <a class="dropdown-item accept-friend-request" id="{{request['request_id']}}">Accept</a>
-                    <a class="dropdown-item reject-friend-request" id="{{request['request_id']}}">Reject</a>
-                  </div>
-                  {% else %}
-                  <div class="dropdown-menu dropdown-menu-sm">
-                    <a class="dropdown-item cancel-friend-request" id="{{request['request_id']}}">Cancel</a>
-                  </div>
-                  {% endif %}
-                </div>
-              </td>
-            </tr>
-            <tr class="table-divider">
-              <th></th>
-              <td></td>
-            </tr>
-            {% endfor %}
+            </div>
+          </td>
+        </tr>
+        <tr class="table-divider">
+          <th></th>
+          <td></td>
+        </tr>
+        {% endfor %}
 
-          </tbody>
-        </table>
-      </div>
-      <!--end of col-->
-    </div>
-    <!--end of row-->
+      </tbody>
+    </table>
   </div>
-  <!--end of container-->
-</section>
+  <!--end of col-->
+</div>
+<!--end of row-->
 
 
 <script>

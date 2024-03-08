@@ -7,15 +7,16 @@
 <div class="col text-center">
 
     {% if request_list_empty %}
-
-        {% include "uix/system_friend_code_form.html" %}
-
+        <section class="flush-with-above space-0">
+            {% include "uix/system_friend_code_form.html" %}
+        </section>
         {% if not friend_list_empty %}
-
-            {% include "uix/system_friend_list.html" %}
-
+        <section class="flush-with-above space-0">
+            <div class="container">
+                {% include "uix/system_friend_list.html" %}
+            </div>
+        </section>
         {% endif %}
-
     {% else %}
 
     <section class="flush-with-above space-0">
@@ -23,8 +24,8 @@
         {% include "uix/system_friend_code_form.html" %}
 
         <div class="container">
-            <div class="row">
-                <div class="col">
+            <div class="row justify-content-center">
+                <div class="col text-center">
                     <ul class="nav nav-tabs" id="myMessagesTab" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" id="friend-request-tab" data-toggle="tab"
@@ -43,31 +44,19 @@
         <!--end of container-->
     </section>
 
-    <section class="flush-with-above height-80 d-block">
+    <section class="flush-with-above d-block">
 
         <div class="tab-content">
-            <div class="tab-pane fade show active" id="friend-requests" role="tabpanel">
+            <div class="tab-pane fade show active justify-content-center" id="friend-requests" role="tabpanel">
                 <div class="container">
-                    <!--end of row-->
-                    <div class="container align-self-start">
-                        <div class="row justify-content-center">
-                            <div class="col-25 col-md-12 order-md-1">
-                                {% include "uix/system_friend_request_list.html" %}
-                            </div>
-                        </div>
-                    </div>
+                    {% include "uix/system_friend_request_list.html" %}
                 </div>
             </div>
 
             <!--end of tab pane-->
             <div class="tab-pane fade" id="friend-list" role="tabpanel">
-                <div class="container align-self-start">
-                    <div class="row justify-content-center">
-                        <div class="col-25 col-md-12 order-md-1">
-                            {% include "uix/system_friend_list.html" %}
-                        </div>
-                    </div>
-                    <!--end of row-->
+                <div class="container">
+                    {% include "uix/system_friend_list.html" %}
                 </div>
                 <!--end of container-->
 

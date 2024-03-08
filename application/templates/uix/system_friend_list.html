@@ -1,66 +1,60 @@
-<section class="flush-with-above">
+<div class="row justify-content-center">
 
-  <div class="container">
+  <div class="col">
+    <table class="table table-borderless table-hover align-items-center">
+      <thead>
+        <tr>
+          <th scope="col"><strong>Friend:</strong></th>
+          <th scope="col">Username</th>
+          <th scope="col">Name</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
 
-    <div class="row">
+        {% for friend in friends_list %}
+        <tr class="bg-white">
+          <td>
+            <a class="align-items-center">
+              <img alt="" src="{{ url_for('static', filename='uix/assets/img/agent-black.svg') }}" class="avatar rounded avatar-sm" />
+            </a>
+          </td>
+          {% if current_user.user_id == friend['initiator_id'] %}
+          <td>{{friend['receiver']['username']}}</td>
+          {% else %}
+          <td>{{friend['initiator']['username']}}</td>
+          {% endif %}
 
-      <div class="col">
-        <table class="table table-borderless table-hover align-items-center">
-          <thead>
-            <tr>
-              <th scope="col"><strong>Friend:</strong></th>
-              <th scope="col">Friend Username</th>
-              <th scope="col">Name</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
+          {% if current_user.user_id == friend['initiator_id'] %}
+          <td>{{friend['receiver']['first_name']}} {{friend['receiver']['last_name']}}</td>
+          {% else %}
+          <td>{{friend['initiator']['first_name']}} {{friend['initiator']['last_name']}}</td>
+          {% endif %}
 
-            {% for friend in friends_list %}
-            <tr class="bg-white">
-              <td>
-                <a class="align-items-center">
-                  <img alt="" src="{{ url_for('static', filename='uix/assets/img/agent-black.svg') }}" class="avatar rounded avatar-sm" />
-                </a>
-              </td>
-              {% if current_user.user_id == friend['initiator_id'] %}
-              <td>{{friend['receiver']['username']}}</td>
-              {% else %}
-              <td>{{friend['initiator']['username']}}</td>
-              {% endif %}
+          <td>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="icon-dots-three-horizontal"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-sm">
+                <a class="dropdown-item remove-friend-request" id="{{friend['friend_id']}}">De-Friend</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr class="table-divider">
+          <th></th>
+          <td></td>
+        </tr>
+        {% endfor %}
 
-              {% if current_user.user_id == friend['initiator_id'] %}
-              <td>{{friend['receiver']['first_name']}} {{friend['receiver']['last_name']}}</td>
-              {% else %}
-              <td>{{friend['initiator']['first_name']}} {{friend['initiator']['last_name']}}</td>
-              {% endif %}
-
-              <td>
-                <div class="dropdown">
-                  <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="icon-dots-three-horizontal"></i>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-sm">
-                    <a class="dropdown-item remove-friend-request" id="{{friend['friend_id']}}">De-Friend</a>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr class="table-divider">
-              <th></th>
-              <td></td>
-            </tr>
-            {% endfor %}
-
-          </tbody>
-        </table>
-      </div>
-      <!--end of col-->
-    </div>
-    <!--end of row-->
+      </tbody>
+    </table>
   </div>
-  <!--end of container-->
-</section>
+  <!--end of col-->
+</div>
+<!--end of row-->
+
 
 
 <script>
