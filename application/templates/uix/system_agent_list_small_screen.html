@@ -1,12 +1,11 @@
 
+
 <div class="row">
   <div class="col">
     <table class="table table-borderless table-hover align-items-center">
       <thead>
         <tr>
           <th scope="col">Agent Info</th>
-          <th scope="col">Name</th>
-          <th scope="col">Hostname:Port</th>
           <th scope="col">Owner </th>
           <th scope="col">Status</th>
           <th scope="col">Action</th>
@@ -28,10 +27,6 @@
               </a>
               {% endif %}
             </a>
-          </td>
-          <td>{{agent['name']}}</td>
-          <td>
-            <span class="h6 mb-0">{{agent['hostname']}}:{{agent['port']}}</span>
           </td>
           <td>{{ '(Me)' if current_user.user_id == agent['owner_id'] else agent['owner']['username'] }}</td>
           <td>
@@ -80,3 +75,4 @@
   <!--end of col-->
 </div>
 <!--end of row-->
+

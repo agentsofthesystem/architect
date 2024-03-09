@@ -12,8 +12,8 @@
           {% for group in all_groups %}
           <div class="card">
 
-            <div class="card-header" id="group-heading-{{group['group_id']}}">
-              <div class="row d-flex justify-content-center align-middle">
+            <div class="card-header align-middle" id="group-heading-{{group['group_id']}}">
+              <div class="row d-flex justify-content-center">
                 <div class="col-sm">
                   <button class="btn btn-lg btn-success" data-toggle="collapse" data-target="#collapseGroup{{group['group_id']}}" aria-expanded="true" aria-controls="collapseGroup{{group['group_id']}}">Members</button>
                 </div>
