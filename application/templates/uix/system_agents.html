@@ -215,7 +215,17 @@
     {% if is_empty %}
         {% include "uix/agent_empty_state.html" %}
     {% else %}
-        {% include "uix/system_agent_list.html" %}
+        <section class="flush-with-above">
+            <!-- Normal version of the table shows for larger/regular sized screens -->
+            <div class="container d-none d-sm-block">
+                {% include "uix/system_agent_list.html" %}
+            </div>
+             <!-- Condensed version of the table shows for small screens -->
+            <div class="container d-block d-sm-none">
+                {% include "uix/system_agent_list_small_screen.html" %}
+            </div>
+        </section>
+
     {% endif %}
 
 </div>
@@ -228,8 +238,17 @@
     $(document).ready(function(){
 
         var socket = io("/system/agents");
-
         var agent_list = $(".agent-status-badge");
+        var csrftoken = $('meta[name=csrf-token]').attr('content')
+
+        // Goes with system_agent_list[_small_screen].html
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken)
+                }
+            }
+        })
 
         for(let i = 0; i < agent_list.length; ++i){
             var agent = agent_list[i];
@@ -254,34 +273,41 @@
 
             console.log("Agent ID: " + agent_id + ", Status: " + agent_status);
 
-            var badge = $("." + agent_id_class)[0];
-            var spinner = $("." + agent_spinner_id_class)[0];
+            // Since there is a regular sized and small sized table, have to loop.
+            var badge = $("." + agent_id_class);
+            var spinner = $("." + agent_spinner_id_class);
 
-            badge.innerHTML = agent_status;
+            for(let i = 0; i < badge.length; ++i){
 
-            $(spinner).hide()
+                this_badge = badge[i];
+                this_badge.innerHTML = agent_status;
 
-            if(agent_status == "Alive"){
-                $(badge).attr("class", "badge badge-success agent-status-badge " + agent_id_class);
-            }
-            else if (agent_status == "Unreachable"){
-                $(badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
-                $('.' + agent_info_link_class).removeAttr("href")
-            }
-            else if (agent_status == "InvalidAccessToken"){
-                $(badge).attr("class", "badge badge-warning agent-status-badge " + agent_id_class);
-                $('.' + agent_info_link_class).removeAttr("href")
-            }
-            else if (agent_status == "SSLError" || agent_status == "SSLCertMissing"){
-                $(badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
-                $('.' + agent_info_link_class).removeAttr("href")
-            }
-            else if (agent_status == "Error"){
-                $(badge).attr("class", "badge badge-warning agent-status-badge " + agent_id_class);
-                $('.' + agent_info_link_class).removeAttr("href")
-            }
+                this_spinner = spinner[i];
 
-            $(badge).show()
+                $(this_spinner).hide()
+
+                if(agent_status == "Alive"){
+                    $(this_badge).attr("class", "badge badge-success agent-status-badge " + agent_id_class);
+                }
+                else if (agent_status == "Unreachable"){
+                    $(this_badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
+                    $('.' + agent_info_link_class).removeAttr("href")
+                }
+                else if (agent_status == "InvalidAccessToken"){
+                    $(this_badge).attr("class", "badge badge-warning agent-status-badge " + agent_id_class);
+                    $('.' + agent_info_link_class).removeAttr("href")
+                }
+                else if (agent_status == "SSLError" || agent_status == "SSLCertMissing"){
+                    $(this_badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
+                    $('.' + agent_info_link_class).removeAttr("href")
+                }
+                else if (agent_status == "Error"){
+                    $(this_badge).attr("class", "badge badge-warning agent-status-badge " + agent_id_class);
+                    $('.' + agent_info_link_class).removeAttr("href")
+                }
+
+                $(this_badge).show()
+            }
         })
     })
 
@@ -320,5 +346,24 @@
         $('#shareAgentToFriendModal').modal('show')
     }
 
+    // Goes with system_agent_list[_small_screen].html
+    $('.delete-agent').click(function(){
+
+        console.log("Deleting agent " + this.id);
+
+        $.ajax({
+            type: "DELETE",
+            url: "/app/backend/agent/" + this.id,
+            contentType: 'application/json',
+            success: function(){
+                console.log("Agent" + this.id + ' deleted.')
+                location.reload();
+            },
+            error: function( ){
+                console.log('error!')
+            }
+        });
+
+    });
 </script>
 {% endblock %}

@@ -6,13 +6,13 @@
             {{ friend_request_form.csrf_token }}
             <div class="card card-sm text-center">
                 <div class="card-body row no-gutters align-items-center">
-                    <div class="col-auto">
+                    <div class="col-auto d-none d-sm-block">
                         <h6 class="title-decorative">New Friend Request:</h6>
                     </div>
                     <!--end of col-->
                     <div class="col">
                         {{ friend_request_form.friend_code(class="form-control form-control-lg
-                        form-control-borderless", type="text", id="friend-code", placeholder="Paste Friend Code here and click Send!") }}
+                        form-control-borderless", type="text", id="friend-code", placeholder="Paste Friend Code!") }}
                     </div>
                     <!--end of col-->
                     <div class="col-auto">
