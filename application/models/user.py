@@ -5,6 +5,8 @@ from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
 from application.models.message import Messages
 from application.models.friend_request import FriendRequests  # noqa: F401
+from application.models.default_property import DefaultProperty
+from application.models.property import Property
 
 
 class UserSql(PaginatedApi, DATABASE.Model):
@@ -154,3 +156,11 @@ class UserSql(PaginatedApi, DATABASE.Model):
     @property
     def is_admin(self):
         return self.admin
+
+    @property
+    def properties(self):
+        user_property_qry = Property.query.filter_by(user_id=self.user_id)
+        user_property_qry.join(
+            DefaultProperty, DefaultProperty.default_property_id == Property.property_id
+        )
+        return user_property_qry.all()
