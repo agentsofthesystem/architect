@@ -1,101 +1,52 @@
-from flask import current_app
+from flask import current_app, Flask
+from werkzeug.security import generate_password_hash
 
 from application.extensions import DATABASE
+from application.common import logger
+from application.common.constants import SYSTEM_SETTINGS, SYSTEM_DEFAULT_PROPERTIES
 from application.common.toolbox import _get_setting
+from application.models.default_property import DefaultProperty
 from application.models.setting import SettingsSql
+from application.models.user import UserSql
 
-SYSTEM_SETTINGS = {
-    # General Settings
-    "APP_NAME": {
-        "pretty": "Application Name",
-        "description": "System Application Name",
-        "category": "name",
-        "type": "str",
-    },
-    "APP_WEBSITE": {
-        "pretty": "Application Domain Name",
-        "description": "System Application Domain Name",
-        "category": "name",
-        "type": "str",
-    },
-    "APP_PRETTY_NAME": {
-        "pretty": "Application Display Name",
-        "description": "System Application Display Name",
-        "category": "name",
-        "type": "str",
-    },
-    # AWS
-    "AWS_REGION": {
-        "pretty": "Aws Region",
-        "description": "Region to use for AWS.",
-        "category": "aws",
-        "type": "str",
-    },
-    # Email
-    "DEFAULT_MAIL_SENDER": {
-        "pretty": "Email Default Sender",
-        "description": "From email for all emails sent",
-        "category": "email",
-        "type": "str",
-    },
-    # Payments
-    "STRIPE_PUBLISHABLE_KEY": {
-        "pretty": "Stripe Publish Key",
-        "description": "",
-        "category": "payments",
-        "type": "str",
-    },
-    "STRIPE_SECRET_KEY": {
-        "pretty": "Stripe Secret Key",
-        "description": "",
-        "category": "payments",
-        "type": "str",
-    },
-    "STRIPE_MONTHLY_PRICE_ID": {
-        "pretty": "Price ID For Monthly Price Option",
-        "description": "",
-        "category": "payments",
-        "type": "str",
-    },
-    "STRIPE_ANNUAL_PRICE_ID": {
-        "pretty": "Price ID For Annual Price Option",
-        "description": "",
-        "category": "payments",
-        "type": "str",
-    },
-    "STRIPE_WEBHOOK_SECRET": {
-        "pretty": "Webhook secret for stripe",
-        "description": "",
-        "category": "payments",
-        "type": "str",
-    },
-    # Top Level Settings
-    "APP_ENABLE_PAYMENTS": {
-        "pretty": "Application Payments Enable",
-        "description": "Turn Payments feature on or off",
-        "category": "system",
-        "type": "bool",
-    },
-    "APP_ENABLE_EMAIL": {
-        "pretty": "Application Enable Email",
-        "description": "Turn system wide emails on or off",
-        "category": "system",
-        "type": "bool",
-    },
-    "APP_ENABLE_BETA": {
-        "pretty": "Application Enable Beta Mode",
-        "description": "Only allow users in beta table to signup.",
-        "category": "system",
-        "type": "bool",
-    },
-    # This one is special so the factory.py only runs the init code once.
-    "IS_SEEDED": {
-        "pretty": "System Settings are Seeded.",
-        "description": "Stores whether the system has already been seeded once or not.",
-        "category": "system",
-        "type": "bool",
-    },
-}
+
+def _handle_default_records(flask_app: Flask) -> None:
+    """Add initial admin user & settings."""
+
+    # Setup an admin user & Seed system settings & default properties.
+    with flask_app.app_context():
+        # Add an admin user to the DATABASE
+        user_obj = UserSql.query.filter_by(username=flask_app.config["ADMIN_USER"]).first()
+
+        if user_obj is None:
+            new_admin_user = UserSql()
+            new_admin_user.admin = True
+            new_admin_user.verified = True
+            new_admin_user.first_name = "admin"
+            new_admin_user.last_name = "admin"
+            new_admin_user.subscribed = True
+            new_admin_user.username = flask_app.config["ADMIN_USER"]
+            new_admin_user.email = flask_app.config["DEFAULT_ADMIN_EMAIL"]
+            new_admin_user.password = generate_password_hash(flask_app.config["ADMIN_PASSWORD"])
+            try:
+                DATABASE.session.add(new_admin_user)
+                DATABASE.session.commit()
+            except Exception as error:
+                logger.error(error)
+
+        # Add configurable settings to the DATABASE
+        seeded_settings_obj = SettingsSql.query.filter_by(name="IS_SEEDED").first()
+
+        if seeded_settings_obj is None:
+            # System settings mirror config.py items.
+            seed_system_settings(flask_app.config)
+
+        # Override the app name from the settings database.
+        app_name = SettingsSql.query.filter_by(name="APP_NAME").first()
+        flask_app.name = app_name.value
+
+        # Seed the default properties
+        seed_system_default_properties()
 
 
 def seed_system_settings(configuration):
@@ -124,6 +75,36 @@ def seed_system_settings(configuration):
     DATABASE.session.commit()
 
     configuration["IS_SEEDED"] = True
+
+
+def seed_system_default_properties():
+    for default_property in SYSTEM_DEFAULT_PROPERTIES:
+        query = DefaultProperty.query.filter_by(property_name=default_property["property_name"])
+
+        if query.first() is None:
+            new_default_property = DefaultProperty(
+                property_name=default_property["property_name"],
+                property_type=default_property["property_type"],
+                property_default_value=default_property["property_default_value"],
+                property_description=default_property["property_description"],
+            )
+
+            DATABASE.session.add(new_default_property)
+        else:
+            logger.info(
+                f"Default Property {default_property['property_name']} already exists so updating"
+            )
+            update_property_dict = {
+                "property_type": default_property["property_type"],
+                "property_default_value": default_property["property_default_value"],
+                "property_description": default_property["property_description"],
+            }
+            query.update(update_property_dict)
+
+    try:
+        DATABASE.session.commit()
+    except Exception as error:
+        logger.error(error)
 
 
 def update_system_settings():

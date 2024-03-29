@@ -15,13 +15,12 @@ from alembic.config import Config
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
 from kombu.utils.url import safequote
-from werkzeug.security import generate_password_hash
 
 from application.common import logger
 from application.common.credentials import get_credentials
 from application.common.user_loader import load_user  # noqa: F401
 from application.common.toolbox import MyAdminIndexView, _get_application_path
-from application.common.seed_data import seed_system_settings, update_system_settings
+from application.common.seed_data import update_system_settings, _handle_default_records
 from application.config.config import DefaultConfig
 from application.debugger import init_debugger
 from application.extensions import ADMIN, CELERY, CSRF, DATABASE, LOGIN_MANAGER, SOCKETIO
@@ -125,41 +124,6 @@ def _handle_migrations(flask_app: Flask) -> None:
             alembic_cfg.attributes["connection"] = connection
 
             command.upgrade(alembic_cfg, "head")
-
-
-def _handle_default_records(flask_app: Flask) -> None:
-    """Add initial admin user & settings."""
-
-    # Setup an admin user.
-    with flask_app.app_context():
-        user_obj = UserSql.query.filter_by(username=flask_app.config["ADMIN_USER"]).first()
-
-        if user_obj is None:
-            new_admin_user = UserSql()
-            new_admin_user.admin = True
-            new_admin_user.verified = True
-            new_admin_user.first_name = "admin"
-            new_admin_user.last_name = "admin"
-            new_admin_user.subscribed = True
-            new_admin_user.username = flask_app.config["ADMIN_USER"]
-            new_admin_user.email = flask_app.config["DEFAULT_ADMIN_EMAIL"]
-            new_admin_user.password = generate_password_hash(flask_app.config["ADMIN_PASSWORD"])
-            try:
-                DATABASE.session.add(new_admin_user)
-                DATABASE.session.commit()
-            except Exception as error:
-                logger.error(error)
-
-        # Add configurable settings to the DATABASE
-        seeded_settings_obj = SettingsSql.query.filter_by(name="IS_SEEDED").first()
-
-        if seeded_settings_obj is None:
-            # System settings mirror config.py items.
-            seed_system_settings(flask_app.config)
-
-        # Override the app name from the settings database.
-        app_name = SettingsSql.query.filter_by(name="APP_NAME").first()
-        flask_app.name = app_name.value
 
 
 def create_app(config=None, init_db=True, init_celery=True):
