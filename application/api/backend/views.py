@@ -6,18 +6,41 @@ from application.api.controllers import agents
 from application.api.controllers import agent_control
 from application.api.controllers import friends
 from application.api.controllers import groups
+from application.api.controllers import properties
 from application.common import logger
 from application.common.decorators import verified_required
 from application.models.agent import Agents
 from application.models.agent import AgentFriendMembers
 from application.models.agent import AgentGroupMembers
 from application.models.friend import Friends
+from application.models.friend_request import FriendRequests
 from application.models.group import Groups
 from application.models.group_invite import GroupInvites
 from application.models.group_member import GroupMembers
-from application.models.friend_request import FriendRequests
+from application.models.property import Property
+
 
 backend = Blueprint("backend", __name__, url_prefix="/app/backend")
+
+
+class PropertiesBackendApi(MethodView):
+    def __init__(self, model):
+        self.model = model
+
+    @login_required
+    def post(self, user_id, property_name):
+        payload = request.json
+        if properties.create_property(user_id, property_name, payload):
+            return "", 204
+        else:
+            return "Error!", 500
+
+    @login_required
+    def delete(self, user_id, property_name):
+        if properties.delete_property(user_id, property_name):
+            return "", 204
+        else:
+            return "Error!", 500
 
 
 class GroupInvitesBackendApi(MethodView):
@@ -171,6 +194,12 @@ class AgentsBackendApi(MethodView):
         else:
             return "Error!", 500
 
+
+backend.add_url_rule(
+    "/property/<int:user_id>/<string:property_name>",
+    view_func=PropertiesBackendApi.as_view("user_properties_api", Property),
+    methods=["DELETE", "POST"],
+)
 
 backend.add_url_rule(
     "/game/server/control/<string:command>",

@@ -371,6 +371,25 @@ def account():
     return redirect(url_for("protected.account"))
 
 
+@protected.route("/preferences", methods=["GET", "POST"])
+@login_required
+def preferences():
+    user_properties = current_user.properties
+
+    logger.info("********************")
+    logger.info("User Properties:")
+    logger.info(user_properties)
+    logger.info("********************")
+
+    return render_template(
+        "uix/account_preferences.html",
+        pretty_name=current_app.config["APP_PRETTY_NAME"],
+        payments_enabled=current_app.config["APP_ENABLE_PAYMENTS"],
+        email_enabled=current_app.config["APP_ENABLE_EMAIL"],
+        user_properties=user_properties,
+    )
+
+
 @protected.route("/create-checkout-session", methods=["POST", "GET"])
 @login_required
 def create_checkout_session():

@@ -159,8 +159,26 @@ class UserSql(PaginatedApi, DATABASE.Model):
 
     @property
     def properties(self):
-        user_property_qry = Property.query.filter_by(user_id=self.user_id)
-        user_property_qry.join(
-            DefaultProperty, DefaultProperty.default_property_id == Property.property_id
+        user_properties = (
+            DATABASE.session.query(DefaultProperty, Property)
+            .join(Property, DefaultProperty.default_property_id == Property.default_property_id)
+            .filter_by(user_id=self.user_id)
+            .all()
         )
-        return user_property_qry.all()
+        output_dict = {}
+        for property in user_properties:
+            if property[0].property_type == "bool":
+                value = False if property[1].property_value.lower() == "false" else True
+            elif property[0].property_type == "int":
+                value = int(property[1].property_value)
+            elif property[0].property_type == "str":
+                value = str(property[1].property_value)
+            elif property[0].property_type == "float":
+                value = float(property[1].property_value)
+            else:
+                logger.warning(f"Unknown property type: {property[0].property_type}")
+                value = property[1].property_value
+
+            output_dict[property[0].property_name] = value
+
+        return output_dict

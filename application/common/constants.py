@@ -142,6 +142,20 @@ SYSTEM_DEFAULT_PROPERTIES = [
         "property_description": "Determines if the user will receive email notifications for "
         "social interactions.",
     },
+    {
+        "property_name": "NOTIFICATION_DM_GLOBAL_ENABLED",
+        "property_type": "bool",
+        "property_default_value": "True",
+        "property_description": "Determines if the user will receive direct message for "
+        "global notifications.",
+    },
+    {
+        "property_name": "NOTIFICATION_EMAIL_GLOBAL_ENABLED",
+        "property_type": "bool",
+        "property_default_value": "True",
+        "property_description": "Determines if the user will receive email notifications for "
+        "global notifications.",
+    },
 ]
 
 _DeployTypes = DeployTypes

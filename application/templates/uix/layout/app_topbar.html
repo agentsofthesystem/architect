@@ -55,7 +55,8 @@
                                     Messages <span class="badge badge-danger">{{ new_global_messages + new_direct_messages }} </span>
                                 {% endif %}
                             </a>
-                            <a class="dropdown-item" href="{{url_for('protected.account')}}">Account Settings</a>
+                            <a class="dropdown-item" href="{{url_for('protected.preferences')}}">Preferences</a>
+                            <a class="dropdown-item" href="{{url_for('protected.account')}}">Account</a>
                             {% if current_user.admin %}
                                 <a class="dropdown-item" href="{{url_for('protected.admin')}}">Admin</a>
                             {% endif %}
