@@ -1,5 +1,7 @@
 import json
 
+from flask_login import current_user
+
 from application.common import logger
 from application.extensions import DATABASE
 from application.models.default_property import DefaultProperty
@@ -12,6 +14,10 @@ def get_default_property(property_name):
 
 def create_property(user_id, property_name, payload):
     logger.info("Creating property...")
+
+    if current_user.user_id != user_id:
+        logger.info("User does not have permission to create property.")
+        return False
 
     default_property = get_default_property(property_name)
 
@@ -46,6 +52,10 @@ def create_property(user_id, property_name, payload):
 
 def delete_property(user_id, property_name):
     logger.info("Deleting property...")
+
+    if current_user.user_id != user_id:
+        logger.info("User does not have permission to create property.")
+        return False
 
     default_property = get_default_property(property_name)
 

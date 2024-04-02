@@ -1,8 +1,13 @@
-# -*- coding: utf-8 -*-
-import json
+class TestIndex:
+    @classmethod
+    def setup_class(cls):
+        pass
 
+    @classmethod
+    def teardown_class(cls):
+        pass
 
-def test_index(client):
-    response = client.get("/")
+    def test_index(self, client):
+        response = client.get("/")
 
-    assert response.status_code == 200
+        assert response.status_code == 200

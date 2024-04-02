@@ -375,12 +375,6 @@ def account():
 @login_required
 def preferences():
     user_properties = current_user.properties
-
-    logger.info("********************")
-    logger.info("User Properties:")
-    logger.info(user_properties)
-    logger.info("********************")
-
     return render_template(
         "uix/account_preferences.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
