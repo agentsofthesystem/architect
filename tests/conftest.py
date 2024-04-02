@@ -1,27 +1,23 @@
 # -*- coding: utf-8 -*-
 import os
-import pytest
 
+from pytest import fixture
 from selenium import webdriver
 
 from application.config.config import DefaultConfig
 from application.factory import create_app
 
 
-@pytest.fixture(scope="module")
+@fixture(scope="module")
 def client():
-    os.environ["ENV"] = "TEST"
-
     config = DefaultConfig(deploy_type="python")
 
     config.DEBUG = False
     config.ENV = "production"
-
     config.WTF_CSRF_ENABLED = False
-
     setattr(config, "TESTING", True)
 
-    app = create_app(config=config)
+    app = create_app(config=config, init_db=False)
 
     with app.test_client() as client:
         ctx = app.app_context()
@@ -32,7 +28,7 @@ def client():
         ctx.pop()
 
 
-@pytest.fixture(params=["firefox"], scope="class")
+@fixture(params=["firefox"], scope="class")
 def selenium_local_driver(request):
     resources = os.path.join(os.path.dirname(__file__), "resources")
 
