@@ -13,5 +13,5 @@ backend/db/*.db
 source/__pycache__*
 app/__pycache__*
 celerybeat-schedule*
-.coverage*
+.coverage
 *.Identifier
