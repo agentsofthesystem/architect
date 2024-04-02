@@ -58,13 +58,10 @@ jobs:
         exclude: "tests/*,doc/*"
         max-line-length: "100"
 
-    # TODO - Uncomment when pytests work again.
-    # - name: Test with pytest
-    #   run: |
-    #     pytest
-    # - name: Run PyInstaller
-    #   run: |
-    #     python package.py
+    - name: pytest
+      run: |
+        coverage run -m pytest
+        coverage report --fail-under 30
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
