@@ -106,6 +106,11 @@ def send_global_email(self, subject: str, html: str):
     )
     recipients = [user.email for user in users]
 
+    # Edge case where there is only one user and they have opted out of global emails.
+    if len(recipients) == 0:
+        logger.info("No users have opted out of global emails.")
+        return {"status": "Task Completed!"}
+
     if _send_email(sender, subject, recipients, html=html, address_mode="BccAddresses"):
         self.update_state(state="SUCCESS")
     else:

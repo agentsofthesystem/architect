@@ -7,7 +7,7 @@ from flask import (
     flash,
     session,
 )
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user
 from kombu.exceptions import OperationalError
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -411,6 +411,10 @@ def verify_email(token):
         return False
 
     user_id = decoded_data["sub"]  # Has the user id.
+
+    if int(current_user.user_id) != int(user_id):
+        logger.error("VERIFY EMAIL: User ID does not match the current user.")
+        return False
 
     user_qry = UserSql.query.filter_by(user_id=user_id)
     user_obj = user_qry.first()
