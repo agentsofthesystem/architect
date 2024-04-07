@@ -17,7 +17,7 @@ from application.extensions import DATABASE
 from application.models.beta_user import BetaUser
 from application.models.setting import SettingsSql
 from application.models.user import UserSql
-from application.workers.email import emailer
+from application.workers.email import send_email
 
 
 def _create_new_user(user, email, password, first, last):
@@ -183,8 +183,8 @@ def signup(request):
             pretty_name=current_app.config["APP_PRETTY_NAME"],
             app_site=origin_host,
         )
-        emailer.apply_async(
-            [current_app.config["DEFAULT_MAIL_SENDER"], subject, new_user.email, msg],
+        send_email.apply_async(
+            [current_app.config["DEFAULT_MAIL_SENDER"], subject, [new_user.email], msg],
             countdown=constants.DEFAULT_EMAIL_DELAY_SECONDS,
         )
 
@@ -302,8 +302,8 @@ def update_profile(request):
             app_site=current_app.config["APP_WEBSITE"],
         )
 
-        emailer.apply_async(
-            [current_app.config["DEFAULT_MAIL_SENDER"], subject, user_obj.email, msg]
+        send_email.apply_async(
+            [current_app.config["DEFAULT_MAIL_SENDER"], subject, [user_obj.email], msg]
         )
 
     return True
@@ -338,23 +338,8 @@ def forgot_password(request):
     origin_host = request.host
     reset_link = f"http://{origin_host}/reset?token={token}"
 
-    """
-    static_path = str(url_for('static', filename='uix/assets/img/app-logo.svg'))
-    base_path = str(os.path.dirname(current_app.instance_path))
-    full_path = os.path.join(base_path, 'application', static_path[1:])
-
-    attachment={}
-    attachment['path'] = full_path
-    attachment['title'] = 'email-logo.jpg'
-    attachment['type'] = 'image/jpeg'
-    attachment['cid'] = "email-logo"
-    """
-
     # Sender, Subject, recipient, html
     try:
-        # Add for attachment
-        # cid=attachment["cid"]
-
         msg = render_template(
             "email/forgot_password.html",
             reset_link=reset_link,
@@ -362,14 +347,11 @@ def forgot_password(request):
             app_site=current_app.config["APP_WEBSITE"],
         )
 
-        # Add for attachment
-        # kwargs={'attachment_list': [attachment]}
-
-        emailer.apply_async(
-            [current_app.config["DEFAULT_MAIL_SENDER"], subject, user_obj.email, msg]
+        send_email.apply_async(
+            [current_app.config["DEFAULT_MAIL_SENDER"], subject, [user_obj.email], msg]
         )
     except OperationalError as error:
-        logger.error("FORGOT: Unable to communicate with Celery Backend.")
+        logger.error("ERROR: Unable to communicate with Celery Backend.")
         logger.error(error)
 
     return True

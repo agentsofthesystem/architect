@@ -20,6 +20,13 @@ class GroupInviteStates(Enum):
     REJECTED = 2
 
 
+class MessageCategories(Enum):
+    ADMIN = 0
+    SOCIAL = 1
+    AUTOMATION = 2
+    NOT_SET = 3
+
+
 # Pagination Defaults
 DEFAULT_PAGE = 1
 DEFAULT_PER_PAGE = 10

@@ -2,16 +2,29 @@ import boto3
 
 from botocore.config import Config
 from botocore.exceptions import ClientError
+from flask import current_app
 
 from application.extensions import CELERY
 from application.common import logger
 from application.common.credentials import get_credentials
 from application.common.toolbox import _get_setting
+from application.models.default_property import DefaultProperty
+from application.models.property import Property
 from application.models.setting import SettingsSql
+from application.models.user import UserSql
+
+# Docs -
+# https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ses/client/send_email.html
 
 
-@CELERY.task(bind=True)
-def emailer(self, sender: str, subject: str, recipient: str, html: str = "", text: str = ""):
+def _send_email(
+    sender: str,
+    subject: str,
+    recipients: list,
+    html: str = "",
+    text: str = "",
+    address_mode="ToAddresses",
+) -> bool:
     aws_region = None
 
     try:
@@ -19,8 +32,7 @@ def emailer(self, sender: str, subject: str, recipient: str, html: str = "", tex
 
         if setting_objs is None:
             logger.critical("emailer: Not Settings Objects for AWS category.")
-            self.update_state(state="FAILURE")
-            return
+            return False
 
         # Region is stored as database item.
         aws_region = _get_setting("AWS_REGION", setting_objs)
@@ -34,9 +46,6 @@ def emailer(self, sender: str, subject: str, recipient: str, html: str = "", tex
 
         if "Token" in credentials:
             aws_session_token = credentials["Token"]
-
-        # TODO - Go back and make the argument a list and update callers.
-        recipients = [recipient]
 
         my_config = Config(
             signature_version="v4",
@@ -54,7 +63,7 @@ def emailer(self, sender: str, subject: str, recipient: str, html: str = "", tex
         try:
             ses.send_email(
                 Source=sender,
-                Destination={"ToAddresses": recipients},
+                Destination={address_mode: recipients},
                 Message={
                     "Subject": {"Data": subject},
                     "Body": {"Text": {"Data": text}, "Html": {"Data": html}},
@@ -64,12 +73,59 @@ def emailer(self, sender: str, subject: str, recipient: str, html: str = "", tex
             logger.error(
                 f"Couldn't send email. Here's why: " f"{error.response['Error']['Message']}"
             )
-        self.update_state(state="PROGRESS")
 
     except Exception as error:
         logger.critical(error)
-        self.update_state(state="FAILURE")
-        return
+        return False
 
-    self.update_state(state="SUCCESS")
+    return True
+
+
+@CELERY.task(bind=True)
+def send_global_email(self, subject: str, html: str):
+    # Get sender
+    sender = current_app.config["DEFAULT_ADMIN_EMAIL"]
+
+    # Get a list of all user ids that have the NOTIFICATION_EMAIL_GLOBAL_ENABLED property in the
+    # Properties table set to False.
+    property_id = (
+        DefaultProperty.query.filter_by(property_name="NOTIFICATION_EMAIL_GLOBAL_ENABLED")
+        .first()
+        .default_property_id
+    )
+    user_ids_opted_out = Property.query.filter_by(
+        default_property_id=property_id, property_value="False"
+    ).all()
+    user_id_list = [user.user_id for user in user_ids_opted_out]
+
+    # Get a list of all user emails that have not turned off global emails.
+    users = (
+        UserSql.query.filter(UserSql.user_id.notin_(user_id_list))
+        .filter(UserSql.email.notin_([sender]))
+        .all()
+    )
+    recipients = [user.email for user in users]
+
+    logger.info("*********************************")
+    logger.info("Sending Global Email")
+    logger.info(sender)
+    logger.info(user_id_list)
+    logger.info(recipients)
+    logger.info("*********************************")
+
+    if _send_email(sender, subject, recipients, html=html, address_mode="BccAddresses"):
+        self.update_state(state="SUCCESS")
+    else:
+        self.update_state(state="FAILURE")
+
+    return {"status": "Task Completed!"}
+
+
+@CELERY.task(bind=True)
+def send_email(self, sender: str, subject: str, recipients: list, html: str = "", text: str = ""):
+    if _send_email(sender, subject, recipients, html, text):
+        self.update_state(state="SUCCESS")
+    else:
+        self.update_state(state="FAILURE")
+
     return {"status": "Task Completed!"}
