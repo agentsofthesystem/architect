@@ -30,7 +30,9 @@ class TestSignup:
 
     @pytest.mark.skip(reason="TODO: Fix this test")
     def test_good_signup_with_email_error(self, client, mocker):
-        mocker.patch.object(send_email, "apply_async", return_value=None, side_effect=OperationalError)
+        mocker.patch.object(
+            send_email, "apply_async", return_value=None, side_effect=OperationalError
+        )
 
         payload = {
             "username": "TEST",
