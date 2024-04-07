@@ -3,8 +3,7 @@ import json
 from flask import flash, url_for
 from flask_login import current_user
 
-from application.common import logger, toolbox
-from application.common.constants import GroupInviteStates
+from application.common import logger, toolbox, constants
 from application.api.controllers import messages as message_control
 from application.extensions import DATABASE
 from application.models.agent_group_member import AgentGroupMembers
@@ -50,7 +49,7 @@ def get_owned_groups() -> list:
             members_list.append(member_dict)
 
         invite_objs = GroupInvites.query.filter_by(
-            group_id=group.group_id, state=GroupInviteStates.PENDING.value
+            group_id=group.group_id, state=constants.GroupInviteStates.PENDING.value
         ).all()
 
         invitation_list = []
@@ -290,7 +289,13 @@ def add_friend_to_group(request) -> bool:
         DATABASE.session.add(new_group_member)
         users_added += 1
 
-        message_control.create_direct_message(group_obj.owner_id, user_id, message, subject)
+        message_control.create_direct_message(
+            group_obj.owner_id,
+            user_id,
+            message,
+            subject,
+            category=constants.MessageCategories.SOCIAL,
+        )
 
     if users_added > 0:
         try:
@@ -355,7 +360,7 @@ def invite_friend_to_group(request) -> bool:
         group_id=group_obj.group_id,
         invite_id=invited_user_id,
         requestor_id=requestor_id,
-        state=GroupInviteStates.PENDING.value,
+        state=constants.GroupInviteStates.PENDING.value,
     ).first()
 
     if existing_group_invite_obj:
@@ -392,7 +397,13 @@ def invite_friend_to_group(request) -> bool:
         f'<a href="{group_href}">Groups Page</a> to and have a look..</p>'
     )
 
-    message_control.create_direct_message(requestor_id, group_obj.owner_id, message, subject)
+    message_control.create_direct_message(
+        requestor_id,
+        group_obj.owner_id,
+        message,
+        subject,
+        category=constants.MessageCategories.SOCIAL,
+    )
 
     flash("The owner of the group will Approve/Reject the invite.", "info")
 
@@ -422,7 +433,9 @@ def remove_user_from_group(group_id: int, member_id: int) -> bool:
     subject = f"Removed from group, {group_obj.name}."
     message = f"<p>You have been removed from the group, {group_obj.name}. </p>"
 
-    message_control.create_direct_message(group_obj.owner_id, member_id, message, subject)
+    message_control.create_direct_message(
+        group_obj.owner_id, member_id, message, subject, category=constants.MessageCategories.SOCIAL
+    )
 
     flash("User was removed from group.", "info")
 
@@ -474,7 +487,9 @@ def transfer_group(request) -> bool:
         f'<a href="{friend_href}">Groups Page</a> to and have a look..</p>'
     )
 
-    message_control.create_direct_message(old_owner_id, new_owner_id, message, subject)
+    message_control.create_direct_message(
+        old_owner_id, new_owner_id, message, subject, category=constants.MessageCategories.SOCIAL
+    )
 
     flash(f"Group, {group_name}, successfully transferred.", "info")
 
@@ -548,7 +563,7 @@ def resolve_group_invitation(request) -> bool:
         group_id=group_id,
         invite_id=invite_id,
         requestor_id=requestor_id,
-        state=GroupInviteStates.PENDING.value,
+        state=constants.GroupInviteStates.PENDING.value,
     )
     invitation_obj = invitation_qry.first()
 
@@ -557,7 +572,7 @@ def resolve_group_invitation(request) -> bool:
         return False
 
     if action.lower() == "accept":
-        update_dict = {"state": GroupInviteStates.ACCEPTED.value}
+        update_dict = {"state": constants.GroupInviteStates.ACCEPTED.value}
 
         new_group_member = GroupMembers()
         new_group_member.group_id = group_id
@@ -576,10 +591,16 @@ def resolve_group_invitation(request) -> bool:
             f'<a href="{group_href}">Groups Page</a> to and have a look...</p>'
         )
 
-        message_control.create_direct_message(group_obj.owner_id, invite_id, message, subject)
+        message_control.create_direct_message(
+            group_obj.owner_id,
+            invite_id,
+            message,
+            subject,
+            category=constants.MessageCategories.SOCIAL,
+        )
 
     else:
-        update_dict = {"state": GroupInviteStates.REJECTED.value}
+        update_dict = {"state": constants.GroupInviteStates.REJECTED.value}
         flash_message = f"The user, {invited_user_obj.username}, was not admitted to the group."
         flash_message_type = "warning"
 
@@ -589,7 +610,13 @@ def resolve_group_invitation(request) -> bool:
             f"The group owner has decided not to admit user, {invited_user_obj.username}, "
             f"to the group, {group_obj.name}"
         )
-        message_control.create_direct_message(group_obj.owner_id, requestor_id, message, subject)
+        message_control.create_direct_message(
+            group_obj.owner_id,
+            requestor_id,
+            message,
+            subject,
+            category=constants.MessageCategories.SOCIAL,
+        )
 
     invitation_qry.update(update_dict)
 

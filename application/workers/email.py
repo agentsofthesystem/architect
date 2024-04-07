@@ -106,13 +106,6 @@ def send_global_email(self, subject: str, html: str):
     )
     recipients = [user.email for user in users]
 
-    logger.info("*********************************")
-    logger.info("Sending Global Email")
-    logger.info(sender)
-    logger.info(user_id_list)
-    logger.info(recipients)
-    logger.info("*********************************")
-
     if _send_email(sender, subject, recipients, html=html, address_mode="BccAddresses"):
         self.update_state(state="SUCCESS")
     else:
