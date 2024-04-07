@@ -269,7 +269,11 @@ def share_agent_with_group(request) -> bool:
             continue
 
         message_control.create_direct_message(
-            current_user.user_id, member.member_id, message, subject
+            current_user.user_id,
+            member.member_id,
+            message,
+            subject,
+            category=constants.MessageCategories.SOCIAL,
         )
 
     flash("Successfully shared Agent with Group!", "info")
@@ -326,7 +330,13 @@ def share_agent_with_friend(request) -> bool:
         f'<p>Go to the <a href="{agent_href}">Agent Info Page</a> to and have a look..</p>'
     )
 
-    message_control.create_direct_message(current_user.user_id, friend_user_id, message, subject)
+    message_control.create_direct_message(
+        current_user.user_id,
+        friend_user_id,
+        message,
+        subject,
+        category=constants.MessageCategories.SOCIAL,
+    )
 
     flash("Successfully shared Agent with Friend!", "info")
 
@@ -391,7 +401,11 @@ def remove_group_membership(membership_id: int) -> bool:
             continue
 
         message_control.create_direct_message(
-            current_user.user_id, member.member_id, message, subject
+            current_user.user_id,
+            member.member_id,
+            message,
+            subject,
+            category=constants.MessageCategories.SOCIAL,
         )
 
     flash("Group Membership Removed From Agent!", "info")
@@ -427,7 +441,13 @@ def remove_friend_membership(membership_id: int) -> bool:
         "<p>However, if you only had access via friendship then you will not.</p>"
     )
 
-    message_control.create_direct_message(current_user.user_id, friend_member_id, message, subject)
+    message_control.create_direct_message(
+        current_user.user_id,
+        friend_member_id,
+        message,
+        subject,
+        category=constants.MessageCategories.SOCIAL,
+    )
 
     flash("Friend Removed From Agent!", "info")
 

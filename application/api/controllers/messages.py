@@ -87,6 +87,10 @@ def create_direct_message(
     if category == MessageCategories.NOT_SET:
         logger.error("Message category not set.")
 
+    elif category == MessageCategories.ADMIN:
+        # The admin category cannot be disabled.
+        _create_message(sender_id, recipient_id, message, subject, is_global=False)
+
     elif category == MessageCategories.SOCIAL:
         if not _is_user_category_disabled(recipient_id, category):
             _create_message(sender_id, recipient_id, message, subject, is_global=False)

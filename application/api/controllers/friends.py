@@ -4,8 +4,7 @@ import uuid
 from flask import flash, url_for
 from flask_login import current_user
 
-from application.common import logger
-from application.common.constants import FriendRequestStates
+from application.common import logger, constants
 from application.api.controllers import agents as agent_control
 from application.api.controllers import groups as group_control
 from application.api.controllers import messages as message_control
@@ -35,10 +34,10 @@ def add_friend_code_to_user(user_id: int, friend_code: str):
 
 def get_my_friend_requests() -> list:
     incoming = current_user.incoming_friend_requests.filter_by(
-        state=FriendRequestStates.PENDING.value
+        state=constants.FriendRequestStates.PENDING.value
     ).all()
     outgoing = current_user.outgoing_friend_requests.filter_by(
-        state=FriendRequestStates.PENDING.value
+        state=constants.FriendRequestStates.PENDING.value
     ).all()
 
     final_list = []
@@ -134,7 +133,7 @@ def create_new_friend_request(request) -> bool:
         state = check_existing_outgoing.state
         # TODO - There's also a case where there could be an old friend request that was accepted
         # but the users stopped being friends. In that case its okay.
-        if state == FriendRequestStates.PENDING.value:
+        if state == constants.FriendRequestStates.PENDING.value:
             # flash("There is already a pending friend request.", "warning")
             flash(f"You already sent friend request to {user_obj.username}.", "warning")
             return False
@@ -149,7 +148,7 @@ def create_new_friend_request(request) -> bool:
         state = check_existing_incoming.state
         # TODO - There's also a case where there could be an old friend request that was accepted
         # but the users stopped being friends. In that case its okay.
-        if state == FriendRequestStates.PENDING.value:
+        if state == constants.FriendRequestStates.PENDING.value:
             # flash("There is already a pending friend request.", "warning")
             flash(
                 f"{user_obj.username} already sent you a friend request. Respond to it!", "warning"
@@ -177,7 +176,13 @@ def create_new_friend_request(request) -> bool:
         f'<a href="{friend_href}">Friends Page</a> to respond.</p>'
     )
 
-    message_control.create_direct_message(new_fr.sender_id, new_fr.recipient_id, message, subject)
+    message_control.create_direct_message(
+        new_fr.sender_id,
+        new_fr.recipient_id,
+        message,
+        subject,
+        category=constants.MessageCategories.SOCIAL,
+    )
 
     return True
 
@@ -220,12 +225,12 @@ def update_friend_request(object_id: int, payload: dict) -> bool:
 
     new_status = json_payload["state"]
 
-    if fr_obj.state != FriendRequestStates.PENDING.value:
-        if fr_obj.state == FriendRequestStates.ACCEPTED.value:
+    if fr_obj.state != constants.FriendRequestStates.PENDING.value:
+        if fr_obj.state == constants.FriendRequestStates.ACCEPTED.value:
             flash("Friend Request was already Accepted.", "info")
-        elif fr_obj.state == FriendRequestStates.REJECTED.value:
+        elif fr_obj.state == constants.FriendRequestStates.REJECTED.value:
             flash("Friend Request was rejected.", "info")
-        elif fr_obj.state == FriendRequestStates.CANCELED.value:
+        elif fr_obj.state == constants.FriendRequestStates.CANCELED.value:
             flash("Friend Request was already canceled.", "info")
 
         logger.error("Can only transition from PENDING state")
@@ -238,20 +243,24 @@ def update_friend_request(object_id: int, payload: dict) -> bool:
             logger.debug("Unable to create Friend via request object.")
             return False
 
-        fr_qry.update({"state": FriendRequestStates.ACCEPTED.value})
+        fr_qry.update({"state": constants.FriendRequestStates.ACCEPTED.value})
         flash("Friend Request was Accepted.", "info")
 
         subject = "Friend Request - Accepted"
         message = f"Your friend request to, {current_user.username}, was accepted!"
         message_control.create_direct_message(
-            current_user.user_id, fr_obj.sender_id, message, subject
+            current_user.user_id,
+            fr_obj.sender_id,
+            message,
+            subject,
+            category=constants.MessageCategories.SOCIAL,
         )
 
     elif new_status == "REJECTED":
-        fr_qry.update({"state": FriendRequestStates.REJECTED.value})
+        fr_qry.update({"state": constants.FriendRequestStates.REJECTED.value})
         flash("Friend Request was Rejected.", "info")
     elif new_status == "CANCELED":
-        fr_qry.update({"state": FriendRequestStates.CANCELED.value})
+        fr_qry.update({"state": constants.FriendRequestStates.CANCELED.value})
         flash("Friend Request was Cancelled.", "info")
 
     try:
@@ -301,12 +310,20 @@ def delete_friend(object_id: int) -> bool:
 
     if current_user.user_id == friend_obj.initiator_id:
         message_control.create_direct_message(
-            current_user.user_id, friend_obj.receiver_id, message, subject
+            current_user.user_id,
+            friend_obj.receiver_id,
+            message,
+            subject,
+            category=constants.MessageCategories.SOCIAL,
         )
         friend_removed_id = friend_obj.receiver_id
     else:
         message_control.create_direct_message(
-            current_user.user_id, friend_obj.initiator_id, message, subject
+            current_user.user_id,
+            friend_obj.initiator_id,
+            message,
+            subject,
+            category=constants.MessageCategories.SOCIAL,
         )
         friend_removed_id = friend_obj.initiator_id
 

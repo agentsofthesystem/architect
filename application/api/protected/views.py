@@ -17,7 +17,7 @@ from application.api.controllers import friends
 from application.api.controllers import groups
 from application.api.controllers import messages
 from application.api.controllers import users
-from application.common import logger
+from application.common import logger, constants
 from application.common.decorators import admin_required
 from application.common.decorators import agent_permission_required
 from application.common.decorators import verified_required
@@ -524,7 +524,11 @@ def admin_submit_direct_message():
     if request.method == "POST" and message.validate_on_submit():
         logger.info("Evaluating DIRECT Message POST....")
         messages.create_direct_message(
-            1, message.recipient_id.data, message.message.data, message.subject.data
+            1,
+            message.recipient_id.data,
+            message.message.data,
+            message.subject.data,
+            category=constants.MessageCategories.ADMIN,
         )
         message.recipient_id.data = ""
         message.subject.data = ""
