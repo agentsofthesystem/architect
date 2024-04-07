@@ -1,37 +1,22 @@
 import traceback
 
-from flask_login import current_user
 from datetime import datetime
+from flask import current_app, render_template
+from flask_login import current_user
+from kombu.exceptions import OperationalError
 
 from application.common import logger
+from application.common.constants import MessageCategories
 from application.extensions import DATABASE
 from application.models.message import Messages
+from application.models.user import UserSql
+from application.workers.email import send_global_email, send_email
 
 
-def create_global_message(message, subject) -> None:
-    new_message = Messages()
-
-    new_message.message = message
-    new_message.subject = subject
-
-    new_message.sender_id = 1
-    new_message.is_global = True
-    new_message.timestamp = datetime.now()
-
-    try:
-        DATABASE.session.add(new_message)
-        DATABASE.session.commit()
-    except Exception as error:
-        logger.critical("Unable to create global message")
-        logger.critical(error)
-        traceback.print_exc()
-        DATABASE.session.rollback()
-
-
-def create_direct_message(sender_id, recipient_id, message, subject) -> None:
-    # TODO - Future Feature: Update DMs to alert users that they received a message via email.
-    # TODO - Future Feature: Allow users to opt out of both DMs and/or Emails.
-
+def _create_message(
+    sender_id: int, recipient_id: int, message: str, subject: str, is_global: bool = False
+) -> None:
+    # Create message and enter into database.
     new_message = Messages()
 
     new_message.message = message
@@ -39,17 +24,92 @@ def create_direct_message(sender_id, recipient_id, message, subject) -> None:
 
     new_message.sender_id = sender_id
     new_message.recipient_id = recipient_id
-    new_message.is_global = False
+    new_message.is_global = is_global
     new_message.timestamp = datetime.now()
 
     try:
         DATABASE.session.add(new_message)
         DATABASE.session.commit()
     except Exception as error:
-        logger.critical("Unable to create direct message")
+        message_type = "global" if is_global else "direct"
+        logger.critical(f"Unable to create {message_type} message")
         logger.critical(error)
         traceback.print_exc()
         DATABASE.session.rollback()
+
+
+def _is_user_category_disabled(user_id: int, category: MessageCategories, is_email=False) -> bool:
+    is_disabled = False
+
+    user = UserSql.query.filter_by(user_id=user_id).first()
+
+    if category == MessageCategories.SOCIAL and not is_email:
+        if "NOTIFICATION_DM_SOCIAL_ENABLED" in user.properties:
+            is_disabled = True
+    elif category == MessageCategories.SOCIAL and is_email:
+        if "NOTIFICATION_EMAIL_SOCIAL_ENABLED" in user.properties:
+            is_disabled = True
+
+    return is_disabled
+
+
+def create_global_message(message, subject) -> None:
+    # Enter the message into the database.
+    _create_message(1, 0, message, subject, is_global=True)
+
+    if not current_app.config["APP_ENABLE_EMAIL"]:
+        logger.warning("Email is disabled. Not sending global email")
+
+    # Send Email to all users.
+    try:
+        msg = render_template(
+            "email/email_notification.html",
+            message_content=message,
+            pretty_name=current_app.config["APP_PRETTY_NAME"],
+            app_site=current_app.config["APP_WEBSITE"],
+        )
+
+        send_global_email.apply_async([subject, msg])
+    except OperationalError as error:
+        logger.error("ERROR: Unable to communicate with Celery Backend.")
+        logger.error(error)
+
+
+def create_direct_message(
+    sender_id: int,
+    recipient_id: int,
+    message: str,
+    subject: str,
+    category: MessageCategories = MessageCategories.NOT_SET,
+) -> None:
+    user_obj = UserSql.query.filter_by(user_id=recipient_id).first()
+
+    if category == MessageCategories.NOT_SET:
+        logger.error("Message category not set.")
+
+    elif category == MessageCategories.SOCIAL:
+        if not _is_user_category_disabled(recipient_id, category):
+            _create_message(sender_id, recipient_id, message, subject, is_global=False)
+        else:
+            logger.debug("User has opted out of social direct messages.")
+        if not _is_user_category_disabled(recipient_id, category, is_email=True):
+            # Send Email to all users.
+            try:
+                msg = render_template(
+                    "email/email_notification.html",
+                    message_content=message,
+                    pretty_name=current_app.config["APP_PRETTY_NAME"],
+                    app_site=current_app.config["APP_WEBSITE"],
+                )
+
+                send_email.apply_async(
+                    [current_app.config["DEFAULT_MAIL_SENDER"], subject, [user_obj.email], msg]
+                )
+            except OperationalError as error:
+                logger.error("ERROR: Unable to communicate with Celery Backend.")
+                logger.error(error)
+        else:
+            logger.debug("User has opted out of social email messages.")
 
 
 def get_direct_messages():

@@ -131,11 +131,18 @@ class UserSql(PaginatedApi, DATABASE.Model):
 
     def new_global_messages(self):
         last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
-        return (
-            Messages.query.filter_by(is_global=True)
-            .filter(Messages.timestamp > last_read_time)
-            .count()
-        )
+
+        # If user does not want global messages, set to 0.
+        # For direct messages, this is handled by preventing the message from being sent in
+        # distinct categories
+        if "NOTIFICATION_DM_GLOBAL_ENABLED" in self.properties:
+            return 0
+        else:
+            return (
+                Messages.query.filter_by(is_global=True)
+                .filter(Messages.timestamp > last_read_time)
+                .count()
+            )
 
     def to_dict(self):
         return {
