@@ -255,7 +255,7 @@ def share_agent_with_group(request) -> bool:
     group_members = group_obj.members.all()
 
     subject = "Agent Shared via Group"
-    agent_href = url_for("protected.system_agent_info", agent_id=agent_id)
+    agent_href = url_for("protected.system_agent_info", agent_id=agent_id, _external=True)
     message = (
         f"<p>Access granted to Agent: {agent_obj.name}.</p>"
         f"<p>You has access to this agent because you belong to group, {group_obj.name}.</p>"
@@ -322,7 +322,7 @@ def share_agent_with_friend(request) -> bool:
         return False
 
     subject = "Agent Shared via Friendship"
-    agent_href = url_for("protected.system_agent_info", agent_id=agent_id)
+    agent_href = url_for("protected.system_agent_info", agent_id=agent_id, _external=True)
     message = (
         f"<p>Access granted to Agent, {agent_obj.name}.</p>"
         "<p>You will have access to this agent regardless of belonging "
