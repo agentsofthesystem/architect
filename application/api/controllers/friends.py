@@ -170,7 +170,7 @@ def create_new_friend_request(request) -> bool:
         return False
 
     subject = "Friend Request"
-    friend_href = url_for("protected.system_friends")
+    friend_href = url_for("protected.system_friends", _external=True)
     message = (
         f"<p>Hey, {current_user.first_name}! {user_obj.username} wants to be friends. Go to the "
         f'<a href="{friend_href}">Friends Page</a> to respond.</p>'

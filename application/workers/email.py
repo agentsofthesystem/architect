@@ -73,6 +73,7 @@ def _send_email(
             logger.error(
                 f"Couldn't send email. Here's why: " f"{error.response['Error']['Message']}"
             )
+            return False
 
     except Exception as error:
         logger.critical(error)
