@@ -1,5 +1,6 @@
 """Common Tools Go Here."""
 import os
+import re
 import sys
 
 from flask import redirect, url_for
@@ -24,6 +25,18 @@ class MyAdminIndexView(AdminIndexView):
                 return redirect(url_for("protected.dashboard"))
         else:
             return redirect(url_for("public.index"))
+
+
+@staticmethod
+def is_valid_email(email: str) -> bool:
+    """Check if email is valid."""
+    regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
+    # pass the regular expression
+    # and the string into the fullmatch() method
+    if re.fullmatch(regex, email):
+        return True
+    else:
+        return False
 
 
 @staticmethod
