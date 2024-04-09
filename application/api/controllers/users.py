@@ -12,7 +12,7 @@ from kombu.exceptions import OperationalError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from application.api.controllers.friends import generate_friend_code
-from application.common import logger, constants
+from application.common import logger, constants, toolbox
 from application.extensions import DATABASE
 from application.models.beta_user import BetaUser
 from application.models.setting import SettingsSql
@@ -120,6 +120,11 @@ def signup(request):
         flash("Missing form data. Try Again...", "danger")
         return False
 
+    if not toolbox.is_valid_email(email):
+        logger.error("SIGNUP: Invalid Email")
+        flash("Invalid Email Address Format. Try Again...", "danger")
+        return False
+
     # If beta mode is enabled, restrict signup form.
     beta_mode_enable = SettingsSql.query.filter_by(name="APP_ENABLE_BETA").first()
 
@@ -187,10 +192,13 @@ def signup(request):
 
 
 def signout(user):
-    user_qry = UserSql.query.filter_by(user_id=user.user_id)
-    update_dict = {"active": False, "authenticated": False}
-    user_qry.update(update_dict)
-    DATABASE.session.commit()
+    # The Anonymous User object does not have a user_id attribute if the session times out.
+    if hasattr(user, "user_id"):
+        user_qry = UserSql.query.filter_by(user_id=user.user_id)
+        update_dict = {"active": False, "authenticated": False}
+        user_qry.update(update_dict)
+        DATABASE.session.commit()
+
     logout_user()
 
 
