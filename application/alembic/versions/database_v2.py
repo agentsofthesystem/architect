@@ -7,7 +7,7 @@ Create Date: 2023-10-08 14:10:31.088339
 """
 from alembic import op
 from application.common.constants import AGENT_SMITH_DEFAULT_PORT, FriendRequestStates
-from datetime import datetime
+from datetime import datetime, timezone
 import sqlalchemy as sa
 
 
@@ -28,7 +28,9 @@ def upgrade():
         "agents",
         sa.Column("agent_id", sa.Integer(), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False, default=True),
-        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
+        sa.Column(
+            "creation_date", sa.DateTime(), nullable=False, default=datetime.now(timezone.utc)
+        ),
         sa.Column("name", sa.String(length=256), nullable=False),
         sa.Column("hostname", sa.String(length=256), nullable=False),
         sa.Column("port", sa.Integer(), nullable=False, default=AGENT_SMITH_DEFAULT_PORT),
@@ -53,7 +55,9 @@ def upgrade():
         sa.Column("group_id", sa.Integer(), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False, default=True),
         sa.Column("name", sa.String(length=256), nullable=False),
-        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
+        sa.Column(
+            "creation_date", sa.DateTime(), nullable=False, default=datetime.now(timezone.utc)
+        ),
         sa.Column("owner_id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("group_id"),
     )
@@ -72,7 +76,9 @@ def upgrade():
     op.create_table(
         "friends",
         sa.Column("friend_id", sa.Integer(), nullable=False),
-        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
+        sa.Column(
+            "creation_date", sa.DateTime(), nullable=False, default=datetime.now(timezone.utc)
+        ),
         sa.Column("initiator_id", sa.Integer(), nullable=False),
         sa.Column("receiver_id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("friend_id"),
@@ -103,7 +109,7 @@ def upgrade():
         sa.Column("state", sa.Integer(), nullable=False, default=FriendRequestStates.PENDING.value),
         sa.Column("sender_id", sa.Integer(), nullable=False),
         sa.Column("recipient_id", sa.Integer(), nullable=False),
-        sa.Column("timestamp", sa.DateTime(), nullable=False, default=datetime.utcnow),
+        sa.Column("timestamp", sa.DateTime(), nullable=False, default=datetime.now(timezone.utc)),
         sa.PrimaryKeyConstraint("request_id"),
     )
 
@@ -129,7 +135,9 @@ def upgrade():
         "group_members",
         sa.Column("group_member_id", sa.Integer(), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False, default=True),
-        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
+        sa.Column(
+            "creation_date", sa.DateTime(), nullable=False, default=datetime.now(timezone.utc)
+        ),
         sa.Column("group_id", sa.Integer(), nullable=False),
         sa.Column("member_id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("group_member_id"),
@@ -158,7 +166,9 @@ def upgrade():
         "agent_group_members",
         sa.Column("agent_group_member_id", sa.Integer(), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False, default=True),
-        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
+        sa.Column(
+            "creation_date", sa.DateTime(), nullable=False, default=datetime.now(timezone.utc)
+        ),
         sa.Column("agent_id", sa.Integer(), nullable=False),
         sa.Column("group_member_id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("agent_group_member_id"),
@@ -187,7 +197,9 @@ def upgrade():
         "agent_friend_members",
         sa.Column("agent_friend_member_id", sa.Integer(), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False, default=True),
-        sa.Column("creation_date", sa.DateTime(), nullable=False, default=datetime.utcnow),
+        sa.Column(
+            "creation_date", sa.DateTime(), nullable=False, default=datetime.now(timezone.utc)
+        ),
         sa.Column("agent_id", sa.Integer(), nullable=False),
         sa.Column("friend_member_id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("agent_friend_member_id"),

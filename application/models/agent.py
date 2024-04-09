@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from application.common import logger
 from application.common.constants import AGENT_SMITH_DEFAULT_PORT
@@ -15,7 +15,9 @@ class Agents(PaginatedApi, DATABASE.Model):
 
     # Identifying features
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
-    creation_date = DATABASE.Column(DATABASE.DateTime, nullable=False, default=datetime.utcnow)
+    creation_date = DATABASE.Column(
+        DATABASE.DateTime, nullable=False, default=datetime.now(timezone.utc)
+    )
     name = DATABASE.Column(DATABASE.String(256), nullable=False)
     hostname = DATABASE.Column(DATABASE.String(256), nullable=False)
     port = DATABASE.Column(DATABASE.Integer, nullable=False, default=AGENT_SMITH_DEFAULT_PORT)

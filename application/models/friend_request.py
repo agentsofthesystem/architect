@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from application.common.constants import FriendRequestStates
 from application.common.pagination import PaginatedApi
@@ -22,7 +22,7 @@ class FriendRequests(PaginatedApi, DATABASE.Model):
     )
 
     timestamp = DATABASE.Column(
-        DATABASE.DateTime, index=True, default=datetime.utcnow, nullable=False
+        DATABASE.DateTime, index=True, default=datetime.now(timezone.utc), nullable=False
     )
 
     def to_dict(self):

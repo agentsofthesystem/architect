@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
@@ -13,7 +13,9 @@ class Groups(PaginatedApi, DATABASE.Model):
     # Identifying features
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
     name = DATABASE.Column(DATABASE.String(256), nullable=False)
-    creation_date = DATABASE.Column(DATABASE.DateTime, nullable=False, default=datetime.utcnow)
+    creation_date = DATABASE.Column(
+        DATABASE.DateTime, nullable=False, default=datetime.now(timezone.utc)
+    )
 
     owner_id = DATABASE.Column(
         DATABASE.Integer, DATABASE.ForeignKey("users.user_id"), nullable=False

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
@@ -21,5 +21,5 @@ class Messages(PaginatedApi, DATABASE.Model):
 
     is_global = DATABASE.Column(DATABASE.Boolean, nullable=False)
     timestamp = DATABASE.Column(
-        DATABASE.DateTime, index=True, default=datetime.utcnow, nullable=False
+        DATABASE.DateTime, index=True, default=datetime.now(timezone.utc), nullable=False
     )
