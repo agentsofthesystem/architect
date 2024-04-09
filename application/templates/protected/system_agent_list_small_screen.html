@@ -1,0 +1,78 @@
+
+
+<div class="row">
+  <div class="col">
+    <table class="table table-borderless table-hover align-items-center">
+      <thead>
+        <tr>
+          <th scope="col">Agent Info</th>
+          <th scope="col">Owner </th>
+          <th scope="col">Status</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for agent in all_agents_list %}
+        <tr class="bg-white">
+          <td>
+            <a class="align-items-center">
+              {% if current_user.user_id == agent['owner_id'] %}
+                <a class="agent-info-link-{{agent['agent_id']}}" href="{{url_for('protected.system_agent_info', agent_id=agent['agent_id'])}}">
+                  <img alt="I own this Agent"  src="{{ url_for('static', filename='assets/img/agent-black.svg') }}" class="avatar rounded avatar-sm" />
+                </a>
+              {% else %}
+              <a class="agent-info-link-{{agent['agent_id']}}" href="{{url_for('protected.system_agent_info', agent_id=agent['agent_id'])}}">
+                <img alt="Shared Agent" src="{{ url_for('static', filename='assets/img/agent-green.png') }}" class="avatar rounded avatar-sm" style="fill:#204829"/>
+              </a>
+              {% endif %}
+            </a>
+          </td>
+          <td>{{ '(Me)' if current_user.user_id == agent['owner_id'] else agent['owner']['username'] }}</td>
+          <td>
+            <div class="spinner-border text-success agent-spinner-id-{{agent['agent_id']}}" role="status">
+              <span class="sr-only">Pending...</span>
+            </div>
+            <span class="badge badge-warning agent-status-badge agent-id-{{agent['agent_id']}}" id="{{agent['agent_id']}}">Pending</span>
+          </td>
+          <td>
+            <div class="dropdown">
+              {% set is_disabled = "disabled='true'" if current_user.user_id != agent['owner_id'] else "" %}
+              <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{is_disabled}}>
+                <i class="icon-dots-three-horizontal"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-sm">
+                <a class="dropdown-item update-agent" onclick="showUpdateAgentModal({{agent['agent_id']}})">Update Agent</a>
+                <a class="dropdown-item share-to-group" onclick="showShareAgentToGroupModal({{agent['agent_id']}})">Share with Group</a>
+                <a class="dropdown-item share-to-friend" onclick="showShareAgentToFriendModal({{agent['agent_id']}})">Share with Friend</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item delete-agent" id="{{agent['agent_id']}}">Delete</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr class="table-divider">
+          <th></th>
+          <td></td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+  <!--end of col-->
+</div>
+<!--end of row-->
+<div class="row">
+  <div class="col">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div></div>
+      <div class="d-flex align-items-center">
+        <button class="btn btn-success btn-lg" onclick="showNewAgentModal()">Add New Agent</button>
+      </div>
+    </div>
+  </div>
+  <!--end of col-->
+</div>
+<!--end of row-->
+

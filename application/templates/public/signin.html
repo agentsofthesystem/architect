@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+    {% include 'layout/head.html' %}
+    <body>
+    {% include 'layout/landing_topbar.html' %}
+
+    {% include 'layout/flash_message.html' %}
+
+    <div class="main-container">
+        <section class="space-sm">
+          <div class="container">
+            <div class="row mb-5">
+              <div class="col text-center">
+                <a href="#">
+                  <img alt="Image" src="{{ url_for('static', filename='assets/img/app-logo.svg') }}" />
+                </a>
+              </div>
+              <!--end of col-->
+            </div>
+            <!--end of row-->
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-8 col-lg-7">
+                  <div class="card card-lg text-center">
+                    <div class="card-body">
+                      <div class="mb-3">
+                        <h1 class="h2 mb-2">Welcome Back Agent!</h1>
+                        <span>Sign in to your account to continue</span>
+                      </div>
+                      <div class="row no-gutters justify-content-center">
+                        <form class="text-left col-lg-8" action="{{url_for('public.signin')}}" method="post">
+                          {{ form.csrf_token }}
+                          <div class="form-group">
+                            <label for="login-email">Email Address</label>
+                            {{ form.email(class="form-control form-control-lg", type="email", id="email", placeholder="Email Address") }}
+                          </div>
+                          <div class="form-group">
+                            <label for="login-password">Password</label>
+                            {{ form.password(class="form-control form-control-lg", type="password", id="password", placeholder="Enter a password") }}
+
+                            {% if email_enabled %}
+                              <small>Forgot password? <a href="{{url_for('public.forgot')}}">Reset here</a> </small>
+                            {% endif %}
+
+                          </div>
+                          <div class="form-check">
+                            {{ form.remember(class="form-check0-input", type="checkbox", value="", id="check-remember") }}
+                            <label class="form-check-label text-small" for="check-remember"> Remember me next time</label>
+                          </div>
+                          <div class="text-center mt-3">
+                            <button type="submit" class="btn btn-lg btn-success">Log in</button>
+                          </div>
+                        </form>
+                      </div>
+                      <!--end of row-->
+                    </div>
+                  </div>
+                  <div class="text-center">
+                    <span class="text-small">Don't have an account yet? <a href="{{url_for('public.signup')}}">Create one</a>
+                    </span>
+                  </div>
+                </div>
+                <!--end of col-->
+              </div>
+              <!--end of row-->
+            </div>
+        </section>
+        <!--end of section-->
+    </div>
+
+    {% include 'layout/scripts.html' %}
+    </body>
+</html>

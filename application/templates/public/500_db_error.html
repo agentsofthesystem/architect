@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+
+  {% include 'layout/head.html' %}
+
+  <body>
+
+    <div class="navbar-container">
+    </div>
+    <div class="main-container">
+      <section class="height-100 bg-dark">
+        <div class="container">
+          <div class="row">
+            <div class="col text-center">
+              <i class="icon-compass display-4"></i>
+              <h1 class="h2">Uhoh, Internal Database Error (500)</h1>
+              <span>There appears to be an issue with the site database at this time. <a href="{{url_for('public.index')}}" class="text-white">Go back home</a> or <a href="{{url_for('public.support')}}" class="text-white">Contact us</a> if you think this might be a mistake.</span>
+            </div>
+            <!--end of col-->
+          </div>
+          <!--end of row-->
+        </div>
+        <!--end of container-->
+      </section>
+      <!--end of section-->
+    </div>
+
+    {% include 'layout/scripts.html' %}
+
+  </body>
+
+</html>

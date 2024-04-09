@@ -1,0 +1,147 @@
+
+<div class="row justify-content-center">
+
+  <div class="col text-center">
+    <table class="table table-borderless table-hover align-items-center">
+      <thead>
+        <tr>
+          <th scope="col"><strong>Friend Requests:</strong></th>
+          <th scope="col">Request Type</th>
+          <th scope="col">Username</th>
+          <th scope="col">Status</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for request in friend_requests %}
+        <tr class="bg-white">
+          <td>
+            <a class="align-items-center">
+              <img alt="" src="{{ url_for('static', filename='assets/img/agent-black.svg') }}" class="avatar rounded avatar-sm" />
+            </a>
+          </td>
+          <td>{{request['request_type']}}</td>
+          {% if request['request_type'] == "Incoming"  %}
+            <td>{{request['sender']['username']}}</td>
+          {% else %}
+            <td>{{request['recipient']['username']}}</td>
+          {% endif %}
+          <td>Pending</td>
+          <td>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="icon-dots-three-horizontal"></i>
+              </button>
+              {% if request['request_type'] == "Incoming"  %}
+              <div class="dropdown-menu dropdown-menu-sm">
+                <a class="dropdown-item accept-friend-request" id="{{request['request_id']}}">Accept</a>
+                <a class="dropdown-item reject-friend-request" id="{{request['request_id']}}">Reject</a>
+              </div>
+              {% else %}
+              <div class="dropdown-menu dropdown-menu-sm">
+                <a class="dropdown-item cancel-friend-request" id="{{request['request_id']}}">Cancel</a>
+              </div>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        <tr class="table-divider">
+          <th></th>
+          <td></td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+  <!--end of col-->
+</div>
+<!--end of row-->
+
+
+<script>
+
+  $(document).ready(function(){
+
+    var csrftoken = $('meta[name=csrf-token]').attr('content')
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken)
+            }
+        }
+    })
+
+  });
+
+  $(".accept-friend-request").click(function(){
+    console.log("Accept Request ID: " + this.id);
+
+    var json_data = '{"state": "ACCEPTED"}';
+
+    $.ajax({
+        type: "PATCH",
+        url: "/app/backend/friend/request/" + this.id,
+        contentType: 'application/json',
+        dataType: "json",
+        data: JSON.stringify(json_data),
+        success: function(){
+            console.log("Friend Request" + this.id + ' accepted.')
+            location.reload();
+        },
+        error: function( ){
+            console.log('error!')
+            location.reload();
+        }
+    });
+
+  });
+
+  $(".reject-friend-request").click(function(){
+    console.log("Reject Request ID: " + this.id);
+
+    var json_data = '{"state": "REJECTED"}';
+
+    $.ajax({
+        type: "PATCH",
+        url: "/app/backend/friend/request/" + this.id,
+        contentType: 'application/json',
+        dataType: "json",
+        data: JSON.stringify(json_data),
+        success: function(){
+            console.log("Friend Request" + this.id + ' rejected.')
+            location.reload();
+        },
+        error: function( ){
+            console.log('error!')
+            location.reload();
+        }
+    });
+
+  });
+
+  $(".cancel-friend-request").click(function(){
+    console.log("Cancel Request ID: " + this.id);
+
+    var json_data = '{"state": "CANCELED"}';
+
+    $.ajax({
+        type: "PATCH",
+        url: "/app/backend/friend/request/" + this.id,
+        contentType: 'application/json',
+        dataType: "json",
+        data: JSON.stringify(json_data),
+        success: function(){
+            console.log("Friend Request" + this.id + ' canceled.')
+            location.reload();
+        },
+        error: function( ){
+            console.log('error!')
+            location.reload();
+        }
+    });
+
+  });
+</script>

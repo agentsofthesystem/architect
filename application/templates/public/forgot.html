@@ -1,9 +1,10 @@
 <!doctype html>
 <html lang="en">
-{% include 'layout/head.html' %}
-
-<body>
+    {% include 'layout/head.html' %}
+    <body>
     {% include 'layout/landing_topbar.html' %}
+
+    {% include 'layout/flash_message.html' %}
 
     <div class="main-container">
         <section class="space-sm">
@@ -11,7 +12,7 @@
             <div class="row mb-5">
               <div class="col text-center">
                 <a href="#">
-                  <img alt="Image" src="{{ url_for('static', filename='assets/img/app-logo.svg') }}" />
+                  <img alt="Image" src="{{ url_for('static', filename='assets/img/logo-gray.svg') }}" />
                 </a>
               </div>
               <!--end of col-->
@@ -21,19 +22,24 @@
               <div class="col-12 col-md-8 col-lg-7">
                 <div class="card card-lg text-center">
                   <div class="card-body">
-                    <div class="mb-5">
-                      <h1 class="h2 mb-2">Get in touch</h1>
-                      <span>Need to flesh this out before.</span>
+                    <div class="mb-4">
+                      <h2 class="mb-2">Reset password</h2>
+                      <span>Enter email address to reset password</span>
                     </div>
                     <div class="row no-gutters justify-content-center">
-                      <p>PUT SOMETHING HERE!</p>
+                      <form class="text-left col-lg-8" action="{{url_for('public.forgot')}}" method="post">
+                        {{ form.csrf_token }}
+                        <div class="form-group">
+                          <label for="reset-email">Email Address</label>
+                          {{ form.email(class="form-control form-control-lg", type="email", id="reset-email", placeholder="Email Address") }}
+                        </div>
+                        <div class="text-center mb-4">
+                          <button type="submit" class="btn btn-primary btn-lg">Reset password</button>
+                        </div>
+                      </form>
                     </div>
                     <!--end of row-->
                   </div>
-                </div>
-                <div class="text-center">
-                  <span class="text-small">Don't have an account yet? <a href="#">Create one</a>
-                  </span>
                 </div>
               </div>
               <!--end of col-->
@@ -45,9 +51,6 @@
         <!--end of section-->
     </div>
 
-    {% include 'layout/footer.html' %}
-
     {% include 'layout/scripts.html' %}
-</body>
-
+    </body>
 </html>

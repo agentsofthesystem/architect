@@ -65,7 +65,7 @@ def dashboard():
     }
 
     return render_template(
-        "uix/dashboard.html",
+        "protected/dashboard.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         dashboard=dashboard_dict,
     )
@@ -131,7 +131,7 @@ def system_agents():
     is_empty = True if all_agents_list == [] else False
 
     return render_template(
-        "uix/system_agents.html",
+        "protected/system_agents.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         is_empty=is_empty,
         all_agents_list=all_agents_list,
@@ -192,7 +192,7 @@ def system_agent_info(agent_id: int):
     }
 
     return render_template(
-        "uix/system_agent_info.html",
+        "protected/system_agent_info.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         agent_info=agent_info,
     )
@@ -268,7 +268,7 @@ def system_groups():
     all_groups = owned_groups + associated_groups
 
     return render_template(
-        "uix/system_groups.html",
+        "protected/system_groups.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         is_empty=is_empty,
         all_groups=all_groups,
@@ -303,7 +303,7 @@ def system_friends():
         return redirect(url_for("protected.system_friends"))
 
     return render_template(
-        "uix/system_friends.html",
+        "protected/system_friends.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         request_list_empty=request_list_empty,
         friend_list_empty=friend_list_empty,
@@ -319,7 +319,7 @@ def system_friends():
 # @subscription_required
 # def example_paid_page():
 #     return render_template(
-#         "uix/example_paid_page.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
+#         "protected/example_paid_page.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
 #     )
 
 
@@ -360,7 +360,7 @@ def account():
 
     else:
         return render_template(
-            "uix/account.html",
+            "protected/account.html",
             profile_form=profile_form,
             update_password_form=update_password_form,
             verified=verified,
@@ -378,7 +378,7 @@ def account():
 def preferences():
     user_properties = current_user.properties
     return render_template(
-        "uix/account_preferences.html",
+        "protected/account_preferences.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         payments_enabled=current_app.config["APP_ENABLE_PAYMENTS"],
         email_enabled=current_app.config["APP_ENABLE_EMAIL"],
@@ -549,7 +549,7 @@ def admin():
     all_users = UserSql.query.filter_by(admin=False).all()
 
     return render_template(
-        "uix/admin.html",
+        "admin/admin.html",
         global_message=global_message,
         message=message,
         all_users=all_users,
@@ -585,7 +585,7 @@ def user_messages():
         setattr(dm, "username", user_obj.username)
 
     return render_template(
-        "uix/messages.html",
+        "protected/messages.html",
         global_message_list=global_message_list,
         direct_message_list=direct_message_list,
         is_global_message=is_global_message,
