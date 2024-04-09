@@ -20,20 +20,18 @@ from application.models.user import UserSql
 from application.workers.email import send_email
 
 
-def _create_new_user(user, email, password, first, last):
+def _create_new_user(email, password):
     new_user = UserSql()
 
     new_user.active = True
     new_user.authenticated = True
     new_user.admin = False
 
-    new_user.username = user
+    new_user.username = email.split("@")[0]
     new_user.email = email
+
     new_user.password = generate_password_hash(password)
     new_user.friend_code = generate_friend_code(email)
-
-    new_user.first_name = first
-    new_user.last_name = last
 
     try:
         DATABASE.session.add(new_user)
@@ -114,19 +112,12 @@ def signup(request):
     data = request.form
 
     try:
-        user = data["username"]
         password = data["password"]
         email = data["email"]
-        first = data["first"]
-        last = data["last"]
 
     except KeyError:
         logger.error("SIGNUP: Missing Data")
         flash("Missing form data. Try Again...", "danger")
-        return False
-
-    if user == email:
-        flash("Your username should not also be your email address. Try Again!", "warning")
         return False
 
     # If beta mode is enabled, restrict signup form.
@@ -138,7 +129,7 @@ def signup(request):
             if _user_exists(email):
                 flash("Email already exists!", "danger")
                 return False
-            new_user = _create_new_user(user, email, password, first, last)
+            new_user = _create_new_user(email, password)
         else:
             flash("User is not in the Beta User Group and not allowed to sign up", "danger")
             return False
@@ -146,7 +137,7 @@ def signup(request):
         if _user_exists(email):
             flash("Email already exists!", "danger")
             return False
-        new_user = _create_new_user(user, email, password, first, last)
+        new_user = _create_new_user(email, password)
 
     login_user(new_user)
 
@@ -254,8 +245,6 @@ def update_profile(request):
     try:
         username = data["username"]
         email = data["hidden_email"]
-        first = data["first"]
-        last = data["last"]
         verified = data["verified"]
 
     except KeyError as error:
@@ -271,7 +260,7 @@ def update_profile(request):
         return False
 
     # Not allowed to update email.
-    user_qry.update({"username": username, "first_name": first, "last_name": last})
+    user_qry.update({"username": username})
 
     DATABASE.session.commit()
 

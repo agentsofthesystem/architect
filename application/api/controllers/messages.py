@@ -102,6 +102,11 @@ def create_direct_message(
     elif category == MessageCategories.ADMIN:
         # The admin category cannot be disabled.
         _create_message(sender_id, recipient_id, message, subject, is_global=False)
+
+        if not current_app.config["APP_ENABLE_EMAIL"]:
+            logger.warning("Email is disabled. Not sending ADMIN email")
+            return
+
         try:
             send_email.apply_async(
                 [
@@ -118,6 +123,10 @@ def create_direct_message(
     elif category == MessageCategories.SOCIAL:
         if not _is_user_category_disabled(recipient_id, category):
             _create_message(sender_id, recipient_id, message, subject, is_global=False)
+
+        if not current_app.config["APP_ENABLE_EMAIL"]:
+            logger.warning("Email is disabled. Not sending SOCIAL email")
+            return
 
         if not _is_user_category_disabled(recipient_id, category, is_email=True):
             # Send Email to all users.

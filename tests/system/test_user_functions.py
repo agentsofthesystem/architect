@@ -29,8 +29,6 @@ class Test_User_Signup(UserTest):
         config = DefaultConfig()
 
         form_user = '//*[@id="username"]'
-        form_first = '//*[@id="firstname"]'
-        form_last = '//*[@id="lastname"]'
         form_email = '//*[@id="email"]'
         form_pass = '//*[@id="password"]'
         form_submit = (
@@ -50,8 +48,6 @@ class Test_User_Signup(UserTest):
 
         # This part of the test will be a invalid password strength.
         self.driver.find_element_by_xpath(form_user).send_keys("TEST")
-        self.driver.find_element_by_xpath(form_first).send_keys("TEST")
-        self.driver.find_element_by_xpath(form_last).send_keys("TEST")
         self.driver.find_element_by_xpath(form_email).send_keys(email)
         self.driver.find_element_by_xpath(form_pass).send_keys("ABC")
 
@@ -67,8 +63,6 @@ class Test_User_Signup(UserTest):
     @pytest.mark.parametrize("url", ["http://localhost:5000/signup"])
     def test_user_good_signup(self, url):
         form_user = '//*[@id="username"]'
-        form_first = '//*[@id="firstname"]'
-        form_last = '//*[@id="lastname"]'
         form_email = '//*[@id="email"]'
         form_pass = '//*[@id="password"]'
         form_submit = (
@@ -84,8 +78,6 @@ class Test_User_Signup(UserTest):
 
         # Now, update to a good password and try to read email.
         self.driver.find_element_by_xpath(form_user).send_keys("TEST")
-        self.driver.find_element_by_xpath(form_first).send_keys("TEST")
-        self.driver.find_element_by_xpath(form_last).send_keys("TEST")
         self.driver.find_element_by_xpath(form_email).send_keys(email)
         self.driver.find_element_by_xpath(form_pass).send_keys("ABC")
         self.driver.find_element_by_xpath(form_pass).send_keys("GOOD_PASSWORD")
@@ -145,7 +137,3 @@ class Test_User_Account(UserTest):
         self.driver.find_element_by_xpath(account_form_submit).click()
 
         time.sleep(5)
-
-        # obj = User.objects(email=config.DEFAULT_ADMIN_EMAIL)
-
-        # assert obj[0].first_name == 'CHANGED'

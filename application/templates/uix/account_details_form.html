@@ -2,24 +2,6 @@
     {{ profile_form.csrf_token }}
     {{ profile_form.verified(value=verified) }}
     {{ profile_form.hidden_email(value=current_user.email) }}
-    <div class="col-6">
-        <div class="form-group">
-            <label for="first-name">First Name:
-                <span class="text-red">*</span>
-            </label>
-            {{ profile_form.first(class="form-control form-control-lg", type="text", id="first-name",
-            value=current_user.first_name) }}
-        </div>
-    </div>
-    <div class="col-6">
-        <div class="form-group">
-            <label for="last-name">Last Name:
-                <span class="text-red">*</span>
-            </label>
-            {{ profile_form.last(class="form-control form-control-lg", type="text", id="last-name",
-            value=current_user.last_name) }}
-        </div>
-    </div>
     <div class="col-12">
         <div class="form-group">
             <label for="username">Username:
