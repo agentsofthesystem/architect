@@ -1,0 +1,101 @@
+{% extends "layout/base.html" %}
+
+{% block area %}
+
+<section>
+    <div class="container">
+        <!--end of row-->
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 text-center">
+                <ul class="feature-list feature-list-sm row justify-content-center">
+
+                    <li class="col-6 col-md-4">
+                        <a class="card text-center" href="{{url_for('protected.system_agents')}}">
+                            <div class="card-body">
+                                <i class="icon-network text-red display-4"></i>
+                                <h6 class="title-decorative">Agents</h6>
+                                <p>Agents I Own: {{dashboard['num_owned_agents']}}</p>
+                                <p>Agents with Access: {{dashboard['num_associated_agents']}}</p>
+                            </div>
+                        </a>
+                    </li>
+
+                    <li class="col-6 col-md-4">
+                        <a class="card text-center" href="{{url_for('protected.system_groups')}}">
+                            <div class="card-body">
+                                <i class="icon-users text-orange display-4"></i>
+                                <h6 class="title-decorative">Friend Groups</h6>
+                                <p>Groups I Created: {{dashboard['num_owned_groups']}}</p>
+                                <p>Groups I'm a part of: {{dashboard['num_associated_groups']}}</p>
+                            </div>
+                        </a>
+                    </li>
+
+                    <li class="col-6 col-md-4">
+                        <a class="card text-center" href="{{url_for('protected.system_friends')}}">
+                            <div class="card-body">
+                                <i class="icon-user text-green display-4"></i>
+                                <h6 class="title-decorative">Friends</h6>
+                                <p>Friend Requests: {{dashboard['num_friend_requests']}}</p>
+                                <p>Friend Count: {{dashboard['num_friends']}}</p>
+                            </div>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+            <!--end of col-->
+        </div>
+        <!--end of row-->
+
+        <div class="row justify-content-center">
+
+            <div class="col-12 col-lg-10">
+
+                <div class="card card-sm">
+                    <div class="card-header d-block d-sm-none">
+                        <h6>Friend Code</h6>
+                    </div>
+                    <div class="card-body row no-gutters align-items-center">
+                        <div class="col-auto d-none d-sm-block">
+                            <h6 class="title-decorative">Friend Code</h6>
+                        </div>
+                        <!--end of col-->
+                        <div class="col">
+                            <input class="form-control form-control-lg form-control-borderless" value="{{current_user.friend_code}}" id="friend-code">
+                        </div>
+                        <!--end of col-->
+                        <div class="col-auto">
+                            <button class="btn btn-lg btn-success friend-code-copy" ><i class="icon-copy"></i></button>
+                        </div>
+                        <!--end of col-->
+                    </div>
+                </div>
+
+            </div>
+            <!--end of col-->
+        </div>
+        <!--end of row-->
+
+    </div>
+    <!--end of container-->
+</section>
+<!--end of section-->
+
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+    $('.friend-code-copy').click(function(){
+        var copyText = document.getElementById("friend-code");
+
+        // Select the text field
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobile devices
+
+        // Copy the text inside the text field
+        navigator.clipboard.writeText(copyText.value);
+    });
+</script>
+{% endblock %}

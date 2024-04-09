@@ -195,11 +195,11 @@ def create_app(config=None, init_db=True, init_celery=True):
     # Error Routes
     @flask_app.errorhandler(404)
     def not_found(e):
-        return render_template("uix/404.html")
+        return render_template("public/404.html")
 
     @flask_app.errorhandler(500)
     def server_error(e):
-        return render_template("uix/500.html")
+        return render_template("public/500.html")
 
     @flask_app.before_request
     def before_request_func():

@@ -38,37 +38,39 @@ def health():
 # Public Routes
 @public.route("/")
 def index():
-    return render_template("uix/index.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
+    return render_template("public/index.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 
 @public.route("/about")
 def about():
-    return render_template("uix/about.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
+    return render_template("public/about.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 
 @public.route("/coming/soon")
 def coming_soon():
-    return render_template("uix/comingsoon.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
+    return render_template(
+        "public/comingsoon.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
+    )
 
 
 # TODO - Uncomment when ready
 # @public.route("/pricing")
 # def pricing():
 #     return render_template(
-#         "uix/pricing.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
+#         "public/pricing.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
 #     )
 
 
 @public.route("/support")
 def support():
-    return render_template("uix/support.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
+    return render_template("public/support.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 
 # TODO - Add privacy policy page
 @public.route("/privacy/policy")
 def privacy_policy():
     return render_template(
-        "uix/privacy-policy.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
+        "public/privacy-policy.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
     )
 
 
@@ -76,7 +78,7 @@ def privacy_policy():
 @public.route("/terms")
 def terms_and_conditions():
     return render_template(
-        "uix/terms-and-conditions.html",
+        "public/terms-and-conditions.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
     )
 
@@ -96,13 +98,13 @@ def signup():
             return redirect(url_for("protected.dashboard"))
         else:
             return render_template(
-                "uix/signup.html",
+                "public/signup.html",
                 form=form,
                 pretty_name=current_app.config["APP_PRETTY_NAME"],
             )
     else:
         return render_template(
-            "uix/signup.html",
+            "public/signup.html",
             form=form,
             pretty_name=current_app.config["APP_PRETTY_NAME"],
         )
@@ -123,14 +125,14 @@ def signin():
         else:
             flash("Incorrect Username or Password!", "danger")
             return render_template(
-                "uix/signin.html",
+                "public/signin.html",
                 form=form,
                 pretty_name=current_app.config["APP_PRETTY_NAME"],
                 email_enabled=current_app.config["APP_ENABLE_EMAIL"],
             )
     else:
         return render_template(
-            "uix/signin.html",
+            "public/signin.html",
             form=form,
             pretty_name=current_app.config["APP_PRETTY_NAME"],
             email_enabled=current_app.config["APP_ENABLE_EMAIL"],
@@ -156,20 +158,20 @@ def forgot():
         if result:
             flash("Please check your email.", "info")
             return render_template(
-                "uix/forgot.html",
+                "public/forgot.html",
                 form=form,
                 pretty_name=current_app.config["APP_PRETTY_NAME"],
             )
         else:
             flash("User does not exist!", "danger")
             return render_template(
-                "uix/forgot.html",
+                "public/forgot.html",
                 form=form,
                 pretty_name=current_app.config["APP_PRETTY_NAME"],
             )
     else:
         return render_template(
-            "uix/forgot.html",
+            "public/forgot.html",
             form=form,
             pretty_name=current_app.config["APP_PRETTY_NAME"],
         )
@@ -193,7 +195,7 @@ def reset():
             # User password didn't match or password strength too low.
             token = request.form["token"]
             return render_template(
-                "uix/reset.html",
+                "public/reset.html",
                 form=form,
                 reset_token=token,
                 fix_url=True,
@@ -203,7 +205,7 @@ def reset():
     # In this case, the user clicked the link from the email.
     elif request.method == "GET" and token is not None:
         return render_template(
-            "uix/reset.html",
+            "public/reset.html",
             form=form,
             reset_token=token,
             pretty_name=current_app.config["APP_PRETTY_NAME"],

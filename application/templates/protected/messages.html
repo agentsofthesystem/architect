@@ -1,0 +1,207 @@
+{% extends "layout/base.html" %}
+
+{% block area %}
+
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<!-- Modal -->
+<div class="modal fade" id="globalMessageModal" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="global-message-title">Global Message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="global-message-body"> </p>
+                <p id="global-message-uid" style="display: none;"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="directMessageModal" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="direct-message-title">Direct Message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="direct-message-body"> </p>
+                <p id="direct-message-uid" style="display: none;"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="flush-with-above space-0">
+    <div class="bg-white">
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <ul class="nav nav-tabs" id="myMessagesTab" role="tablist">
+              <li class="nav-item">
+                {% if is_direct_message %}
+                    <a class="nav-link active" id="dm-tab" data-toggle="tab" href="#direct-messages" role="tab" aria-selected="true">Direct Messages
+                        <span class="badge bg-success">{{ num_direct_messages }}</span>
+                    </a>
+                {% else %}
+                    <a class="nav-link active" id="dm-tab" data-toggle="tab" href="#direct-messages" role="tab" aria-selected="true">Direct Messages</a>
+                {% endif %}
+              </li>
+              <li class="nav-item">
+                {% if is_global_message %}
+                    <a class="nav-link" id="gm-tab" data-toggle="tab" href="#global-messages" role="tab" aria-selected="true">Global Messages
+                        <span class="badge bg-success">{{ num_global_messages }}</span>
+                    </a>
+                {% else %}
+                    <a class="nav-link" id="gm-tab" data-toggle="tab" href="#global-messages" role="tab" aria-selected="true">Global Messages</a>
+                {% endif %}
+              </li>
+            </ul>
+          </div>
+          <!--end of col-->
+        </div>
+        <!--end of row-->
+      </div>
+      <!--end of container-->
+    </div>
+</section>
+
+
+<section class="flush-with-above height-80 d-block">
+
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="direct-messages" role="tabpanel">
+        <div class="container">
+          <!--end of row-->
+          <div class="container align-self-start">
+            <div class="row justify-content-center">
+              <div class="col-25 col-md-12 order-md-1">
+                {% include 'protected/messages_direct.html' %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--end of tab pane-->
+      <div class="tab-pane fade" id="global-messages" role="tabpanel">
+        <div class="container align-self-start">
+          <div class="row justify-content-center">
+            <div class="col-25 col-md-12 order-md-1">
+                {% include 'protected/messages_global.html' %}
+              </div>
+          </div>
+          <!--end of row-->
+        </div>
+        <!--end of container-->
+
+      </div>
+      <!--end of tab pane-->
+    </div>
+    <!--end of tabs content-->
+  </section>
+
+<section class="flush-with-above">
+    <div class="container">
+        {% if is_direct_message or is_global_message %}
+        <div class="row">
+            <div class="col">
+                <button type="button" id="action-mark-read" class="btn btn-danger" onclick="handleButton('MARK_READ')">Mark All Read</button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+    {{super()}}
+    <script>
+        function showGlobalMessageModal(row){
+            var cells = row.getElementsByTagName('td');
+            message = "";
+            msg_id = "";
+            title = "Message"
+            for(i = 0; i < cells.length; ++i){
+                var cell = cells[i];
+                if(cell.id == "message-data"){
+                    message = cell.innerText;
+                }
+                if(cell.id == "message-id"){
+                    msg_id = cell.innerText;
+                }
+                if(cell.id == "message-subject"){
+                    title = cell.innerText;
+                }
+            }
+            $('#global-message-title').html("Global Message: " + title);
+            $('#global-message-body').html(message);
+            $('#global-message-uid').html(msg_id);
+            $('#globalMessageModal').modal('show')
+        }
+
+        function showDirectMessageModal(row){
+            var cells = row.getElementsByTagName('td');
+            message = "";
+            msg_id = "";
+            title = "Message"
+            for(i = 0; i < cells.length; ++i){
+                var cell = cells[i];
+                if(cell.id == "message-data"){
+                    message = cell.innerText;
+                }
+                if(cell.id == "message-id"){
+                    msg_id = cell.innerText;
+                }
+                if(cell.id == "message-subject"){
+                    title = cell.innerText;
+                }
+            }
+            $('#direct-message-title').html("Direct Message: " + title);
+            $('#direct-message-body').html(message);
+            $('#direct-message-uid').html(msg_id);
+            $('#directMessageModal').modal('show')
+        }
+
+        function handleButton(action){
+
+            var csrftoken = $('meta[name=csrf-token]').attr('content')
+
+            console.log("CSRF Token: " + csrftoken);
+            console.log("Action: " + action);
+            json_data = JSON.stringify({"status": action})
+            console.log(json_data);
+
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken)
+                    }
+                }
+            })
+
+            $.ajax({
+                type: "POST",
+                url: "/app/messages",
+                contentType: 'application/json',
+                data: JSON.stringify({"status": action}),
+                success: function(){
+                    console.log("win!")
+                    location.reload();
+                },
+                error: function( ){
+                    console.log('error!')
+                }
+            });
+        }
+
+    </script>
+{% endblock %}

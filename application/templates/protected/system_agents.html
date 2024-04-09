@@ -1,0 +1,369 @@
+{% extends "layout/base.html" %}
+
+{% block area %}
+
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<div class="modal fade" id="newAgentModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Agent</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{url_for('protected.system_agents')}}" method="post">
+                {{ new_agent_form.csrf_token }}
+                {{ new_agent_form.method(value="POST") }}
+                {{ new_agent_form.owner_id(value=current_user.user_id) }}
+                <div class="modal-body">
+
+                    <div class="col-12">
+
+                        <div class="form-group row">
+                            {{ new_agent_form.name.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ new_agent_form.name(class="form-control", type="text", value="Agent Smith", placeholder="Agent Smith") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ new_agent_form.hostname.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ new_agent_form.hostname(class="form-control", type="text", value="localhost", placeholder="agent-smith.somewhere.com, IP, localhost") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ new_agent_form.port.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ new_agent_form.port(class="form-control", type="text", value="3000") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ new_agent_form.access_token.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ new_agent_form.access_token(class="form-control", type="text", value="") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ new_agent_form.ssl_public_cert.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ new_agent_form.ssl_public_cert(class="form-control", type="text", value="", row="20", cols="10") }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="updateAgentModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Agent</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{url_for('protected.system_agents')}}" method="post">
+                {{ update_agent_form.csrf_token }}
+                {{ update_agent_form.method(value="PATCH") }}
+                {{ update_agent_form.agent_id(id="update-agent-id-input") }}
+                <div class="modal-body">
+
+                    <div class="col-12">
+
+                        <div class="form-group row">
+                            {{ update_agent_form.name.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ update_agent_form.name(class="form-control", id="update-agent-name-input", type="text", value="") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ update_agent_form.hostname.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ update_agent_form.hostname(class="form-control", id="update-agent-hostname-input", type="text", value="") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ update_agent_form.port.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ new_agent_form.port(class="form-control", id="update-agent-port-input", type="text", value="") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ new_agent_form.access_token.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ update_agent_form.access_token(class="form-control", id="update-agent-access-token-input", type="text", value="") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            {{ update_agent_form.ssl_public_cert.label(class="col-sm-2 col-form-label") }}
+                            <div class="col-sm-10">
+                            {{ update_agent_form.ssl_public_cert(class="form-control", id="update-agent-ssl-cert-input", type="text", value="", row="20", cols="10") }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="shareAgentToGroupModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share this Agent with Selected Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form  action="{{url_for('protected.system_agents')}}" method="post">
+                {{ share_to_group_form.csrf_token }}
+                {{ share_to_group_form.method(value="SHARE_TO_GROUP") }}
+                {{ share_to_group_form.agent_id(id="update-share-group-agent-id-input") }}
+                <div class="modal-body">
+
+                    <div class="form-group row">
+                        {{ share_to_group_form.group_list.label(class="col-sm-2 col-form-label") }}
+                        <div class="col-sm-10">
+                        {{ share_to_group_form.group_list(class="form-control") }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="shareAgentToFriendModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share this Agent with Selected Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form  action="{{url_for('protected.system_agents')}}" method="post">
+                {{ share_to_friend_form.csrf_token }}
+                {{ share_to_friend_form.method(value="SHARE_TO_FRIEND") }}
+                {{ share_to_friend_form.agent_id(id="update-share-friend-agent-id-input") }}
+                <div class="modal-body">
+
+                    <div class="form-group row">
+                        {{ share_to_friend_form.friends_list.label(class="col-sm-2 col-form-label") }}
+                        <div class="col-sm-10">
+                        {{ share_to_friend_form.friends_list(class="form-control") }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="col text-center">
+
+    {% if is_empty %}
+        {% include "protected/agent_empty_state.html" %}
+    {% else %}
+        <section class="flush-with-above">
+            <!-- Normal version of the table shows for larger/regular sized screens -->
+            <div class="container d-none d-sm-block">
+                {% include "protected/system_agent_list.html" %}
+            </div>
+             <!-- Condensed version of the table shows for small screens -->
+            <div class="container d-block d-sm-none">
+                {% include "protected/system_agent_list_small_screen.html" %}
+            </div>
+        </section>
+
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{super()}}
+<script>
+
+    $(document).ready(function(){
+
+        var socket = io("/system/agents");
+        var agent_list = $(".agent-status-badge");
+        var csrftoken = $('meta[name=csrf-token]').attr('content')
+
+        // Goes with system_agent_list[_small_screen].html
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken)
+                }
+            }
+        })
+
+        for(let i = 0; i < agent_list.length; ++i){
+            var agent = agent_list[i];
+            $(agent_list[i]).hide();
+        }
+
+        socket.on('connect', function() {
+            for(let i = 0; i < agent_list.length; ++i){
+                var agent = agent_list[i];
+                var agent_dict = {"agent_id": agent.id};
+                socket.emit('get_agent_status', agent_dict)
+            }
+        });
+
+        socket.on("respond_agent_status", function(data){
+
+            var agent_id = data['agent_id'];
+            var agent_status = data['status'];
+            var agent_id_class = 'agent-id-' + agent_id;
+            var agent_spinner_id_class = 'agent-spinner-id-' + agent_id;
+            var agent_info_link_class = 'agent-info-link-' + agent_id;
+
+            console.log("Agent ID: " + agent_id + ", Status: " + agent_status);
+
+            // Since there is a regular sized and small sized table, have to loop.
+            var badge = $("." + agent_id_class);
+            var spinner = $("." + agent_spinner_id_class);
+
+            for(let i = 0; i < badge.length; ++i){
+
+                this_badge = badge[i];
+                this_badge.innerHTML = agent_status;
+
+                this_spinner = spinner[i];
+
+                $(this_spinner).hide()
+
+                if(agent_status == "Alive"){
+                    $(this_badge).attr("class", "badge badge-success agent-status-badge " + agent_id_class);
+                }
+                else if (agent_status == "Unreachable"){
+                    $(this_badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
+                    $('.' + agent_info_link_class).removeAttr("href")
+                }
+                else if (agent_status == "InvalidAccessToken"){
+                    $(this_badge).attr("class", "badge badge-warning agent-status-badge " + agent_id_class);
+                    $('.' + agent_info_link_class).removeAttr("href")
+                }
+                else if (agent_status == "SSLError" || agent_status == "SSLCertMissing"){
+                    $(this_badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
+                    $('.' + agent_info_link_class).removeAttr("href")
+                }
+                else if (agent_status == "Error"){
+                    $(this_badge).attr("class", "badge badge-warning agent-status-badge " + agent_id_class);
+                    $('.' + agent_info_link_class).removeAttr("href")
+                }
+
+                $(this_badge).show()
+            }
+        })
+    })
+
+    function showNewAgentModal(){
+        $('#newAgentModal').modal('show')
+    }
+    function showUpdateAgentModal(agent_id){
+
+        $.ajax({
+            url: "/app/backend/agent/" + agent_id,
+            type: 'GET',
+            dataType: 'json', // added data type
+            success: function(data) {
+                console.log(data)
+                $('#update-agent-id-input')[0].value = agent_id;
+                $('#update-agent-name-input')[0].value = data[0]['name'];
+                $('#update-agent-hostname-input')[0].value = data[0]['hostname'];
+                $('#update-agent-port-input')[0].value = data[0]['port'];
+                $('#update-agent-access-token-input')[0].value = data[0]['access_token'];
+                $('#update-agent-ssl-cert-input')[0].value = data[0]['ssl_public_cert'];
+            }
+        });
+
+        $('#updateAgentModal').modal('show')
+    }
+
+    function showShareAgentToGroupModal(agent_id){
+        console.log("Agent ID is: "+ agent_id);
+        $('#update-share-group-agent-id-input')[0].value = agent_id;
+        $('#shareAgentToGroupModal').modal('show')
+    }
+
+    function showShareAgentToFriendModal(agent_id){
+        console.log("Agent ID is: "+ agent_id);
+        $('#update-share-friend-agent-id-input')[0].value = agent_id;
+        $('#shareAgentToFriendModal').modal('show')
+    }
+
+    // Goes with system_agent_list[_small_screen].html
+    $('.delete-agent').click(function(){
+
+        console.log("Deleting agent " + this.id);
+
+        $.ajax({
+            type: "DELETE",
+            url: "/app/backend/agent/" + this.id,
+            contentType: 'application/json',
+            success: function(){
+                console.log("Agent" + this.id + ' deleted.')
+                location.reload();
+            },
+            error: function( ){
+                console.log('error!')
+            }
+        });
+
+    });
+</script>
+{% endblock %}
