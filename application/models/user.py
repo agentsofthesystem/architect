@@ -33,8 +33,6 @@ class UserSql(PaginatedApi, DATABASE.Model):
     username = DATABASE.Column(DATABASE.String(256), nullable=True)
     email = DATABASE.Column(DATABASE.String(256), unique=True, nullable=False)
     password = DATABASE.Column(DATABASE.String(256), nullable=False)
-    first_name = DATABASE.Column(DATABASE.String(256), nullable=True)
-    last_name = DATABASE.Column(DATABASE.String(256), nullable=True)
 
     # Friends
     friend_code = DATABASE.Column(DATABASE.String(256), nullable=True)
@@ -98,10 +96,10 @@ class UserSql(PaginatedApi, DATABASE.Model):
 
     def __str__(self):
         user_str = f"\n************************ User: {self.user_id} ************************ \n"
-        user_str += f" Admin: {self.admin}, Verified: {self.verified}, subscribed: {self.subscribed} \n"  # noqa: E501
-        user_str += f" First: {self.first_name}, Last: {self.last_name} \n"
+        user_str += f" Admin: {self.admin}, Verified: {self.verified}, \n"
+        user_str += f" Subscribed: {self.subscribed} \n"
         user_str += f" Username: {self.username}, email: {self.email} \n"
-        user_str += "******************************************************************************** \n"  # noqa: E501
+        user_str += "*************************************************************************** \n"
 
         return user_str
 
@@ -155,8 +153,6 @@ class UserSql(PaginatedApi, DATABASE.Model):
             "customer_id": self.customer_id,
             "username": self.username,
             "email": self.email,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
             "friend_code": self.friend_code,
         }
 

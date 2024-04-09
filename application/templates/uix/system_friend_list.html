@@ -6,7 +6,6 @@
         <tr>
           <th scope="col"><strong>Friend:</strong></th>
           <th scope="col">Username</th>
-          <th scope="col">Name</th>
           <th scope="col">Action</th>
         </tr>
       </thead>
@@ -19,16 +18,11 @@
               <img alt="" src="{{ url_for('static', filename='uix/assets/img/agent-black.svg') }}" class="avatar rounded avatar-sm" />
             </a>
           </td>
+
           {% if current_user.user_id == friend['initiator_id'] %}
           <td>{{friend['receiver']['username']}}</td>
           {% else %}
           <td>{{friend['initiator']['username']}}</td>
-          {% endif %}
-
-          {% if current_user.user_id == friend['initiator_id'] %}
-          <td>{{friend['receiver']['first_name']}} {{friend['receiver']['last_name']}}</td>
-          {% else %}
-          <td>{{friend['initiator']['first_name']}} {{friend['initiator']['last_name']}}</td>
           {% endif %}
 
           <td>

@@ -20,10 +20,6 @@ class SignupForm(FlaskForm):
 
     email = StringField("Email", validators=[DataRequired()])
 
-    first = StringField("First", validators=[DataRequired()])
-
-    last = StringField("Last", validators=[DataRequired()])
-
     password = PasswordField("Password", validators=[DataRequired()])
 
 

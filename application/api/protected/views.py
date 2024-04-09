@@ -355,6 +355,8 @@ def account():
             flash("Unable to update profile!", "danger")
 
             return redirect(url_for("protected.account"))
+        else:
+            flash("Successfully updated profile information!", "info")
 
     else:
         return render_template(

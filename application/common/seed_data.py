@@ -22,8 +22,6 @@ def _handle_default_records(flask_app: Flask) -> None:
             new_admin_user = UserSql()
             new_admin_user.admin = True
             new_admin_user.verified = True
-            new_admin_user.first_name = "admin"
-            new_admin_user.last_name = "admin"
             new_admin_user.subscribed = True
             new_admin_user.username = flask_app.config["ADMIN_USER"]
             new_admin_user.email = flask_app.config["DEFAULT_ADMIN_EMAIL"]

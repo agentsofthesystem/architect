@@ -392,7 +392,7 @@ def invite_friend_to_group(request) -> bool:
     subject = f"Request to add user to group, {group_obj.name}."
     group_href = url_for("protected.system_groups", _external=True)
     message = (
-        f"<p>Hey, {owner_obj.first_name}! {requestor_obj.username} is requesting that you "
+        f"<p>Hey, {owner_obj.username}! {requestor_obj.username} is requesting that you "
         f"add user, {invited_obj.username}, to your group, {group_obj.name}. Go to the "
         f'<a href="{group_href}">Groups Page</a> to and have a look..</p>'
     )
@@ -482,7 +482,7 @@ def transfer_group(request) -> bool:
     subject = "Group Transferred to you."
     friend_href = url_for("protected.system_groups", _external=True)
     message = (
-        f"<p>Hey, {current_user.first_name}! {old_owner_obj.username} has transferred ownership "
+        f"<p>Hey, {current_user.username}! {old_owner_obj.username} has transferred ownership "
         f"of group, {group_name}, to you. Go to the "
         f'<a href="{friend_href}">Groups Page</a> to and have a look..</p>'
     )
@@ -586,7 +586,7 @@ def resolve_group_invitation(request) -> bool:
         subject = f"You have been added to group, {group_obj.name}."
         group_href = url_for("protected.system_groups", _external=True)
         message = (
-            f"<p>Hey, {invited_user_obj.first_name}! You have been admitted to group, "
+            f"<p>Hey, {invited_user_obj.username}! You have been admitted to group, "
             f"{group_obj.name}, by the group owner. Go to the "
             f'<a href="{group_href}">Groups Page</a> to and have a look...</p>'
         )

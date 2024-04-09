@@ -26,10 +26,6 @@ class AccountProfileForm(FlaskForm):
     hidden_email = HiddenField("Hidden Email")
     verified = HiddenField("Verified")
 
-    first = StringField("First", validators=[DataRequired()])
-
-    last = StringField("Last", validators=[DataRequired()])
-
 
 class AccountUpdatePasswordForm(FlaskForm):
     hidden_email = HiddenField("Hidden Email")
