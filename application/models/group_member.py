@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
@@ -10,7 +10,9 @@ class GroupMembers(PaginatedApi, DATABASE.Model):
     group_member_id = DATABASE.Column(DATABASE.Integer, primary_key=True)
 
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
-    creation_date = DATABASE.Column(DATABASE.DateTime, nullable=False, default=datetime.utcnow)
+    creation_date = DATABASE.Column(
+        DATABASE.DateTime, nullable=False, default=datetime.now(timezone.utc)
+    )
 
     group_id = DATABASE.Column(
         DATABASE.Integer, DATABASE.ForeignKey("groups.group_id"), nullable=False

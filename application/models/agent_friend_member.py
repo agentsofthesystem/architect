@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
@@ -10,7 +10,9 @@ class AgentFriendMembers(PaginatedApi, DATABASE.Model):
     agent_friend_member_id = DATABASE.Column(DATABASE.Integer, primary_key=True)
 
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
-    creation_date = DATABASE.Column(DATABASE.DateTime, nullable=False, default=datetime.utcnow)
+    creation_date = DATABASE.Column(
+        DATABASE.DateTime, nullable=False, default=datetime.now(timezone.utc)
+    )
 
     agent_id = DATABASE.Column(
         DATABASE.Integer, DATABASE.ForeignKey("agents.agent_id"), nullable=False

@@ -1,6 +1,6 @@
 import jwt
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask import (
     current_app,
     render_template,
@@ -32,6 +32,7 @@ def _create_new_user(email, password):
 
     new_user.password = generate_password_hash(password)
     new_user.friend_code = generate_friend_code(email)
+    new_user.last_message_read_time = datetime.now(timezone.utc)
 
     try:
         DATABASE.session.add(new_user)
@@ -146,7 +147,7 @@ def signup(request):
 
     login_user(new_user)
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     payload = {"exp": now + timedelta(days=1), "iat": now, "sub": str(new_user.user_id)}
 
@@ -274,7 +275,7 @@ def update_profile(request):
 
     # Send the verification email if user hits the resend button.
     if verified == "False" and current_app.config["APP_ENABLE_EMAIL"]:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         payload = {
             "exp": now + timedelta(days=1),
@@ -323,9 +324,10 @@ def forgot_password(request):
     if user_obj is None:
         return False
 
+    # This token gets a short lifespan
     payload = {
-        "exp": datetime.utcnow() + timedelta(minutes=15),  # This token gets a short lifespan
-        "iat": datetime.utcnow(),
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=15),
+        "iat": datetime.now(timezone.utc),
         "sub": str(user_obj.user_id),
     }
 
