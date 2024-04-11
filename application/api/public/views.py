@@ -328,6 +328,6 @@ def webhook():
             usr_qry.update({"subscribed": False, "subscription_id": ""})
             DATABASE.session.commit()
     else:
-        logger.debug(f"Recieved Event: {event_type} but not doing anything with it.")
+        logger.debug(f"Received Event: {event_type} but not doing anything with it.")
 
     return jsonify({"status": "success"})

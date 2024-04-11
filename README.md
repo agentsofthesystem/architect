@@ -17,3 +17,10 @@ email.
 Update any other system settings in the system via the Admin panel once the software is running.
 
 Access by default is on "http:://localhost:3000
+
+
+## Logging for testing
+
+```
+docker compose logs web -f |& tee test-logs.txt
+```
