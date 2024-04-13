@@ -28,7 +28,8 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="gameServerActionInProgress" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
+<div class="modal fade" id="gameServerActionInProgress" tabindex="-1" role="dialog" aria-labelledby="message-title"
+  aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered d-flex justify-content-center " role="document">
     <div class="spinner-border text-success" style="width: 8rem; height: 8rem;" role="status">
       <span class="sr-only">Pending...</span>
@@ -91,149 +92,153 @@
   </section>
   <!--end of section-->
 
-  <section class="height-5">
-    <div class="container">
-      <ul class="feature-list feature-list-sm row">
-        {% set is_disabled = "disabled='true'" if current_user.user_id != agent_info['agent']['owner_id'] else "" %}
-        <li class="col-sm">
-          <div class="card">
-            <div class="card-header d-flex justify-content-between">
-              <div>
-                <span class="h6">Group Members</span>
-                <span class="badge badge-secondary">{{agent_info['num_groups']}}</span>
-              </div>
-            </div>
-            <div class="card-body">
-              <ul class="list-unstyled list-spacing-sm">
-                {% for group in agent_info['groups'] %}
-                <li>
-                  <div class="input-group">
-                    <input class="form-control form-control-lg" type="text"
-                      value="{{group['name']}} (Owner: {{group['owner']['username']}})" disabled="true">
-                    <div class="input-group-append">
-                      <button class="btn btn-outline-secondary remove-group-from-agent" type="button"
-                        id="{{group['agent_group_member_id']}}" {{is_disabled}}><i
-                          class="icon-circle-with-cross"></i></button>
-                    </div>
-                  </div>
-                </li>
-                {% endfor %}
-              </ul>
-            </div>
-          </div>
-          <!--end of card-->
-        </li>
-        <!--end of col-->
-
-        <li class="col-sm">
-          <div class="card">
-            <div class="card-header d-flex justify-content-between">
-              <div>
-                <span class="h6">Friend Members</span>
-                <span class="badge badge-secondary">{{agent_info['num_friends']}}</span>
-              </div>
-            </div>
-            <div class="card-body">
-              <ul class="list-unstyled list-spacing-sm">
-                {% for friend in agent_info['friends'] %}
-                <li>
-                  <div class="input-group">
-                    <input class="form-control form-control-lg" type="text" value="{{friend['username']}}"
-                      disabled="true">
-                    <div class="input-group-append">
-                      <button class="btn btn-outline-secondary remove-friend-from-agent" type="button"
-                        id="{{friend['agent_friend_member_id']}}" {{is_disabled}}><i
-                          class="icon-remove-user"></i></button>
-                    </div>
-                  </div>
-                </li>
-                {% endfor %}
-              </ul>
-            </div>
-          </div>
-          <!--end of card-->
-        </li>
-        <!--end of col-->
-
-      </ul>
-      <!--end of row-->
-    </div>
-    <!--end of container-->
-  </section>
-  <!--end of section-->
-
-  <section class="flush-with-above mt-1" id="agent-info-section">
+  <section class="bg-white space-sm">
 
     <div class="container">
+
       <div class="row justify-content-between">
 
-        <div class="col">
+        <div class="container">
 
-          <h3 class="mb-1">Platform:</h3>
+          <div class="card">
+            <div class="card-header mb-1">
+              <span class="h6">Agent Memberships</span>
+            </div>
+            <ul class="feature-list feature-list-sm row">
+              {% set is_disabled = "disabled='true'" if current_user.user_id != agent_info['agent']['owner_id'] else "" %}
+              <li class="col-sm">
+                <div class="card ml-1">
+                  <div class="card-header d-flex justify-content-between">
+                    <div>
+                      <span class="h6">Group Members</span>
+                      <span class="badge badge-secondary">{{agent_info['num_groups']}}</span>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-unstyled list-spacing-sm">
+                      {% for group in agent_info['groups'] %}
+                      <li>
+                        <div class="input-group">
+                          <input class="form-control form-control-lg" type="text"
+                            value="{{group['name']}} (Owner: {{group['owner']['username']}})" disabled="true">
+                          <div class="input-group-append">
+                            <button class="btn btn-outline-secondary remove-group-from-agent" type="button"
+                              id="{{group['agent_group_member_id']}}" {{is_disabled}}><i
+                                class="icon-circle-with-cross"></i></button>
+                          </div>
+                        </div>
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+                <!--end of card-->
+              </li>
+              <!--end of col-->
 
-          <div class="align-items-center">
+              <li class="col-sm">
+                <div class="card mr-1">
+                  <div class="card-header d-flex justify-content-between">
+                    <div>
+                      <span class="h6">Friend Members</span>
+                      <span class="badge badge-secondary">{{agent_info['num_friends']}}</span>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-unstyled list-spacing-sm">
+                      {% for friend in agent_info['friends'] %}
+                      <li>
+                        <div class="input-group">
+                          <input class="form-control form-control-lg" type="text" value="{{friend['username']}}"
+                            disabled="true">
+                          <div class="input-group-append">
+                            <button class="btn btn-outline-secondary remove-friend-from-agent" type="button"
+                              id="{{friend['agent_friend_member_id']}}" {{is_disabled}}><i
+                                class="icon-remove-user"></i></button>
+                          </div>
+                        </div>
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </div>
+                <!--end of card-->
+              </li>
+              <!--end of col-->
 
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item">
-                <div class="d-flex justify-content-between">
-                  <div><i class="icon-keyboard mr-1"></i>Name: </div>
-                  <span id="data-platform-name">TBD</span>
-                </div>
-              </li>
-              <li class="list-group-item">
-                <div class="d-flex justify-content-between">
-                  <div><i class="icon-classic-computer mr-1"></i>Machine: </div>
-                  <span id="data-platform-machine">TBD</span>
-                </div>
-              </li>
-              <li class="list-group-item">
-                <div class="d-flex justify-content-between">
-                  <div><i class="icon-suitcase mr-1"></i>OS: </div>
-                  <span id="data-platform-os">TBD</span>
-                </div>
-              </li>
             </ul>
           </div>
-
         </div>
-        <!--end of col-->
+      </div>
 
-        <div class="col">
+      <div class="row justify-content-between">
 
-          <h3 class="mb-1">CPU:</h3>
+        <div class="col-14 col-md-4">
 
-          <div class="align-items-center">
+          <div id="agent-info-section">
+            <div class="card" >
 
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item">
-                <div class="d-flex justify-content-between">
-                  <div><i class="icon-ruler mr-1"></i>Freq Max:</div>
-                  <span id="data-cpu-freq">TBD</span>
-                </div>
-              </li>
-              <li class="list-group-item">
-                <div class="d-flex justify-content-between">
-                  <div><i class="icon-code mr-1"></i>Physical Cores:</div>
-                  <span id="data-cpu-physical-cores">TBD</span>
-                </div>
-              </li>
-              <li class="list-group-item">
-                <div class="d-flex justify-content-between">
-                  <div><i class="icon-plus mr-1"></i>Total Cores:</div>
-                  <span id="data-cpu-total-cores">TBD</span>
-                </div>
-              </li>
-            </ul>
-          </div>
+              <div class="card-header">
+                <span class="h6">Platform</span>
+              </div>
 
-        </div>
-        <!--end of col-->
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between">
+                    <div><i class="icon-keyboard mr-1"></i>Name: </div>
+                    <span id="data-platform-name">TBD</span>
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between">
+                    <div><i class="icon-classic-computer mr-1"></i>Machine: </div>
+                    <span id="data-platform-machine">TBD</span>
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between">
+                    <div><i class="icon-suitcase mr-1"></i>OS: </div>
+                    <span id="data-platform-os">TBD</span>
+                  </div>
+                </li>
+              </ul>
 
-        <div class="col">
+            </div>
 
-          <h3 class="mb-1">Memory: </h3>
+            <div class="card">
 
-          <div class="align-items-center">
+              <div class="card-header">
+                <span class="h6">CPU</span>
+              </div>
+
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between">
+                    <div><i class="icon-ruler mr-1"></i>Freq Max:</div>
+                    <span id="data-cpu-freq">TBD</span>
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between">
+                    <div><i class="icon-code mr-1"></i>Physical Cores:</div>
+                    <span id="data-cpu-physical-cores">TBD</span>
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between">
+                    <div><i class="icon-plus mr-1"></i>Total Cores:</div>
+                    <span id="data-cpu-total-cores">TBD</span>
+                  </div>
+                </li>
+              </ul>
+
+            </div>
+
+            <div class="card">
+
+            <div class="card-header">
+              <span class="h6">Memory</span>
+            </div>
 
             <ul class="list-group list-group-flush">
               <li class="list-group-item">
@@ -261,64 +266,90 @@
                 </div>
               </li>
             </ul>
+
+          </div>
           </div>
 
         </div>
         <!--end of col-->
 
+        <div class="col-14 col-md-8">
+
+          <div id="agent-game-info-section">
+
+            <!-- Normal version of the table shows for larger/regular sized screens -->
+            <div class="card d-none d-sm-block">
+              <div class="card-header">
+                <span class="h6">Dedicated Servers</span>
+              </div>
+              <table class="table table-bordered table-hover align-items-center">
+                <thead>
+                  <tr>
+                    <th scope="col">Game Server</th>
+                    <th scope="col">Last Update</th>
+                    <th scope="col">Build</th>
+                    <th scope="col">Branch</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white" id="game-server-table-body">
+                  <!-- This gets filled in via websocket/javascript -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Condensed version of the table shows for small screens -->
+            <div class="card d-block d-sm-none">
+              <div class="card-header">
+                <span class="h6">Dedicated Servers</span>
+              </div>
+              <table class="table table-bordered table-hover align-items-center">
+                <thead>
+                  <tr>
+                    <th scope="col">Game Server</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white" id="game-server-table-body-small-screen">
+                  <!-- This gets filled in via websocket/javascript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+
+            <div class="card-header">
+              <span class="h6">Agent Monitor</span>
+            </div>
+
+          </div>
+
+          <div class="card">
+
+            <div class="card-header">
+              <span class="h6">Dedicated Server Health Monitor</span>
+            </div>
+
+          </div>
+
+          <div class="card">
+
+            <div class="card-header">
+              <span class="h6">Dedicated Server Updates Monitor</span>
+            </div>
+
+          </div>
+
+
+        </div>
+        <!--end of col-->
       </div>
       <!--end of row-->
     </div>
     <!--end of container-->
-  </section>
-  <!--end of section-->
-
-  <section class="flush-with-above" id="agent-game-info-section">
-
-    <!-- Normal version of the table shows for larger/regular sized screens -->
-    <div class="container-sm d-none d-sm-block">
-      <div class="row justify-content-between">
-        <div class="col">
-          <table class="table table-borderless table-hover align-items-center">
-            <thead>
-              <tr>
-                <th scope="col">Game Server</th>
-                <th scope="col">PID</th>
-                <th scope="col">Last Update</th>
-                <th scope="col">Build</th>
-                <th scope="col">Branch</th>
-                <th scope="col">Status</th>
-                <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white" id="game-server-table-body">
-              <!-- This gets filled in via websocket/javascript -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Condensed version of the table shows for small screens -->
-    <div class="container-sm d-block d-sm-none">
-      <div class="row justify-content-between">
-        <div class="col">
-          <table class="table table-borderless table-hover align-items-center">
-            <thead>
-              <tr>
-                <th scope="col">Game Server</th>
-                <th scope="col">Status</th>
-                <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white" id="game-server-table-body-small-screen">
-              <!-- This gets filled in via websocket/javascript -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
   </section>
   <!--end of section-->
 
@@ -332,19 +363,19 @@
   var socket = io("/system/agent/info");
   var agent_info_base_url = "/app/system/agent/info"
 
-  function reloadAgentInfo(agent_id){
+  function reloadAgentInfo(agent_id) {
     document.location.href = agent_info_base_url + '/' + agent_id;
   }
 
-  document.addEventListener('keydown', function(event) {
+  document.addEventListener('keydown', function (event) {
     // Check if F5 key was pressed
     var agent_id = $('meta[name=agent-info-id]').attr('content');
 
     if (event.keyCode === 116) {
-        // Prevent the default behavior of the F5 key (page reload)
-        event.preventDefault();
+      // Prevent the default behavior of the F5 key (page reload)
+      event.preventDefault();
 
-        reloadAgentInfo(agent_id);
+      reloadAgentInfo(agent_id);
     }
   });
 
@@ -424,7 +455,6 @@
         let game_server_name = game['game_name'];
         let game_server_pretty_name = game['game_pretty_name'];
         let game_last_update = game['game_last_update']
-        let game_server_pid = game['game_pid'] == null ? "N/A" : game['game_pid'];
         let game_server_status_badge = game['game_status'] == "Not Running" ? "badge-danger" : "badge-success";
         let game_server_status = game['game_status'];
         let game_steam_build_id = game['game_steam_build_id']
@@ -433,8 +463,12 @@
         let drop_down_menu = ''
         let drop_down = ''
 
+        let year = new Date().getFullYear()  // returns the current year
+        let split_last_update = game_last_update.split(year);
+        game_last_update = split_last_update[0] + year;
+
         // Show the correct set of buttons.
-        if( game['game_status'] == "Running" ) {
+        if (game['game_status'] == "Running") {
           drop_down_menu = `
             <a class="dropdown-item stop-game-server" onclick="shutdownGameServer('${game_server_name}')">Stop Server</a>
             <a class="dropdown-item restart-game-server" onclick="restartGameServer('${game_server_name}')">Restart Server</a>
@@ -448,7 +482,7 @@
         }
 
         drop_down = `
-        <td>
+        <td style="text-align: center; vertical-align: middle;">
           <div class="dropdown">
             <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="icon-dots-three-horizontal"></i>
@@ -462,7 +496,6 @@
 
         new_row.innerHTML = `
           <td>${game_server_pretty_name}</td>
-          <td>${game_server_pid}</td>
           <td>${game_last_update}</td>
           <td>${game_steam_build_id} ${game_update_badge}</td>
           <td>${game_steam_build_branch}</td>
@@ -533,13 +566,13 @@
         else {
           setTimeout(() =>
             socket.emit("get_action_result", {
-                "agent_id": agent_id,
-                "action": action,
-                "game_name": game_name,
-                "attempt_number": attempt_number + 1
-              }
+              "agent_id": agent_id,
+              "action": action,
+              "game_name": game_name,
+              "attempt_number": attempt_number + 1
+            }
             ),
-          wait_time)
+            wait_time)
         }
 
       }
@@ -556,17 +589,17 @@
         else {
           setTimeout(() =>
             socket.emit("get_action_result", {
-                "agent_id": agent_id,
-                "action": action,
-                "game_name": game_name,
-                "attempt_number": attempt_number + 1
-              }
+              "agent_id": agent_id,
+              "action": action,
+              "game_name": game_name,
+              "attempt_number": attempt_number + 1
+            }
             ),
-          wait_time)
+            wait_time)
         }
       }
       else if (action == "update") {
-        if ( status == "complete"){
+        if (status == "complete") {
           console.log("Game server update has completed updating. Action is finished!")
           $("#gameServerActionInProgress").modal('hide');
           setTimeout(() =>
@@ -574,16 +607,16 @@
             500
           )
         }
-        else{
+        else {
           setTimeout(() =>
             socket.emit("get_action_result", {
-                "agent_id": agent_id,
-                "action": action,
-                "game_name": game_name,
-                "attempt_number": attempt_number + 1
-              }
+              "agent_id": agent_id,
+              "action": action,
+              "game_name": game_name,
+              "attempt_number": attempt_number + 1
+            }
             ),
-          wait_time)
+            wait_time)
         }
       }
     });
@@ -701,7 +734,7 @@
 
     var wait_time = 5000;  // 5 seconds
 
-    if (action == "restart"){
+    if (action == "restart") {
       console.log("Waiting a little long than usual because its a restart.")
       wait_time = 20000;
     }
