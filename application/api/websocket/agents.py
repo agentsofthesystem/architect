@@ -86,7 +86,7 @@ def get_agent_info(input_dict):
         verbose,
         token=agent_obj.access_token,
         certificate=agent_obj.ssl_public_cert,
-        timeout=5,
+        timeout=10,
     )
 
     client_response = client.architect.get_agent_info()

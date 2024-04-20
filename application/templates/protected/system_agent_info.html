@@ -1,5 +1,13 @@
 {% extends "layout/base.html" %}
 
+{% block head %}
+
+{{super()}}
+
+<link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+
+{% endblock %}
+
 {% block area %}
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="agent-info-id" content="{{ agent_info['agent']['agent_id'] }}">
@@ -39,6 +47,7 @@
 
 <div class="container">
 
+  <!--Agent Info Header-->
   <section class="bg-white space-sm">
     <div class="container">
       <div class="row justify-content-between">
@@ -96,18 +105,21 @@
 
     <div class="container">
 
+      <!--Agent Info - Membership -->
       <div class="row justify-content-between">
 
         <div class="container">
 
           <div class="card">
+
             <div class="card-header mb-1">
               <span class="h6">Agent Memberships</span>
             </div>
+
             <ul class="feature-list feature-list-sm row">
               {% set is_disabled = "disabled='true'" if current_user.user_id != agent_info['agent']['owner_id'] else "" %}
               <li class="col-sm">
-                <div class="card ml-1">
+                <div class="card border-light ml-1">
                   <div class="card-header d-flex justify-content-between">
                     <div>
                       <span class="h6">Group Members</span>
@@ -137,7 +149,7 @@
               <!--end of col-->
 
               <li class="col-sm">
-                <div class="card mr-1">
+                <div class="card border-light mr-1">
                   <div class="card-header d-flex justify-content-between">
                     <div>
                       <span class="h6">Friend Members</span>
@@ -267,7 +279,8 @@
               </li>
             </ul>
 
-          </div>
+            </div>
+
           </div>
 
         </div>
@@ -322,27 +335,80 @@
           <div class="card">
 
             <div class="card-header">
-              <span class="h6">Agent Monitor</span>
+              <button class="btn btn-success dropdown-toggle h6" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Agent Health
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item active">Agent Health</a>
+                <a class="dropdown-item">Dedicated Server Health</a>
+                <a class="dropdown-item">Dedicated Server Updates</a>
+              </div>
             </div>
+
+            <div class="card-body">
+
+              <div class="row" id="monitoring-agent-health">
+                  <div class="container">
+
+                      <div class="media align-items-center">
+                          <a class="mr-4"><img src="{{url_for('static', filename='assets/img/agent-black.svg')}}"class="rounded avatar avatar-lg"/></a>
+                          <div class="media-body">
+                              <div class="d-flex justify-content-between mb-2">
+                                  <div>
+                                      <a class="mb-1"><h4>Agent Health Monitor</h4></a>
+                                      <span>Checks if the agent on your server is running periodically.</span>
+                                  </div>
+                                  <div class="dropdown">
+                                      <button class="btn btn-lg btn-success dropdown-toggle dropdown-toggle-no-arrow" type="button" id="actionsButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled> <i class="icon-dots-three-horizontal"></i>
+                                      </button>
+                                      <div class="dropdown-menu dropdown-menu-lg" aria-labelledby="actionsButton">
+                                          <a class="dropdown-item">Settings</a>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div>
+                                <a class="badge badge-success badge-pill mb-2">Healthy</a>
+                              </div>
+                              <div class="d-flex justify-content-start mb-2">
+                                  <div class="text-small mr-2">
+                                      <a><h6>Last Check: TBD</h6></a>
+                                  </div>
+                                  <div class="text-small">
+                                      <a><h6>Next Check: TBD</h6></a>
+                                  </div>
+                              </div>
+                              <div class="d-flex justify-content-start">
+                                  <div class="form-check form-check-inline">
+                                      <label for="AGENT_HEALTH_ENABLE" class="form-check-label"><h6>Enable Monitor</h6></label>
+                                      <input id="AGENT_HEALTH_ENABLE" class="form-check-input" type="checkbox" checked data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="AGENT_HEALTH_ENABLE">
+                                  </div>
+                                  <div class="form-check form-check-inline">
+                                      <label for="AGENT_HEALTH_ALERT_ENABLE" class="form-check-label"><h6>Enable Alerts</h6></label>
+                                      <input id="AGENT_HEALTH_ALERT_ENABLE" class="form-check-input" type="checkbox" checked data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="AGENT_HEALTH_ENABLE">
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+
+                  </div>
+              </div>
+
+          </div>
 
           </div>
 
           <div class="card">
-
             <div class="card-header">
-              <span class="h6">Dedicated Server Health Monitor</span>
+              <span class="h6">Agent Activity</span>
             </div>
-
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <a class="mb-1"><h4>Logs</h4></a>
+                  <span>Coming Soon...</span>
+                </div>
+              </div>
           </div>
-
-          <div class="card">
-
-            <div class="card-header">
-              <span class="h6">Dedicated Server Updates Monitor</span>
-            </div>
-
-          </div>
-
 
         </div>
         <!--end of col-->
@@ -357,7 +423,11 @@
 {% endblock %}
 
 {% block scripts %}
+
 {{super()}}
+
+<script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+
 <script>
 
   var socket = io("/system/agent/info");
@@ -508,12 +578,6 @@
           <td><span class="badge ${game_server_status_badge}">${game_server_status}</span></td>
           ${drop_down}
         `
-
-        /*
-        TODO - Add ability to uninstall at a later day.
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item uninstall-game-server">Uninstall</a>
-        */
 
         game_server_table.appendChild(new_row)
         game_server_table_small_screen.appendChild(new_small_row)
