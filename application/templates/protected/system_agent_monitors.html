@@ -1,0 +1,88 @@
+<!-- Modal -->
+<div class="modal fade" id="monitorSettingsModal" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Additional Settings!</h5>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-start">
+          <div class="form-check form-check-inline">
+            <label for="AGENT_HEALTH_INTERVAL" class="form-check-label"><h6>Interval</h6></label>
+            <select id="AGENT_HEALTH_INTERVAL" class="form-control ml-2 monitor-control" data-name="AGENT_HEALTH_INTERVAL">
+              <option value="15">15 Minutes</option>
+              <option value="30">30 Minutes</option>
+              <option value="60">1 Hour</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Card -->
+<div class="card">
+
+  <div class="card-header">
+    <button class="btn btn-success dropdown-toggle h6" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Agent Health
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      <a class="dropdown-item active">Agent Health</a>
+      <a class="dropdown-item">Dedicated Server Health</a>
+      <a class="dropdown-item">Dedicated Server Updates</a>
+    </div>
+  </div>
+
+  <div class="card-body">
+
+    <div class="row" id="monitoring-agent-health">
+
+        <div class="container">
+
+            <div class="media align-items-center">
+                <div class="media-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <div>
+                            <a class="mb-1"><h4>Agent Health Monitor</h4></a>
+                            <span>Checks if the agent on your server is running periodically.</span>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-lg btn-success dropdown-toggle dropdown-toggle-no-arrow" type="button" id="actionsButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="icon-dots-three-horizontal"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-lg" aria-labelledby="actionsButton">
+                                <a class="dropdown-item monitor-control" id="AGENT_HEALTH_SETTINGS" data-name="AGENT_HEALTH_SETTINGS">Settings</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                      <span class="badge badge-secondary badge-pill mb-2 monitor-status" id="AGENT_HEALTH_STATUS">Unknown</span>
+                    </div>
+                    <div class="d-flex justify-content-start mb-2">
+                        <div class="text-small mr-2">
+                            <a><h6>Last Check: TBD</h6></a>
+                        </div>
+                        <div class="text-small">
+                            <a><h6>Next Check: TBD</h6></a>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-start">
+                        <div class="form-check form-check-inline">
+                            <label for="AGENT_HEALTH_ENABLE" class="form-check-label"><h6>Enable Monitor</h6></label>
+                            <input id="AGENT_HEALTH_ENABLE" class="form-check-input monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="AGENT_HEALTH_ENABLE">
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label for="AGENT_HEALTH_ALERT_ENABLE" class="form-check-label"><h6>Enable Alerts</h6></label>
+                            <input id="AGENT_HEALTH_ALERT_ENABLE" class="form-check-input  monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="AGENT_HEALTH_ALERT_ENABLE">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+  </div>
+
+</div>

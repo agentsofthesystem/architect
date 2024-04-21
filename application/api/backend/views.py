@@ -6,6 +6,8 @@ from application.api.controllers import agents
 from application.api.controllers import agent_control
 from application.api.controllers import friends
 from application.api.controllers import groups
+from application.api.controllers import monitors
+from application.api.controllers import monitor_attributes
 from application.api.controllers import properties
 from application.common import logger
 from application.common.decorators import verified_required
@@ -17,10 +19,60 @@ from application.models.friend_request import FriendRequests
 from application.models.group import Groups
 from application.models.group_invite import GroupInvites
 from application.models.group_member import GroupMembers
+from application.models.monitor import Monitor
+from application.models.monitor_attribute import MonitorAttribute
 from application.models.property import Property
 
 
 backend = Blueprint("backend", __name__, url_prefix="/app/backend")
+
+
+class MonitorAttributesBackendApi(MethodView):
+    def __init__(self, model):
+        self.model = model
+
+    @login_required
+    def post(self, agent_id, monitor_type):
+        payload = request.json
+        if monitor_attributes.attach_attribute_to_monitor(agent_id, monitor_type, payload):
+            return "", 204
+        else:
+            return "Error!", 500
+
+    @login_required
+    def patch(self, agent_id, monitor_type):
+        payload = request.json
+        if monitor_attributes.update_monitor_attribute(agent_id, monitor_type, payload):
+            return "", 204
+        else:
+            return "Error!", 500
+
+    @login_required
+    def delete(self, agent_id, monitor_type):
+        payload = request.json
+        if monitor_attributes.remove_attribute_from_monitor(agent_id, monitor_type, payload):
+            return "", 204
+        else:
+            return "Error!", 500
+
+
+class MonitorsBackendApi(MethodView):
+    def __init__(self, model):
+        self.model = model
+
+    @login_required
+    def post(self, agent_id, monitor_type):
+        if monitors.create_monitor(agent_id, monitor_type):
+            return "", 204
+        else:
+            return "Error!", 500
+
+    @login_required
+    def delete(self, agent_id, monitor_type):
+        if monitors.disable_monitor(agent_id, monitor_type):
+            return "", 204
+        else:
+            return "Error!", 500
 
 
 class PropertiesBackendApi(MethodView):
@@ -202,6 +254,18 @@ class AgentsBackendApi(MethodView):
         else:
             return "Error!", 500
 
+
+backend.add_url_rule(
+    "/monitor/<int:agent_id>/<string:monitor_type>",
+    view_func=MonitorsBackendApi.as_view("agent_monitor_api", Monitor),
+    methods=["DELETE", "POST"],
+)
+
+backend.add_url_rule(
+    "/monitor/attribute/<int:agent_id>/<string:monitor_type>",
+    view_func=MonitorAttributesBackendApi.as_view("agent_monitor_attribute_api", MonitorAttribute),
+    methods=["DELETE", "POST", "PATCH"],
+)
 
 backend.add_url_rule(
     "/property/<int:user_id>/<string:property_name>",
