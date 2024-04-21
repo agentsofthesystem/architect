@@ -12,6 +12,7 @@ gunicorn
 pycurl
 PyJWT
 pymysql
+pytz
 redis
 requests
 stripe

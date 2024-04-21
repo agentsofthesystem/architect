@@ -36,6 +36,14 @@ class PropertiesBackendApi(MethodView):
             return "Error!", 500
 
     @login_required
+    def patch(self, user_id, property_name):
+        payload = request.json
+        if properties.update_property(user_id, property_name, payload):
+            return "", 204
+        else:
+            return "Error!", 500
+
+    @login_required
     def delete(self, user_id, property_name):
         if properties.delete_property(user_id, property_name):
             return "", 204
@@ -198,7 +206,7 @@ class AgentsBackendApi(MethodView):
 backend.add_url_rule(
     "/property/<int:user_id>/<string:property_name>",
     view_func=PropertiesBackendApi.as_view("user_properties_api", Property),
-    methods=["DELETE", "POST"],
+    methods=["DELETE", "POST", "PATCH"],
 )
 
 backend.add_url_rule(
