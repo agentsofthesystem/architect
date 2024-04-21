@@ -32,9 +32,12 @@
         <div class="container">
           <div class="row">
             <div class="col">
+
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-header">
                         <h5 class="card-title">Notifications & Alerts</h5>
+                    </div>
+                    <div class="card-body">
                         <table class="table table-borderless">
                             <thead>
                                 <tr>
@@ -54,6 +57,11 @@
                                     <td><input class="message-toggle" type="checkbox" {{ 'checked' if 'NOTIFICATION_DM_SOCIAL_ENABLED' not in user_properties.keys() else '' }} data-onstyle="success" data-offstyle="success" data-toggle="toggle" data-size="lg" data-name="NOTIFICATION_DM_SOCIAL_ENABLED"></td>
                                     <td><input class="message-toggle" type="checkbox" {{ 'checked' if 'NOTIFICATION_EMAIL_SOCIAL_ENABLED' not in user_properties.keys() else '' }} data-onstyle="success" data-offstyle="success" data-toggle="toggle" data-size="lg" data-name="NOTIFICATION_EMAIL_SOCIAL_ENABLED"></td>
                                 </tr>
+                                <tr>
+                                    <td><a tabindex="1" class="btn btn-lg" role="button" data-toggle="popover" data-trigger="hover" title="Monitor Notifications" data-placement="left" data-content="Messages which come from agent monitor to all accessed members."><h5>Monitor Alerts</h5></a></td>
+                                    <td><input class="message-toggle" type="checkbox" {{ 'checked' if 'NOTIFICATION_DM_MONITOR_ENABLED' not in user_properties.keys() else '' }} data-onstyle="success" data-offstyle="success" data-toggle="toggle" data-size="lg" data-name="NOTIFICATION_DM_MONITOR_ENABLED"></td>
+                                    <td><input class="message-toggle" type="checkbox" {{ 'checked' if 'NOTIFICATION_EMAIL_MONITOR_ENABLED' not in user_properties.keys() else '' }} data-onstyle="success" data-offstyle="success" data-toggle="toggle" data-size="lg" data-name="NOTIFICATION_EMAIL_MONITOR_ENABLED"></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -63,6 +71,40 @@
                         </div>
                     </div>
                 </div>
+                <!-- end of card -->
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Time Preferences</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="justify-content-start">
+                            <div class="form-group">
+                                <label for="USER_TIMEZONE" class="col-form-label"><h6>Time Zone</h6></label>
+                                {% if 'USER_TIMEZONE' in user_properties.keys() %}
+                                    {% set user_timezone = user_properties['USER_TIMEZONE'] %}
+                                {% else %}
+                                    {% set user_timezone = '(UTC+0h) UTC' %}
+                                {% endif %}
+                                <select class="form-control" id="USER_TIMEZONE" data-user-timezone="{{user_timezone}}">
+                                    {% for tz in timezone_dict.keys() %}
+                                        {% set is_selected = 'selected' if timezone_dict[tz]['label'] == user_timezone else '' %}
+                                        <option data-time-zone-id="{{ timezone_dict[tz]['time_zone_id'] }}" data-gmt-adjustment="{{ timezone_dict[tz]['utcoffset'] }}" value="{{ timezone_dict[tz]['utcoffset'] }}" {{is_selected}}>{{ timezone_dict[tz]['label']}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label for="USER_MAINTAINANCE_HOUR_START" class="col-form-label"><h6>Maintenance Hour</h6></label>
+                                <select class="form-control" id="USER_MAINTAINANCE_HOUR_START">
+                                    {% for hour in hours_list %}
+                                        <option>{{hour}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end of card -->
             </div>
             <!--end of col-->
           </div>
@@ -123,6 +165,27 @@
         });
     }
 
+    function updateProperty(user_id, name, value) {
+
+        var json_data = `
+        {
+            "value": ${value}
+        }
+        `;
+
+        $.ajax({
+            url: "/app/backend/property/" + user_id + "/" + name,
+            type: 'PATCH',
+            dataType: 'json', // added data type
+            contentType: 'application/json',
+            data: JSON.stringify(json_data),
+            success: function(data) {
+                console.log("Successfully updated/created property");
+            }
+        });
+    }
+
+
     function deleteProperty(user_id, name) {
         $.ajax({
             url: "/app/backend/property/" + user_id + "/" + name,
@@ -165,6 +228,20 @@
         setButtonStateOff("NOTIFICATION_EMAIL_GLOBAL_ENABLED");
         setButtonStateOff("NOTIFICATION_DM_SOCIAL_ENABLED");
         setButtonStateOff("NOTIFICATION_EMAIL_SOCIAL_ENABLED");
+    });
+
+    $("#USER_TIMEZONE").change(function() {
+        var selected = $(this).find('option:selected');
+        var time_zone_id = selected.data('time-zone-id');
+        var gmt_adjustment = selected.data('gmt-adjustment');
+        var label = selected.text();
+        console.log('Time Zone ID: ' + time_zone_id);
+        console.log('Label: ' + label);
+        console.log('GMT Adjustment: ' + gmt_adjustment);
+
+        let label_string = `"${label}"`;
+
+        updateProperty({{ current_user.user_id }}, "USER_TIMEZONE", label_string);
     });
 
 </script>

@@ -27,6 +27,40 @@ class MessageCategories(Enum):
     NOT_SET = 3
 
 
+class MonitorTypes(Enum):
+    AGENT = 0
+    DEDICATED_SERVER = 1
+    UPDATES = 2
+    NOT_SET = 3
+
+
+# Conversion functions between strings and Enums can go in this file.
+
+
+# A function that takes a string and returns the corresponding Enum value for MonitorTypes
+def monitor_type_from_string(monitor_type: str) -> MonitorTypes:
+    if monitor_type == "AGENT":
+        return MonitorTypes.AGENT
+    elif monitor_type == "DEDICATED_SERVER":
+        return MonitorTypes.DEDICATED_SERVER
+    elif monitor_type == "UPDATES":
+        return MonitorTypes.UPDATES
+    else:
+        return MonitorTypes.NOT_SET
+
+
+# A function that takes a MonitorTypes Enum value and returns the corresponding string
+def monitor_type_to_string(monitor_type: MonitorTypes) -> str:
+    if monitor_type == MonitorTypes.AGENT:
+        return "AGENT"
+    elif monitor_type == MonitorTypes.DEDICATED_SERVER:
+        return "DEDICATED_SERVER"
+    elif monitor_type == MonitorTypes.UPDATES:
+        return "UPDATES"
+    else:
+        return "NOT_SET"
+
+
 # Pagination Defaults
 DEFAULT_PAGE = 1
 DEFAULT_PER_PAGE = 10
@@ -38,6 +72,15 @@ DEFAULT_EMAIL_DELAY_SECONDS = 10
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html
 CONTAINER_CREDENTIALS_API_IP = "169.254.170.2"
 AGENT_SMITH_DEFAULT_PORT = 3000
+
+# Defaults for Monitors
+SECONDS_PER_MINUTE = 60
+SECONDS_PER_HOUR = SECONDS_PER_MINUTE * 60
+HOURS_PER_DAY = 24
+SECONDS_PER_DAY = SECONDS_PER_HOUR * 24
+
+DEFAULT_MONITOR_TESTING_INTERVAL = 15  # seconds
+DEFAULT_MONITOR_INTERVAL = 60 * SECONDS_PER_MINUTE  # 1 Hours
 
 # Default System Settings
 SYSTEM_SETTINGS = {
@@ -162,6 +205,26 @@ SYSTEM_DEFAULT_PROPERTIES = [
         "property_default_value": "True",
         "property_description": "Determines if the user will receive email notifications for "
         "global notifications.",
+    },
+    {
+        "property_name": "NOTIFICATION_DM_MONITOR_ENABLED",
+        "property_type": "bool",
+        "property_default_value": "True",
+        "property_description": "Determines if the user will receive direct message for "
+        "agent monitor automation alerts.",
+    },
+    {
+        "property_name": "NOTIFICATION_EMAIL_MONITOR_ENABLED",
+        "property_type": "bool",
+        "property_default_value": "True",
+        "property_description": "Determines if the user will receive email notifications for "
+        "agent monitor automation alerts.",
+    },
+    {
+        "property_name": "USER_TIMEZONE",
+        "property_type": "string",
+        "property_default_value": "(UTC+0h) UTC",
+        "property_description": "This is the default timezone for the user.",
     },
 ]
 
