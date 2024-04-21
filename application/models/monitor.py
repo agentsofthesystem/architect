@@ -26,3 +26,4 @@ class Monitor(PaginatedApi, DATABASE.Model):
     )  # Seconds
 
     has_fault = DATABASE.Column(DATABASE.Boolean, nullable=False, default=False)
+    active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
