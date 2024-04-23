@@ -8,12 +8,16 @@
       <div class="modal-body">
         <div class="d-flex justify-content-start">
           <div class="form-check form-check-inline">
-            <label for="AGENT_HEALTH_INTERVAL" class="form-check-label"><h6>Interval</h6></label>
-            <select id="AGENT_HEALTH_INTERVAL" class="form-control ml-2 monitor-control" data-name="AGENT_HEALTH_INTERVAL">
+            <label for="interval-select" class="form-check-label"><h6>Interval</h6></label>
+            <select id="interval-select" class="form-control ml-2 monitor-control" data-name="TBD">
               <option value="15">15 Minutes</option>
               <option value="30">30 Minutes</option>
               <option value="60">1 Hour</option>
             </select>
+          </div>
+          <div class="form-check form-check-inline">
+            <label for="alert-enable-toggle" class="form-check-label"><h6>Enable Alerts</h6></label>
+            <input id="alert-enable-toggle" class="form-check-input  monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="TBD">
           </div>
         </div>
       </div>
@@ -25,13 +29,13 @@
 <div class="card">
 
   <div class="card-header">
-    <button class="btn btn-success dropdown-toggle h6" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <button class="btn btn-success dropdown-toggle h6" type="button" id="monitor-select" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       Agent Health
     </button>
-    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      <a class="dropdown-item active">Agent Health</a>
-      <a class="dropdown-item">Dedicated Server Health</a>
-      <a class="dropdown-item">Dedicated Server Updates</a>
+    <div class="dropdown-menu" aria-labelledby="monitor-select">
+      <a class="dropdown-item" onclick="updateMonitorSection('agent_health')">Agent Health</a>
+      <a class="dropdown-item disabled" onclick="updateMonitorSection('ds_health')">Dedicated Server Health</a>
+      <a class="dropdown-item disabled" onclick="updateMonitorSection('ds_updates')">Dedicated Server Updates</a>
     </div>
   </div>
 
@@ -49,10 +53,10 @@
                             <span>Checks if the agent on your server is running periodically.</span>
                         </div>
                         <div class="dropdown">
-                            <button class="btn btn-lg btn-success dropdown-toggle dropdown-toggle-no-arrow" type="button" id="actionsButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="icon-dots-three-horizontal"></i>
+                            <button class="btn btn-lg btn-success dropdown-toggle dropdown-toggle-no-arrow disabled" type="button" id="monitor-settings-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="icon-dots-three-horizontal"></i>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-lg" aria-labelledby="actionsButton">
-                                <a class="dropdown-item monitor-control" id="AGENT_HEALTH_SETTINGS" data-name="AGENT_HEALTH_SETTINGS">Settings</a>
+                            <div class="dropdown-menu dropdown-menu-lg" aria-labelledby="monitor-settings-1">
+                                <a class="dropdown-item monitor-control-settings" id="AGENT_HEALTH_SETTINGS" data-name="AGENT_HEALTH_SETTINGS">Settings</a>
                             </div>
                         </div>
                     </div>
@@ -72,17 +76,100 @@
                             <label for="AGENT_HEALTH_ENABLE" class="form-check-label"><h6>Enable Monitor</h6></label>
                             <input id="AGENT_HEALTH_ENABLE" class="form-check-input monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="AGENT_HEALTH_ENABLE">
                         </div>
-                        <div class="form-check form-check-inline">
-                            <label for="AGENT_HEALTH_ALERT_ENABLE" class="form-check-label"><h6>Enable Alerts</h6></label>
-                            <input id="AGENT_HEALTH_ALERT_ENABLE" class="form-check-input  monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="AGENT_HEALTH_ALERT_ENABLE">
-                        </div>
                     </div>
                 </div>
             </div>
 
         </div>
+
     </div>
 
-  </div>
+    <div class="row" id="monitoring-dedicated-servers">
+
+      <div class="container">
+
+        <div class="media align-items-center">
+            <div class="media-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <div>
+                        <a class="mb-1"><h4>Dedicated Server Monitor</h4></a>
+                        <span>Checks if the dedicated game servers are running as expected, periodically.</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-lg btn-success dropdown-toggle dropdown-toggle-no-arrow disabled" type="button" id="monitor-settings-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="icon-dots-three-horizontal" disabled></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-lg" aria-labelledby="monitor-settings-2">
+                            <a class="dropdown-item monitor-control-settings" id="DS_SETTINGS" data-name="DS_SETTINGS">Settings</a>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                  <span class="badge badge-secondary badge-pill mb-2 monitor-status" id="DS_HEALTH_STATUS">Unknown</span>
+                </div>
+                <div class="d-flex justify-content-start mb-2">
+                    <div class="text-small mr-2">
+                        <a><h6>Last Check: TBD</h6></a>
+                    </div>
+                    <div class="text-small">
+                        <a><h6>Next Check: TBD</h6></a>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-start">
+                    <div class="form-check form-check-inline">
+                        <label for="DS_HEALTH_ENABLE" class="form-check-label"><h6>Enable Monitor</h6></label>
+                        <input id="DS_HEALTH_ENABLE" class="form-check-input monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_HEALTH_ENABLE">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    </div>
+
+    <div class="row" id="monitoring-ds-updates">
+
+      <div class="container">
+
+        <div class="media align-items-center">
+            <div class="media-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <div>
+                        <a class="mb-1"><h4>Dedicated Server Updates Monitor</h4></a>
+                        <span>Checks periodically for active servers in need of updating.</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-lg btn-success dropdown-toggle dropdown-toggle-no-arrow disabled" type="button" id="monitor-settings-3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="icon-dots-three-horizontal" disabled></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-lg" aria-labelledby="monitor-settings-3">
+                            <a class="dropdown-item monitor-control-settings" id="DS_UPDATE_SETTINGS" data-name="DS_UPDATE_SETTINGS">Settings</a>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                  <span class="badge badge-secondary badge-pill mb-2 monitor-status" id="DS_UPDATE_STATUS">Unknown</span>
+                </div>
+                <div class="d-flex justify-content-start mb-2">
+                    <div class="text-small mr-2">
+                        <a><h6>Last Check: TBD</h6></a>
+                    </div>
+                    <div class="text-small">
+                        <a><h6>Next Check: TBD</h6></a>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-start">
+                    <div class="form-check form-check-inline">
+                        <label for="DS_UPDATE_ENABLE" class="form-check-label"><h6>Enable Monitor</h6></label>
+                        <input id="DS_UPDATE_ENABLE" class="form-check-input monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_UPDATE_ENABLE">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    </div>
 
 </div>
