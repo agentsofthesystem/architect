@@ -117,6 +117,10 @@ def update_system_settings():
         # TODO - Nested for loop.  Would be better to have O(n) instead we have O(n^2)
         value = _get_setting(setting, setting_objs)
 
+        if value is None:
+            logger.error(f"Setting {setting} not found in the database.")
+            continue
+
         output = ""
         if dtype == "str":
             output = str(value)

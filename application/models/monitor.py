@@ -1,6 +1,7 @@
 from application.common import constants
 from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
+from application.models.monitor_attribute import MonitorAttribute
 
 
 class Monitor(PaginatedApi, DATABASE.Model):
@@ -18,8 +19,8 @@ class Monitor(PaginatedApi, DATABASE.Model):
         default=constants.monitor_type_to_string(constants.MonitorTypes.NOT_SET),
     )
 
-    last_check = DATABASE.Column(DATABASE.DateTime, nullable=False)
-    next_check = DATABASE.Column(DATABASE.DateTime, nullable=False)
+    last_check = DATABASE.Column(DATABASE.DateTime, nullable=True)
+    next_check = DATABASE.Column(DATABASE.DateTime, nullable=True)
 
     interval = DATABASE.Column(
         DATABASE.Integer, nullable=False, default=constants.DEFAULT_EMAIL_DELAY_SECONDS
@@ -27,3 +28,23 @@ class Monitor(PaginatedApi, DATABASE.Model):
 
     has_fault = DATABASE.Column(DATABASE.Boolean, nullable=False, default=False)
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
+
+    @property
+    def attributes(self):
+        all_attrs = MonitorAttribute.query.filter_by(monitor_id=self.monitor_id).all()
+        output_dict = {}
+        for attr in all_attrs:
+            output_dict[attr.attribute_name] = attr.attribute_value
+        return output_dict
+
+    def to_dict(self):
+        return {
+            "monitor_id": self.monitor_id,
+            "agent_id": self.agent_id,
+            "monitor_type": self.monitor_type,
+            "last_check": self.last_check,
+            "next_check": self.next_check,
+            "interval": self.interval,
+            "has_fault": self.has_fault,
+            "active": self.active,
+        }

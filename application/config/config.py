@@ -43,6 +43,9 @@ class DefaultConfig:
     # Log/Verbosity Settings
     OPERATOR_CLIENT_VERBOSE = False
 
+    # Monitor Settings
+    MONITOR_TEST_MODE = False
+
     ######################################################################
     # Non - Re-Configurable Settings
     ######################################################################

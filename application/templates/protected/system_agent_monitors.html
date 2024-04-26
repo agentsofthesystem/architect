@@ -1,23 +1,77 @@
 <!-- Modal -->
-<div class="modal fade" id="monitorSettingsModal" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
+<div class="modal fade" id="monitorSettingsModal-1" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Additional Settings!</h5>
+        <h5 class="modal-title">Agent Health Monitor - Settings</h5>
       </div>
       <div class="modal-body">
         <div class="d-flex justify-content-start">
           <div class="form-check form-check-inline">
-            <label for="interval-select" class="form-check-label"><h6>Interval</h6></label>
-            <select id="interval-select" class="form-control ml-2 monitor-control" data-name="TBD">
+            <label for="interval-select-1" class="form-check-label"><h6>Polling Interval</h6></label>
+            <select id="interval-select-1" class="form-control ml-2 monitor-control" data-name="AGENT_HEALTH_INTERVAL">
+              <option value="900">15 Minutes</option>
+              <option value="1800">30 Minutes</option>
+              <option value="3600">1 Hour</option>
+            </select>
+          </div>
+          <div class="form-check form-check-inline">
+            <label for="alert-enable-toggle-1" class="form-check-label"><h6>Enable Alerts</h6></label>
+            <input id="alert-enable-toggle-1" class="form-check-input  monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="AGENT_HEALTH_ALERT_ENABLE">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="monitorSettingsModal-2" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Dedicated Server Health Monitor - Settings</h5>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-start">
+          <div class="form-check form-check-inline">
+            <label for="interval-select-2" class="form-check-label"><h6>Polling Interval</h6></label>
+            <select id="interval-select-2" class="form-control ml-2 monitor-control" data-name="DS_HEALTH_INTERVAL">
               <option value="15">15 Minutes</option>
               <option value="30">30 Minutes</option>
               <option value="60">1 Hour</option>
             </select>
           </div>
           <div class="form-check form-check-inline">
-            <label for="alert-enable-toggle" class="form-check-label"><h6>Enable Alerts</h6></label>
-            <input id="alert-enable-toggle" class="form-check-input  monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="TBD">
+            <label for="alert-enable-toggle-2" class="form-check-label"><h6>Enable Alerts</h6></label>
+            <input id="alert-enable-toggle-2" class="form-check-input  monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_HEALTH_ALERT_ENABLE">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="monitorSettingsModal-3" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Dedicated Server Updates Monitor - Settings</h5>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-start">
+          <div class="form-check form-check-inline">
+            <label for="interval-select-3" class="form-check-label"><h6>Polling Interval</h6></label>
+            <select id="interval-select-3" class="form-control ml-2 monitor-control" data-name="DS_UPDATES_CHECK_INTERVAL">
+              <option value="15">15 Minutes</option>
+              <option value="30">30 Minutes</option>
+              <option value="60">1 Hour</option>
+            </select>
+          </div>
+          <div class="form-check form-check-inline">
+            <label for="alert-enable-toggle-3" class="form-check-label"><h6>Enable Alerts</h6></label>
+            <input id="alert-enable-toggle-3" class="form-check-input  monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_UPDATES_ALERT_ENABLE">
           </div>
         </div>
       </div>
@@ -26,7 +80,7 @@
 </div>
 
 <!-- Card -->
-<div class="card">
+<div class="card mb-2" id="all_agent_monitor_section">
 
   <div class="card-header">
     <button class="btn btn-success dropdown-toggle h6" type="button" id="monitor-select" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -34,8 +88,8 @@
     </button>
     <div class="dropdown-menu" aria-labelledby="monitor-select">
       <a class="dropdown-item" onclick="updateMonitorSection('agent_health')">Agent Health</a>
-      <a class="dropdown-item disabled" onclick="updateMonitorSection('ds_health')">Dedicated Server Health</a>
-      <a class="dropdown-item disabled" onclick="updateMonitorSection('ds_updates')">Dedicated Server Updates</a>
+      <a class="dropdown-item" onclick="updateMonitorSection('ds_health')">Dedicated Server Health</a>
+      <a class="dropdown-item" onclick="updateMonitorSection('ds_updates')">Dedicated Server Updates</a>
     </div>
   </div>
 
@@ -65,10 +119,10 @@
                     </div>
                     <div class="d-flex justify-content-start mb-2">
                         <div class="text-small mr-2">
-                            <a><h6>Last Check: TBD</h6></a>
+                            <a><h6 id="AGENT_HEALTH_LAST_CHECK">Last Check: TBD</h6></a>
                         </div>
                         <div class="text-small">
-                            <a><h6>Next Check: TBD</h6></a>
+                            <a><h6 id="AGENT_HEALTH_NEXT_CHECK">Next Check: TBD</h6></a>
                         </div>
                     </div>
                     <div class="d-flex justify-content-start">
@@ -171,5 +225,7 @@
     </div>
 
     </div>
+
+  </div>
 
 </div>

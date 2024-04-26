@@ -10,3 +10,9 @@ class MonitorFault(PaginatedApi, DATABASE.Model):
     monitor_id = DATABASE.Column(
         DATABASE.Integer, DATABASE.ForeignKey("monitors.monitor_id"), nullable=False
     )
+
+    fault_time = DATABASE.Column(DATABASE.DateTime, nullable=False)
+
+    fault_description = DATABASE.Column(DATABASE.String(256), nullable=False)
+
+    active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)

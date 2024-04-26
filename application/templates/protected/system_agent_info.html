@@ -62,7 +62,7 @@
 <div class="container">
 
   <!--Agent Info Header-->
-  <section class="bg-white space-sm">
+  <section class="bg-white">
     <div class="container">
       <div class="row justify-content-between">
         <div class="col">
@@ -102,6 +102,7 @@
             </button>
             <div class="dropdown-menu dropdown-menu-right dropdown-menu-sm">
               <a class="dropdown-item" href="#commingSoonModal">Start/Stop All Servers</a>
+              <a class="dropdown-item" onclick="showAgentMembership()">Agent Membership</a>
             </div>
           </div>
         </div>
@@ -113,87 +114,11 @@
   </section>
   <!--end of section-->
 
-  <section class="bg-white space-sm">
+  <section class="bg-white">
 
     <div class="container">
 
-      <!--Agent Info - Membership -->
-      <div class="row justify-content-between">
-
-        <div class="container">
-
-          <div class="card">
-
-            <div class="card-header mb-1">
-              <span class="h6">Agent Memberships</span>
-            </div>
-
-            <ul class="feature-list feature-list-sm row">
-              {% set is_disabled = "disabled='true'" if current_user.user_id != agent_info['agent']['owner_id'] else "" %}
-              <li class="col-sm">
-                <div class="card border-light ml-1">
-                  <div class="card-header d-flex justify-content-between">
-                    <div>
-                      <span class="h6">Group Members</span>
-                      <span class="badge badge-secondary">{{agent_info['num_groups']}}</span>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <ul class="list-unstyled list-spacing-sm">
-                      {% for group in agent_info['groups'] %}
-                      <li>
-                        <div class="input-group">
-                          <input class="form-control form-control-lg" type="text"
-                            value="{{group['name']}} (Owner: {{group['owner']['username']}})" disabled="true">
-                          <div class="input-group-append">
-                            <button class="btn btn-outline-secondary remove-group-from-agent" type="button"
-                              id="{{group['agent_group_member_id']}}" {{is_disabled}}><i
-                                class="icon-circle-with-cross"></i></button>
-                          </div>
-                        </div>
-                      </li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                </div>
-                <!--end of card-->
-              </li>
-              <!--end of col-->
-
-              <li class="col-sm">
-                <div class="card border-light mr-1">
-                  <div class="card-header d-flex justify-content-between">
-                    <div>
-                      <span class="h6">Friend Members</span>
-                      <span class="badge badge-secondary">{{agent_info['num_friends']}}</span>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <ul class="list-unstyled list-spacing-sm">
-                      {% for friend in agent_info['friends'] %}
-                      <li>
-                        <div class="input-group">
-                          <input class="form-control form-control-lg" type="text" value="{{friend['username']}}"
-                            disabled="true">
-                          <div class="input-group-append">
-                            <button class="btn btn-outline-secondary remove-friend-from-agent" type="button"
-                              id="{{friend['agent_friend_member_id']}}" {{is_disabled}}><i
-                                class="icon-remove-user"></i></button>
-                          </div>
-                        </div>
-                      </li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                </div>
-                <!--end of card-->
-              </li>
-              <!--end of col-->
-
-            </ul>
-          </div>
-        </div>
-      </div>
+      {% include 'protected/system_agent_membership.html' %}
 
       <div class="row justify-content-between">
 
@@ -204,9 +129,9 @@
 
         <div class="col-14 col-md-8">
 
-          {% include 'protected/system_agent_server_table.html' %}
-
           {% include 'protected/system_agent_monitors.html' %}
+
+          {% include 'protected/system_agent_server_table.html' %}
 
           <div class="card">
             <div class="card-header">

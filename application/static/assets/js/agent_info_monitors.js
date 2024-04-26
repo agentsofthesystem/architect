@@ -1,3 +1,5 @@
+var agent_monitor_socket = io("/system/agent/monitor");
+
 $(document).ready(function () {
 
     var csrftoken = $('meta[name=csrf-token]').attr('content');
@@ -6,14 +8,118 @@ $(document).ready(function () {
     var agent_health_monitor_section = $("#monitoring-agent-health")[0];
     var dedicated_server_monitor_section = $("#monitoring-dedicated-servers")[0];
     var update_monitoring_section = $("#monitoring-ds-updates")[0];
+    var all_agent_monitor_section = $("#all_agent_monitor_section")[0];
 
     $(dedicated_server_monitor_section).hide();
     $(update_monitoring_section).hide();
+    $(all_agent_monitor_section).hide();
+
+    agent_monitor_socket.on('connect', function () {
+        // For now assume the monitor to check is always the Agent Health Monitor
+        setTimeout(() =>
+            agent_monitor_socket.emit(
+                'get_monitor_status', { "agent_id": agent_id , 'monitor_type': 'AGENT' }
+            ),
+            100
+        )
+    });
+
+    agent_monitor_socket.on("respond_monitor_status", function (data) {
+
+        var status = data['status'];
+
+        if(status == "Error"){
+            console.log("Error: Unable to get monitor status.");
+            return;
+        }
+
+        var monitor = data['monitor'];
+        var attributes = data['attributes'];
+
+        updateMonitorUserInterface(monitor, attributes);
+
+        $(all_agent_monitor_section).show();
+    });
 
 });
 
+function updateMonitorUserInterface(monitor_data, attributes_data){
+
+    var status_badge = null;
+    var active = monitor_data['active'];
+    var has_fault = monitor_data['has_fault'];
+    var monitor_type = monitor_data['monitor_type'];
+    var next_check = monitor_data['next_check'];
+    var last_check = monitor_data['last_check'];
+
+    console.log("Monitor Type: " + monitor_type);
+
+    switch(monitor_type){
+        case "AGENT":
+            if(active){
+                $("#AGENT_HEALTH_ENABLE").bootstrapToggle('on')
+            }
+            if('interval' in attributes_data){
+                $("#interval-select-1").val(attributes_data['interval']);
+            }
+            if('alert_enable' in attributes_data){
+                if(attributes_data['alert_enable']){
+                    $("#alert-enable-toggle-1").bootstrapToggle('on')
+                }
+            }
+            status_badge = $("#AGENT_HEALTH_STATUS")[0];
+            $("#AGENT_HEALTH_NEXT_CHECK")[0].innerHTML = "Last Check: " + next_check;
+            $("#AGENT_HEALTH_LAST_CHECK")[0].innerHTML = "Next Check: " + last_check;
+            break;
+        case "DEDICATED_SERVER":
+            if(active){
+                $("#DS_HEALTH_ENABLE").bootstrapToggle('on')
+            }
+            if('interval' in attributes_data){
+                $("#interval-select-2").val(attributes_data['interval']);
+            }
+            if('alert_enable' in attributes_data){
+                if(attributes_data['alert_enable']){
+                    $("#alert-enable-toggle-2").bootstrapToggle('on')
+                }
+            }
+            status_badge = $("#DS_HEALTH_STATUS")[0];
+            break;
+        case "UPDATES":
+            if(active){
+                $("#DS_UPDATE_ENABLE").bootstrapToggle('on')
+            }
+            if('interval' in attributes_data){
+                $("#interval-select-3").val(attributes_data['interval']);
+            }
+            if('alert_enable' in attributes_data){
+                if(attributes_data['alert_enable']){
+                    $("#alert-enable-toggle-3").bootstrapToggle('on')
+                }
+            }
+            status_badge = $("#DS_UPDATE_STATUS")[0];
+            break;
+        default:
+            console.log("Error: Monitor Type not found. Unable to update monitor user interface.")
+            break;
+    }
+
+    if(has_fault){
+        status_badge.classList.remove('badge-success');
+        status_badge.classList.add('badge-danger');
+        status_badge.innerHTML = "Fault";
+    }
+    else{
+        status_badge.classList.remove('badge-danger');
+        status_badge.classList.add('badge-success');
+        status_badge.innerHTML = "Healthy";
+    }
+
+}
+
 function updateMonitorSection(current_monitor){
 
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
     var agent_health_monitor_section = $("#monitoring-agent-health")[0];
     var dedicated_server_monitor_section = $("#monitoring-dedicated-servers")[0];
     var update_monitoring_section = $("#monitoring-ds-updates")[0];
@@ -24,14 +130,23 @@ function updateMonitorSection(current_monitor){
     $(update_monitoring_section).hide();
 
     if(current_monitor == "agent_health"){
+        agent_monitor_socket.emit(
+            'get_monitor_status', { "agent_id": agent_id , 'monitor_type': 'AGENT' }
+        )
         $(agent_health_monitor_section).show();
         current_monitor_btn.innerHTML = "Agent Health";
     }
     else if(current_monitor == "ds_health"){
+        agent_monitor_socket.emit(
+            'get_monitor_status', { "agent_id": agent_id , 'monitor_type': 'DEDICATED_SERVER' }
+        )
         $(dedicated_server_monitor_section).show();
         current_monitor_btn.innerHTML = "Dedicated Server Health";
     }
     else if(current_monitor == "ds_updates"){
+        agent_monitor_socket.emit(
+            'get_monitor_status', { "agent_id": agent_id , 'monitor_type': 'UPDATES' }
+        )
         $(update_monitoring_section).show();
         current_monitor_btn.innerHTML = "Dedicated Server Updates";
     }
@@ -49,13 +164,6 @@ function setSettingsButtonEnable(button_id, enable){
     else{
         button.classList.add('disabled')
     }
-}
-
-function updateModalElementData(modal_item_id, attribute_name, new_data_name){
-    var item_tag = '#' + modal_item_id;
-    var modal_item = $(item_tag)[0];
-    var dat_attribute_name = "data-" + attribute_name;
-    modal_item.setAttribute(dat_attribute_name, new_data_name);
 }
 
 function enableMonitor(agent_id, monitor_type){
@@ -184,8 +292,6 @@ $(".monitor-control").change(function() {
 
     console.log("Monitor Control ID: " + control_id);
 
-    // AGENT_HEALTH_ENABLE
-    // AGENT_HEALTH_ALERT_ENABLE
     switch(control_id){
 
         /** This is for AGENT HEALTH MONITORING */
@@ -202,7 +308,7 @@ $(".monitor-control").change(function() {
             break;
         case "AGENT_HEALTH_INTERVAL":
             // Coming from a dropdown
-            var value = $('#interval-select')[0].value;
+            var value = $('#interval-select-1')[0].value;
             handleIntervalSelect(agent_id, "AGENT", "interval", value);
             break;
 
@@ -220,7 +326,7 @@ $(".monitor-control").change(function() {
             break;
         case "DS_HEALTH_INTERVAL":
             // Coming from a dropdown
-            var value = $('#interval-select')[0].value;
+            var value = $('#interval-select-2')[0].value;
             handleIntervalSelect(agent_id, "DEDICATED_SERVER", "interval", value);
             break;
 
@@ -231,14 +337,14 @@ $(".monitor-control").change(function() {
             setMonitorEnable(agent_id, "UPDATES", value);
             setSettingsButtonEnable("#monitor-settings-3", value);
             break;
-        case "DS_HEALTH_ALERT_ENABLE":
+        case "DS_UPDATES_ALERT_ENABLE":
             // Coming from a toggle
             var value = $(this).prop('checked');
             handleAlertToggle(agent_id, "UPDATES", value, "alert_enable", value);
             break;
         case "DS_UPDATES_CHECK_INTERVAL":
             // Coming from a dropdown
-            var value = $('#interval-select')[0].value;
+            var value = $('#interval-select-3')[0].value;
             handleIntervalSelect(agent_id, "UPDATES", "interval", value);
             break;
 
@@ -250,28 +356,24 @@ $(".monitor-control").change(function() {
 
 $(".monitor-control-settings").click(function() {
 
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
     var control_id = $(this).data("name");
 
     switch(control_id){
         case "AGENT_HEALTH_SETTINGS":
             console.log("Agent Health Setting Modal Clicked");
-            updateModalElementData("interval-select", "name", "AGENT_HEALTH_INTERVAL");
-            updateModalElementData("alert-enable-toggle", "name", "AGENT_HEALTH_ALERT_ENABLE");
+            $("#monitorSettingsModal-1").modal('show');
             break;
         case "DS_SETTINGS":
-            console.log("Agent Health Setting Modal Clicked");
-            updateModalElementData("interval-select", "name", "DS_HEALTH_INTERVAL");
-            updateModalElementData("alert-enable-toggle", "name", "DS_HEALTH_ALERT_ENABLE");
+            console.log("Dedicated Sever Health Setting Modal Clicked");
+            $("#monitorSettingsModal-2").modal('show');
             break;
         case "DS_UPDATE_SETTINGS":
-            console.log("Agent Health Setting Modal Clicked");
-            updateModalElementData("interval-select", "name", "DS_UPDATES_CHECK_INTERVAL");
-            updateModalElementData("alert-enable-toggle", "name", "DS_UPDATES_ALERT_ENABLE");
+            console.log("Dedicated Server Updates Check Setting Modal Clicked");
+            $("#monitorSettingsModal-3").modal('show');
             break;
         default:
             console.log("Error: Monitor Control ID not found. Unable to handle callback.")
             break;
     }
-    $("#monitorSettingsModal").modal('show');
 });
-

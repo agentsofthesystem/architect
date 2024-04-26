@@ -220,6 +220,7 @@ def create_app(config=None, init_db=True, init_celery=True):
     # Import socket endpoints
     # Intentionally imported here after socketio initializes.
     from application.api.websocket import agents  # noqa: F401
+    from application.api.websocket import monitors  # noqa: F401
 
     logger.info(f"{flask_app.name} has successfully initialized.")
 

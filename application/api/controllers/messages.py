@@ -53,13 +53,19 @@ def _is_user_category_disabled(user_id: int, category: MessageCategories, is_ema
     elif category == MessageCategories.SOCIAL and is_email:
         if "NOTIFICATION_EMAIL_SOCIAL_ENABLED" in user.properties:
             is_disabled = True
+    elif category == MessageCategories.MONITOR and not is_email:
+        if "NOTIFICATION_DM_MONITOR_ENABLED" in user.properties:
+            is_disabled = True
+    elif category == MessageCategories.MONITOR and is_email:
+        if "NOTIFICATION_EMAIL_MONITOR_ENABLED" in user.properties:
+            is_disabled = True
 
     return is_disabled
 
 
 def create_global_message(message, subject) -> None:
     # Enter the message into the database.
-    _create_message(1, None, message, subject, is_global=True)
+    _create_message(-1, None, message, subject, is_global=True)
 
     if not current_app.config["APP_ENABLE_EMAIL"]:
         logger.warning("Email is disabled. Not sending global email")
@@ -120,7 +126,7 @@ def create_direct_message(
             logger.error("ERROR: Unable to communicate with Celery Backend.")
             logger.error(error)
 
-    elif category == MessageCategories.SOCIAL:
+    elif category == MessageCategories.SOCIAL or category == MessageCategories.MONITOR:
         if not _is_user_category_disabled(recipient_id, category):
             _create_message(sender_id, recipient_id, message, subject, is_global=False)
 
@@ -142,6 +148,16 @@ def create_direct_message(
             except OperationalError as error:
                 logger.error("ERROR: Unable to communicate with Celery Backend.")
                 logger.error(error)
+
+
+def message_user_list(
+    user_list: list, message: str, subject: str, category: MessageCategories
+) -> None:
+    for user_id in user_list:
+        if MessageCategories.MONITOR == category:
+            create_direct_message(-2, user_id, message, subject, category)
+        else:
+            logger.critical("Invalid category for message_user_list")
 
 
 def get_direct_messages():

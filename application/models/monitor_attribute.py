@@ -13,3 +13,11 @@ class MonitorAttribute(PaginatedApi, DATABASE.Model):
 
     attribute_name = DATABASE.Column(DATABASE.String(256), nullable=False)
     attribute_value = DATABASE.Column(DATABASE.String(256), nullable=False)
+
+    def to_dict(self):
+        return {
+            "monitor_attribute_id": self.monitor_attribute_id,
+            "monitor_id": self.monitor_id,
+            "attribute_name": self.attribute_name,
+            "attribute_value": self.attribute_value,
+        }
