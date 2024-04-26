@@ -23,7 +23,7 @@ class GroupInviteStates(Enum):
 class MessageCategories(Enum):
     ADMIN = 0
     SOCIAL = 1
-    AUTOMATION = 2
+    MONITOR = 2
     NOT_SET = 3
 
 
@@ -39,6 +39,7 @@ class MonitorTypes(Enum):
 
 # A function that takes a string and returns the corresponding Enum value for MonitorTypes
 def monitor_type_from_string(monitor_type: str) -> MonitorTypes:
+    monitor_type = monitor_type.upper()
     if monitor_type == "AGENT":
         return MonitorTypes.AGENT
     elif monitor_type == "DEDICATED_SERVER":
@@ -74,12 +75,13 @@ CONTAINER_CREDENTIALS_API_IP = "169.254.170.2"
 AGENT_SMITH_DEFAULT_PORT = 3000
 
 # Defaults for Monitors
+AGENT_SMITH_TIMEOUT = 10  # seconds
 SECONDS_PER_MINUTE = 60
 SECONDS_PER_HOUR = SECONDS_PER_MINUTE * 60
 HOURS_PER_DAY = 24
 SECONDS_PER_DAY = SECONDS_PER_HOUR * 24
 
-DEFAULT_MONITOR_TESTING_INTERVAL = 15  # seconds
+DEFAULT_MONITOR_TESTING_INTERVAL = 10  # seconds
 DEFAULT_MONITOR_INTERVAL = 60 * SECONDS_PER_MINUTE  # 1 Hours
 
 # Default System Settings
@@ -165,6 +167,13 @@ SYSTEM_SETTINGS = {
         "pretty": "Application Enable Beta Mode",
         "description": "Only allow users in beta table to signup.",
         "category": "system",
+        "type": "bool",
+    },
+    # Monitors
+    "MONITOR_TEST_MODE": {
+        "pretty": "Test Mode for Monitors",
+        "description": "Allows short intervals for testing monitors.",
+        "category": "monitor",
         "type": "bool",
     },
     # This one is special so the factory.py only runs the init code once.

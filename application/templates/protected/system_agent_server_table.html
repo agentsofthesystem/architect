@@ -3,23 +3,25 @@
     <!-- Normal version of the table shows for larger/regular sized screens -->
     <div class="card d-none d-sm-block">
         <div class="card-header">
-            <span class="h6">Dedicated Servers</span>
+            <span class="h6">Installed Dedicated Servers</span>
         </div>
-        <table class="table table-bordered table-hover align-items-center">
-            <thead>
-                <tr>
-                    <th scope="col">Game Server</th>
-                    <th scope="col">Last Update</th>
-                    <th scope="col">Build</th>
-                    <th scope="col">Branch</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white" id="game-server-table-body">
-                <!-- This gets filled in via websocket/javascript -->
-            </tbody>
-        </table>
+        <div class="card-body">
+            <table class="table table-bordered table-hover align-items-center">
+                <thead>
+                    <tr>
+                        <th scope="col">Game Server</th>
+                        <th scope="col">Last Update</th>
+                        <th scope="col">Build</th>
+                        <th scope="col">Branch</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white" id="game-server-table-body">
+                    <!-- This gets filled in via websocket/javascript -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Condensed version of the table shows for small screens -->
@@ -27,17 +29,20 @@
         <div class="card-header">
             <span class="h6">Dedicated Servers</span>
         </div>
-        <table class="table table-bordered table-hover align-items-center">
-            <thead>
-                <tr>
-                    <th scope="col">Game Server</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white" id="game-server-table-body-small-screen">
-                <!-- This gets filled in via websocket/javascript -->
-            </tbody>
-        </table>
+        <div class="card-body">
+            <table class="table table-bordered table-hover align-items-center">
+                <thead>
+                    <tr>
+                        <th scope="col">Game Server</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white" id="game-server-table-body-small-screen">
+                    <!-- This gets filled in via websocket/javascript -->
+                </tbody>
+            </table>
+        </div>
     </div>
+
 </div>
