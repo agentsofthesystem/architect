@@ -68,8 +68,11 @@ def run_agent_health_monitor(self, monitor_id: int):
     if health_status in invalid_status:
         logger.error(f"Agent ID {agent_obj.agent_id} - Detected Invalid Status: {health_status}")
 
+        if health_status is None:
+            health_status = "Unreachable Agent."
+
         monitor_utils.create_monitor_fault(
-            agent_obj.agent_id, monitor_obj.monitor_id, f"Health Check Failed: {health_status}"
+            monitor_obj.monitor_id, f"Health Check Failed: {health_status}"
         )
 
         # Set the fault flag

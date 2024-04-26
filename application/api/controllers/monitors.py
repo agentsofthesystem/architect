@@ -14,6 +14,12 @@ def create_monitor(agent_id, monitor_type):
 
     if monitor_obj is not None:
         logger.debug(f"Monitor already exists for agent {agent_id} with type {monitor_type}")
+
+        # If the monitor has a fault, cannot set it to active..
+        if monitor_obj.has_fault:
+            logger.error(f"Monitor for agent {agent_id} with type {monitor_type} has a fault.")
+            return False
+
         # Update the monitor record to be active
         update_dict = {"active": True}
         monitor_qry.update(update_dict)

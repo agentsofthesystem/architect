@@ -2,6 +2,7 @@ from application.common import constants
 from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
 from application.models.monitor_attribute import MonitorAttribute
+from application.models.monitor_fault import MonitorFault
 
 
 class Monitor(PaginatedApi, DATABASE.Model):
@@ -28,6 +29,22 @@ class Monitor(PaginatedApi, DATABASE.Model):
 
     has_fault = DATABASE.Column(DATABASE.Boolean, nullable=False, default=False)
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
+
+    @property
+    def faults(self):
+        all_faults = MonitorFault.query.filter_by(monitor_id=self.monitor_id, active=True).all()
+        fault_list = []
+        count = 1
+        for fault in all_faults:
+            fault_dict = fault.to_dict()
+            fault_time = fault_dict["fault_time"]
+            if fault_time is not None:
+                fault_dict["fault_time"] = fault_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            fault_dict["name"] = f"Fault #{count}"
+            fault_list.append(fault_dict)
+            count += 1
+        return fault_list
 
     @property
     def attributes(self):

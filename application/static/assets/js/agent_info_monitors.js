@@ -35,15 +35,16 @@ $(document).ready(function () {
 
         var monitor = data['monitor'];
         var attributes = data['attributes'];
+        var faults = data['faults'];
 
-        updateMonitorUserInterface(monitor, attributes);
+        updateMonitorUserInterface(monitor, attributes, faults);
 
         $(all_agent_monitor_section).show();
     });
 
 });
 
-function updateMonitorUserInterface(monitor_data, attributes_data){
+function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
 
     var status_badge = null;
     var active = monitor_data['active'];
@@ -68,8 +69,9 @@ function updateMonitorUserInterface(monitor_data, attributes_data){
                 }
             }
             status_badge = $("#AGENT_HEALTH_STATUS")[0];
-            $("#AGENT_HEALTH_NEXT_CHECK")[0].innerHTML = "Last Check: " + next_check;
-            $("#AGENT_HEALTH_LAST_CHECK")[0].innerHTML = "Next Check: " + last_check;
+            $("#AGENT_HEALTH_NEXT_CHECK")[0].innerHTML = "Next Check: " + next_check;
+            $("#AGENT_HEALTH_LAST_CHECK")[0].innerHTML = "Last Check: " + last_check;
+            updateFaultsSection("#monitor-faults-1", "#monitor-fault-list-1", faults_data, "AGENT")
             break;
         case "DEDICATED_SERVER":
             if(active){
@@ -107,7 +109,7 @@ function updateMonitorUserInterface(monitor_data, attributes_data){
     if(has_fault){
         status_badge.classList.remove('badge-success');
         status_badge.classList.add('badge-danger');
-        status_badge.innerHTML = "Fault";
+        status_badge.innerHTML = "Fault(s) Detected";
     }
     else{
         status_badge.classList.remove('badge-danger');
@@ -115,6 +117,38 @@ function updateMonitorUserInterface(monitor_data, attributes_data){
         status_badge.innerHTML = "Healthy";
     }
 
+}
+
+function updateFaultsSection(fault_section_id, fault_list_id, faults_data, monitor_type){
+
+    let list_item = ''
+    var has_fault = false;
+    var all_list_items = '';
+    var count = 1;
+
+    Object.entries(faults_data).forEach(([key, value]) => {
+        fault_id = value['monitor_fault_id']
+        fault_description = value['fault_description']
+        list_item = `
+            <li class="list-group-item" id="fault_${count}">
+                <div class="d-flex justify-content-between">
+                    <a class="mr-2">${key}</a>
+                    <span class="mr-2">${fault_description}</span>
+                    <button type="button" class="close" aria-label="Close" onclick="setFaultAcknowledge('fault_${count}', '${monitor_type}','${fault_id}')">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </li>
+        `
+        count += 1;
+        all_list_items += list_item;
+        has_fault = true;
+     });
+
+     if(has_fault){
+        $(fault_section_id).show();
+        $(fault_list_id).html(all_list_items);
+     }
 }
 
 function updateMonitorSection(current_monitor){
@@ -155,6 +189,58 @@ function updateMonitorSection(current_monitor){
     }
 }
 
+function setFaultAcknowledge(list_item_id, monitor_type, fault_id){
+
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    console.log("Fault ID: " + fault_id + " Marking as Acknowledged...");
+
+    // Deactivate the current fault
+    $.ajax({
+        url: "/app/backend/monitor/fault/" + agent_id + "/" + monitor_type + "/" + fault_id,
+        type: 'DELETE',
+        dataType: 'json', // added data type
+        success: function(data) {
+            console.log("Successfully disabled fault");
+            var tag = '#' + list_item_id;
+            $(tag).remove();
+            updateStatusBadge(monitor_type);
+        }
+    });
+}
+
+function updateStatusBadge(monitor_type){
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    // Read back all of the active faults attached to the monitor
+    $.ajax({
+        url: "/app/backend/monitor/fault/" + agent_id + "/" + monitor_type,
+        type: 'GET',
+        dataType: 'json', // added data type
+        success: function(data) {
+            var num_faults = Number(data['num_faults']);
+            console.log("Checking current number of faults: " + num_faults);
+            // If there are not faults, reset the badge to Unknown
+            if(num_faults == 0){
+                var tag = '';
+                switch(monitor_type){
+                    case "AGENT":
+                        tag = "#AGENT_HEALTH_STATUS";
+                        break;
+                    case "DEDICATED_SERVER":
+                        tag = "#DS_HEALTH_STATUS";
+                        break;
+                    case "UPDATES":
+                        tag = "#DS_UPDATE_STATUS";
+                        break;
+                }
+                $(tag)[0].classList.remove('badge-danger');
+                $(tag)[0].classList.remove('badge-success');
+                $(tag)[0].classList.add('badge-secondary');
+                $(tag)[0].innerHTML = "Unknown";
+            }
+        }
+    });
+}
+
 function setSettingsButtonEnable(button_id, enable){
     var button = $(button_id)[0];
 
@@ -174,6 +260,22 @@ function enableMonitor(agent_id, monitor_type){
         dataType: 'json', // added data type
         success: function(data) {
             console.log("Successfully created/enabled monitor");
+        },
+        error: function(data){
+            console.log("Error: Unable to create/enable monitor");
+            // Toggle the switch back to off
+            if(monitor_type == "AGENT"){
+                $("#AGENT_HEALTH_ENABLE").bootstrapToggle('off');
+                setSettingsButtonEnable("#monitor-settings-1", false);
+            }
+            else if(monitor_type == "DEDICATED_SERVER"){
+                $("#DS_HEALTH_ENABLE").bootstrapToggle('off');
+                setSettingsButtonEnable("#monitor-settings-2", false);
+            }
+            else if(monitor_type == "UPDATES"){
+                $("#DS_UPDATE_ENABLE").bootstrapToggle('off');
+                setSettingsButtonEnable("#monitor-settings-3", false);
+            }
         }
     });
 
