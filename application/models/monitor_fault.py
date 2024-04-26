@@ -16,3 +16,12 @@ class MonitorFault(PaginatedApi, DATABASE.Model):
     fault_description = DATABASE.Column(DATABASE.String(256), nullable=False)
 
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
+
+    def to_dict(self):
+        return {
+            "monitor_fault_id": self.monitor_fault_id,
+            "monitor_id": self.monitor_id,
+            "fault_time": self.fault_time,
+            "fault_description": self.fault_description,
+            "active": self.active,
+        }

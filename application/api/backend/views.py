@@ -8,6 +8,7 @@ from application.api.controllers import friends
 from application.api.controllers import groups
 from application.api.controllers import monitors
 from application.api.controllers import monitor_attributes
+from application.api.controllers import monitor_faults
 from application.api.controllers import properties
 from application.common import logger
 from application.common.decorators import verified_required
@@ -21,10 +22,29 @@ from application.models.group_invite import GroupInvites
 from application.models.group_member import GroupMembers
 from application.models.monitor import Monitor
 from application.models.monitor_attribute import MonitorAttribute
+from application.models.monitor_fault import MonitorFault
 from application.models.property import Property
 
 
 backend = Blueprint("backend", __name__, url_prefix="/app/backend")
+
+
+class MonitorFaultsBackendApi(MethodView):
+    def __init__(self, model):
+        self.model = model
+
+    @login_required
+    @verified_required
+    def get(self, agent_id, monitor_type):
+        return jsonify(monitor_faults.get_monitor_faults(agent_id, monitor_type))
+
+    @login_required
+    @verified_required
+    def delete(self, agent_id, monitor_type, fault_id):
+        if monitor_faults.deactivate_monitor_fault(agent_id, monitor_type, fault_id):
+            return "", 204
+        else:
+            return "Error!", 500
 
 
 class MonitorAttributesBackendApi(MethodView):
@@ -265,6 +285,18 @@ backend.add_url_rule(
     "/monitor/attribute/<int:agent_id>/<string:monitor_type>",
     view_func=MonitorAttributesBackendApi.as_view("agent_monitor_attribute_api", MonitorAttribute),
     methods=["DELETE", "POST", "PATCH"],
+)
+
+backend.add_url_rule(
+    "/monitor/fault/<int:agent_id>/<string:monitor_type>",
+    view_func=MonitorFaultsBackendApi.as_view("agent_monitor_fault_inquiry_api", MonitorFault),
+    methods=["GET"],
+)
+
+backend.add_url_rule(
+    "/monitor/fault/<int:agent_id>/<string:monitor_type>/<int:fault_id>",
+    view_func=MonitorFaultsBackendApi.as_view("agent_monitor_fault_api", MonitorFault),
+    methods=["DELETE"],
 )
 
 backend.add_url_rule(

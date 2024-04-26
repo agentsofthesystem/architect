@@ -110,44 +110,44 @@ $(document).ready(function () {
             // Show the correct set of buttons.
             if (game['game_status'] == "Running") {
                 drop_down_menu = `
-            <a class="dropdown-item stop-game-server" onclick="shutdownGameServer('${game_server_name}')">Stop Server</a>
-            <a class="dropdown-item restart-game-server" onclick="restartGameServer('${game_server_name}')">Restart Server</a>
-            `
+                <a class="dropdown-item stop-game-server" onclick="shutdownGameServer('${game_server_name}')">Stop Server</a>
+                <a class="dropdown-item restart-game-server" onclick="restartGameServer('${game_server_name}')">Restart Server</a>
+                `
             }
             else {
                 drop_down_menu = `
-            <a class="dropdown-item start-game-server" onclick="startupGameServer('${game_server_name}')">Start Server</a>
-            <a class="dropdown-item update-game-server" onclick="updateGameServer('${game_server_name}')">Update</a>
-            `
+                <a class="dropdown-item start-game-server" onclick="startupGameServer('${game_server_name}')">Start Server</a>
+                <a class="dropdown-item update-game-server" onclick="updateGameServer('${game_server_name}')">Update</a>
+                `
             }
 
             drop_down = `
-        <td style="text-align: center; vertical-align: middle;">
-            <div class="dropdown">
-            <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="icon-dots-three-horizontal"></i>
-            </button>
-            <div class="dropdown-menu dropdown-menu-sm">
-                ${drop_down_menu}
-            </div>
-            </div>
-        </td>
-        `
+            <td style="text-align: center; vertical-align: middle;">
+                <div class="dropdown">
+                <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="icon-dots-three-horizontal"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-sm">
+                    ${drop_down_menu}
+                </div>
+                </div>
+            </td>
+            `
 
             new_row.innerHTML = `
-            <td>${game_server_pretty_name}</td>
-            <td>${game_last_update}</td>
-            <td>${game_steam_build_id} ${game_update_badge}</td>
-            <td>${game_steam_build_branch}</td>
-            <td><span class="badge ${game_server_status_badge}">${game_server_status}</span></td>
-            ${drop_down}
-        `
+                <td>${game_server_pretty_name}</td>
+                <td>${game_last_update}</td>
+                <td>${game_steam_build_id} ${game_update_badge}</td>
+                <td>${game_steam_build_branch}</td>
+                <td><span class="badge ${game_server_status_badge}">${game_server_status}</span></td>
+                ${drop_down}
+            `
 
             new_small_row.innerHTML = `
-            <td>${game_server_pretty_name}</td>
-            <td><span class="badge ${game_server_status_badge}">${game_server_status}</span></td>
-            ${drop_down}
-        `
+                <td>${game_server_pretty_name}</td>
+                <td><span class="badge ${game_server_status_badge}">${game_server_status}</span></td>
+                ${drop_down}
+            `
 
             game_server_table.appendChild(new_row)
             game_server_table_small_screen.appendChild(new_small_row)

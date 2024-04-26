@@ -27,8 +27,6 @@ def get_monitor_status(input_dict):
         logger.critical("Monitor not found")
         response.update({"status": "Error"})
     else:
-        attributes = monitor_obj.attributes
-
         monitor_dict = monitor_obj.to_dict()
 
         # These are datetime objects
@@ -37,26 +35,28 @@ def get_monitor_status(input_dict):
 
         user_properties = current_user.properties
 
-        if 'USER_TIMEZONE' in user_properties:
-            user_timezone = user_properties['USER_TIMEZONE']
+        if "USER_TIMEZONE" in user_properties:
+            user_timezone = user_properties["USER_TIMEZONE"]
             logger.debug(f"User's timezone is {user_timezone}")
 
         # TODO - Convert this to user's preference timezone.
         if next_check is not None:
-            next_check_time_str = next_check.strftime("%H:%M:%S")
+            next_check_time_str = next_check.strftime("%m/%d/%Y, %H:%M:%S")
             monitor_dict["next_check"] = next_check_time_str
 
         if last_check is not None:
-            last_check_time_str = last_check.strftime("%H:%M:%S")
+            last_check_time_str = last_check.strftime("%m/%d/%Y, %H:%M:%S")
             monitor_dict["last_check"] = last_check_time_str
 
-        response.update({"monitor": monitor_dict, "attributes": {}, "status": "Success"})
+        response.update(
+            {"monitor": monitor_dict, "attributes": {}, "faults": {}, "status": "Success"}
+        )
 
+        attributes = monitor_obj.attributes
         for key, value in attributes.items():
             response["attributes"].update({key: value})
 
-    logger.info("***********************************")
-    logger.info(response)
-    logger.info("***********************************")
+        for fault in monitor_obj.faults:
+            response["faults"].update({fault["name"]: fault})
 
     emit("respond_monitor_status", response, json=True, namespace="/system/agent/monitor")

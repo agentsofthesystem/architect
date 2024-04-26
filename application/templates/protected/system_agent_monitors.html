@@ -114,9 +114,6 @@
                             </div>
                         </div>
                     </div>
-                    <div>
-                      <span class="badge badge-secondary badge-pill mb-2 monitor-status" id="AGENT_HEALTH_STATUS">Unknown</span>
-                    </div>
                     <div class="d-flex justify-content-start mb-2">
                         <div class="text-small mr-2">
                             <a><h6 id="AGENT_HEALTH_LAST_CHECK">Last Check: TBD</h6></a>
@@ -130,6 +127,12 @@
                             <label for="AGENT_HEALTH_ENABLE" class="form-check-label"><h6>Enable Monitor</h6></label>
                             <input id="AGENT_HEALTH_ENABLE" class="form-check-input monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="AGENT_HEALTH_ENABLE">
                         </div>
+                    </div>
+                    <span class="badge badge-secondary badge-pill mb-2 monitor-status" id="AGENT_HEALTH_STATUS">Unknown</span>
+                    <div id="monitor-faults-1">
+                      <ul class="list-group" id="monitor-fault-list-1">
+
+                      </ul>
                     </div>
                 </div>
             </div>
@@ -174,6 +177,11 @@
                         <input id="DS_HEALTH_ENABLE" class="form-check-input monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_HEALTH_ENABLE">
                     </div>
                 </div>
+                <div id="monitor-faults-2">
+                  <ul class="list-group" id="monitor-fault-list-2">
+
+                  </ul>
+                </div>
             </div>
 
         </div>
@@ -217,6 +225,11 @@
                         <label for="DS_UPDATE_ENABLE" class="form-check-label"><h6>Enable Monitor</h6></label>
                         <input id="DS_UPDATE_ENABLE" class="form-check-input monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_UPDATE_ENABLE">
                     </div>
+                </div>
+                <div id="monitor-faults-3">
+                  <ul class="list-group" id="monitor-fault-list-3">
+
+                  </ul>
                 </div>
             </div>
 

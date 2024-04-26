@@ -71,13 +71,12 @@ def update_monitor_check_times(monitor_id: int, is_stopped=False) -> None:
 
 
 # Create a MonitorFault object and add it to the database.
-def create_monitor_fault(agent_id: int, monitor_id: int, fault: str) -> None:
+def create_monitor_fault(monitor_id: int, fault: str) -> None:
     new_fault = MonitorFault(
-        agent_id=agent_id,
         monitor_id=monitor_id,
         fault_time=datetime.now(timezone.utc),
         active=True,
-        fault=fault,
+        fault_description=fault,
     )
 
     try:
