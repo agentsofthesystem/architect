@@ -20,7 +20,6 @@ def _get_agent_obj(agent_id: int) -> Agents:
 @CELERY.task(bind=True)
 def run_agent_health_monitor(self, monitor_id: int):
     logger.debug(f"Agent Health Monitor Task Running at {datetime.now()}")
-    self.update_state(state="SUCCESS")
 
     monitor_obj = _get_monitor_obj(monitor_id)
 
@@ -44,7 +43,9 @@ def run_agent_health_monitor(self, monitor_id: int):
         else:
             next_interval = constants.DEFAULT_MONITOR_INTERVAL
 
-    alert_users = monitor_utils.has_monitor_attribute(monitor_obj, "alert_users")
+    alert_enable = monitor_utils.has_monitor_attribute(monitor_obj, "alert_enable")
+
+    logger.debug(f"Next Interval: {next_interval} seconds, and Alert Users: {alert_enable}")
 
     # Create a client to communicate with the agent
     client = Operator(
@@ -84,12 +85,21 @@ def run_agent_health_monitor(self, monitor_id: int):
         monitor_utils.disable_monitor(monitor_obj.monitor_id)
 
         # Email users attached to agent.
-        if alert_users:
+        if alert_enable:
+            logger.debug(f"Alerting users for Agent ID {agent_obj.agent_id}")
             user_list = monitor_utils.get_agent_users(agent_obj.agent_id)
             subject = f"Agent Health Check Failed: {agent_obj.hostname}"
-            message = f"Agent Health Check Failed: {health_status}"
+            message = (
+                f"<p><h3>Agent: {agent_obj.hostname}</h3></p>"
+                f"<p>Agent Health Check Failed: {health_status}.</p>"
+                "<p></p>"
+                "<p>This monitor is now disabled, the Agent Must be re-connected, and someone"
+                " must login and acknowledge the detected fault before resuming.</p>"
+            )
+
+            # The message sender_id shall be the owner of the agent.
             messages.message_user_list(
-                user_list, message, subject, constants.MessageCategories.MONITOR
+                agent_obj.owner_id, user_list, message, subject, constants.MessageCategories.MONITOR
             )
 
         return {"status": "Invalid Health Status."}
@@ -108,3 +118,27 @@ def run_agent_health_monitor(self, monitor_id: int):
         logger.debug(f"Monitor ID {monitor_id} is not active. Stopping further health checks..")
 
     return {"status": "Task Completed!"}
+
+
+@CELERY.task(bind=True)
+def test_task(self, monitor_id: int):
+    logger.debug(f"Agent Health TEST Task Running at {datetime.now()}")
+
+    monitor_obj = _get_monitor_obj(monitor_id)
+
+    if monitor_obj is None:
+        logger.error(f"Monitor ID {monitor_id} not found.")
+        return {"status": "Monitor ID not found."}
+
+    next_interval = constants.DEFAULT_MONITOR_TESTING_INTERVAL
+
+    if monitor_obj.active:
+        logger.debug(f"Monitor ID {monitor_id} is active. Scheduling next health check.")
+        monitor_utils.update_monitor_check_times(monitor_obj.monitor_id)
+        self.apply_async(
+            [monitor_id],
+            countdown=next_interval,
+        )
+    else:
+        monitor_utils.update_monitor_check_times(monitor_obj.monitor_id, is_stopped=True)
+        logger.debug(f"Monitor ID {monitor_id} is not active. Stopping further health checks..")

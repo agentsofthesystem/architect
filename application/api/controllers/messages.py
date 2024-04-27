@@ -1,6 +1,6 @@
 import traceback
 
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import current_app, render_template
 from flask_login import current_user
 from kombu.exceptions import OperationalError
@@ -10,7 +10,15 @@ from application.common.constants import MessageCategories
 from application.extensions import DATABASE
 from application.models.message import Messages
 from application.models.user import UserSql
+from application.models.setting import SettingsSql
 from application.workers.email import send_global_email, send_email
+
+
+# Determine if the admin has enabled the system for email notifications.
+def is_email_enabled() -> bool:
+    setting = SettingsSql.query.filter_by(name="APP_ENABLE_EMAIL").first()
+    setting_test = setting.value.lower()
+    return True if setting_test == "true" else False
 
 
 def _create_message(
@@ -29,7 +37,7 @@ def _create_message(
         new_message.recipient_id = recipient_id
 
     new_message.is_global = is_global
-    new_message.timestamp = datetime.now()
+    new_message.timestamp = datetime.now(timezone.utc)
 
     try:
         DATABASE.session.add(new_message)
@@ -67,7 +75,7 @@ def create_global_message(message, subject) -> None:
     # Enter the message into the database.
     _create_message(-1, None, message, subject, is_global=True)
 
-    if not current_app.config["APP_ENABLE_EMAIL"]:
+    if not is_email_enabled():
         logger.warning("Email is disabled. Not sending global email")
         return
 
@@ -109,7 +117,7 @@ def create_direct_message(
         # The admin category cannot be disabled.
         _create_message(sender_id, recipient_id, message, subject, is_global=False)
 
-        if not current_app.config["APP_ENABLE_EMAIL"]:
+        if not is_email_enabled():
             logger.warning("Email is disabled. Not sending ADMIN email")
             return
 
@@ -130,8 +138,8 @@ def create_direct_message(
         if not _is_user_category_disabled(recipient_id, category):
             _create_message(sender_id, recipient_id, message, subject, is_global=False)
 
-        if not current_app.config["APP_ENABLE_EMAIL"]:
-            logger.warning("Email is disabled. Not sending SOCIAL email")
+        if not is_email_enabled():
+            logger.warning("Email is disabled. Not sending SOCIAL/MONITOR email")
             return
 
         if not _is_user_category_disabled(recipient_id, category, is_email=True):
@@ -151,11 +159,11 @@ def create_direct_message(
 
 
 def message_user_list(
-    user_list: list, message: str, subject: str, category: MessageCategories
+    sender_id: int, user_list: list, message: str, subject: str, category: MessageCategories
 ) -> None:
     for user_id in user_list:
         if MessageCategories.MONITOR == category:
-            create_direct_message(-2, user_id, message, subject, category)
+            create_direct_message(sender_id, user_id, message, subject, category)
         else:
             logger.critical("Invalid category for message_user_list")
 

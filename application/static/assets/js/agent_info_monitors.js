@@ -30,6 +30,7 @@ $(document).ready(function () {
 
         if(status == "Error"){
             console.log("Error: Unable to get monitor status.");
+            $(all_agent_monitor_section).show();
             return;
         }
 
@@ -52,20 +53,22 @@ function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
     var monitor_type = monitor_data['monitor_type'];
     var next_check = monitor_data['next_check'];
     var last_check = monitor_data['last_check'];
+    var disable_event_propagation = true;
 
     console.log("Monitor Type: " + monitor_type);
 
     switch(monitor_type){
         case "AGENT":
             if(active){
-                $("#AGENT_HEALTH_ENABLE").bootstrapToggle('on')
+                $("#AGENT_HEALTH_ENABLE").bootstrapToggle('on', disable_event_propagation)
+                setSettingsButtonEnable("#monitor-settings-1", true);
             }
             if('interval' in attributes_data){
                 $("#interval-select-1").val(attributes_data['interval']);
             }
             if('alert_enable' in attributes_data){
                 if(attributes_data['alert_enable']){
-                    $("#alert-enable-toggle-1").bootstrapToggle('on')
+                    $("#alert-enable-toggle-1").bootstrapToggle('on', disable_event_propagation)
                 }
             }
             status_badge = $("#AGENT_HEALTH_STATUS")[0];
@@ -75,28 +78,30 @@ function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
             break;
         case "DEDICATED_SERVER":
             if(active){
-                $("#DS_HEALTH_ENABLE").bootstrapToggle('on')
+                $("#DS_HEALTH_ENABLE").bootstrapToggle('on', disable_event_propagation)
+                setSettingsButtonEnable("#monitor-settings-2", true);
             }
             if('interval' in attributes_data){
                 $("#interval-select-2").val(attributes_data['interval']);
             }
             if('alert_enable' in attributes_data){
                 if(attributes_data['alert_enable']){
-                    $("#alert-enable-toggle-2").bootstrapToggle('on')
+                    $("#alert-enable-toggle-2").bootstrapToggle('on', disable_event_propagation)
                 }
             }
             status_badge = $("#DS_HEALTH_STATUS")[0];
             break;
         case "UPDATES":
             if(active){
-                $("#DS_UPDATE_ENABLE").bootstrapToggle('on')
+                $("#DS_UPDATE_ENABLE").bootstrapToggle('on', disable_event_propagation)
+                setSettingsButtonEnable("#monitor-settings-3", true);
             }
             if('interval' in attributes_data){
                 $("#interval-select-3").val(attributes_data['interval']);
             }
             if('alert_enable' in attributes_data){
                 if(attributes_data['alert_enable']){
-                    $("#alert-enable-toggle-3").bootstrapToggle('on')
+                    $("#alert-enable-toggle-3").bootstrapToggle('on', disable_event_propagation)
                 }
             }
             status_badge = $("#DS_UPDATE_STATUS")[0];
@@ -106,17 +111,24 @@ function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
             break;
     }
 
+    status_badge.classList.remove('badge-success');
+    status_badge.classList.remove('badge-danger');
+    status_badge.classList.remove('badge-secondary');
+
     if(has_fault){
-        status_badge.classList.remove('badge-success');
         status_badge.classList.add('badge-danger');
         status_badge.innerHTML = "Fault(s) Detected";
     }
     else{
-        status_badge.classList.remove('badge-danger');
-        status_badge.classList.add('badge-success');
-        status_badge.innerHTML = "Healthy";
+        if(active){
+            status_badge.classList.add('badge-success');
+            status_badge.innerHTML = "Healthy";
+        }
+        else{
+            status_badge.classList.add('badge-secondary');
+            status_badge.innerHTML = "Unknown";
+        }
     }
-
 }
 
 function updateFaultsSection(fault_section_id, fault_list_id, faults_data, monitor_type){
@@ -294,28 +306,6 @@ function disableMonitor(agent_id, monitor_type){
 
 }
 
-function addMonitorAttribute(agent_id, monitor_type, attribute_name, attribute_value){
-
-    var json_data = `
-    {
-        "attribute_name": "${attribute_name}",
-        "attribute_value": "${attribute_value}"
-    }
-    `;
-
-    $.ajax({
-        url: "/app/backend/monitor/attribute/" + agent_id + "/" + monitor_type,
-        type: 'POST',
-        dataType: 'json', // added data type
-        contentType: 'application/json',
-        data: JSON.stringify(json_data),
-        success: function(data) {
-            console.log("Successfully added attribute to monitor");
-        }
-    });
-
-}
-
 function removeMonitorAttribute(agent_id, monitor_type, attribute_name){
 
     var json_data = `
@@ -372,7 +362,9 @@ function handleAlertToggle(
     agent_id, monitor_type, enable, attribute_name, attribute_value
 ){
     if(enable){
-        addMonitorAttribute(agent_id, monitor_type, attribute_name, attribute_value);
+        // Updating ensures that the attribute is not created several times b/c update only
+        // creates the first time.
+        updateMonitorAttribute(agent_id, monitor_type, attribute_name, attribute_value);
     }
     else{
         removeMonitorAttribute(agent_id, monitor_type, attribute_name);

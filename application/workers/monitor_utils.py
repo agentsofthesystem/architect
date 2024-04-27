@@ -3,10 +3,11 @@ from datetime import datetime, timezone, timedelta
 from application.common import constants, logger
 from application.extensions import DATABASE
 from application.models.agent import Agents
-from application.models.user import UserSql
+from application.models.group import Groups
 from application.models.monitor import Monitor
 from application.models.monitor_fault import MonitorFault
 from application.models.setting import SettingsSql
+from application.models.user import UserSql
 
 
 # Determine if the admin put the system in testing mode for monitors.
@@ -109,14 +110,15 @@ def get_agent_users(agent_id: int, return_objects=False) -> list:
     agent_users = []
 
     # Get all groups that the agent is a member of
-    groups = agent.groups_with_access.all()
+    agent_group_members = agent.groups_with_access.all()
 
-    for group in groups:
-        group_members = group.members.all()
+    for member in agent_group_members:
+        group_member_id = member.group_member_id
+        group_obj = Groups.query.filter_by(group_id=group_member_id).first()
+        group_members = group_obj.members.all()
 
-        if group_members is not None:
-            for member in group_members:
-                agent_users = _add_user_to_list(member.user_id, agent_users)
+        for member in group_members:
+            agent_users = _add_user_to_list(member.member_id, agent_users)
 
     # Get all friends of the agent
     friend_members = agent.friends_with_access.all()
