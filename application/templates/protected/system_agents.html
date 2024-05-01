@@ -366,5 +366,12 @@
         });
 
     });
+
+    $(".clickable-cell").click(function() {
+        var cell = $(this)[0].parentElement
+        var link = cell.getAttribute("href");
+        window.location = link;
+    });
+
 </script>
 {% endblock %}

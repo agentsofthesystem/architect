@@ -14,22 +14,22 @@
       <tbody>
 
         {% for agent in all_agents_list %}
-        <tr class="bg-white">
-          <td>
+        <tr class="bg-white agent-info-link-{{agent['agent_id']}}" href="{{url_for('protected.system_agent_info', agent_id=agent['agent_id'])}}">
+          <td class="clickable-cell">
             <a class="align-items-center">
               {% if current_user.user_id == agent['owner_id'] %}
-                <a class="agent-info-link-{{agent['agent_id']}}" href="{{url_for('protected.system_agent_info', agent_id=agent['agent_id'])}}">
+                <a>
                   <img alt="I own this Agent"  src="{{ url_for('static', filename='assets/img/agent-black.svg') }}" class="avatar rounded avatar-sm" />
                 </a>
               {% else %}
-              <a class="agent-info-link-{{agent['agent_id']}}" href="{{url_for('protected.system_agent_info', agent_id=agent['agent_id'])}}">
+              <a>
                 <img alt="Shared Agent" src="{{ url_for('static', filename='assets/img/agent-green.png') }}" class="avatar rounded avatar-sm" style="fill:#204829"/>
               </a>
               {% endif %}
             </a>
           </td>
-          <td>{{ '(Me)' if current_user.user_id == agent['owner_id'] else agent['owner']['username'] }}</td>
-          <td>
+          <td class="clickable-cell">{{ '(Me)' if current_user.user_id == agent['owner_id'] else agent['owner']['username'] }}</td>
+          <td class="clickable-cell">
             <div class="spinner-border text-success agent-spinner-id-{{agent['agent_id']}}" role="status">
               <span class="sr-only">Pending...</span>
             </div>

@@ -94,14 +94,14 @@
         <!--end of col-->
         <div class="col-auto">
           <div class="btn-group mb-2">
-            <button type="button" class="btn btn-success btn-lg">Settings</button>
+            <button type="button" class="btn btn-success btn-lg" id="agent-info-refresh"><i class="icon-cw"></i></button>
             <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split dropdown-toggle-no-arrow"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="icon-dots-three-horizontal"></i>
               <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div class="dropdown-menu dropdown-menu-right dropdown-menu-sm">
-              <a class="dropdown-item" href="#commingSoonModal">Start/Stop All Servers</a>
+              <!--<a class="dropdown-item" href="#commingSoonModal">Start/Stop All Servers</a>-->
               <a class="dropdown-item" onclick="showAgentMembership()">Agent Membership</a>
             </div>
           </div>
@@ -133,6 +133,7 @@
 
           {% include 'protected/system_agent_server_table.html' %}
 
+          <!--
           <div class="card">
             <div class="card-header">
               <span class="h6">Agent Activity</span>
@@ -145,6 +146,7 @@
                 </div>
               </div>
           </div>
+          -->
 
         </div>
         <!--end of col-->
@@ -174,5 +176,33 @@
 
 <!-- Handles Monitor functionality -->
 <script type="text/javascript" src="{{ url_for('static', filename='assets/js/agent_info_monitors.js') }}"></script>
+
+<script>
+
+  $("#agent-info-refresh").click(function() {
+      console.log("Refreshing Agent Information...");
+
+      // get agent id
+      var agent_id = $("meta[name='agent-info-id']").attr("content");
+      var all_agent_monitor_section = $("#all_agent_monitor_section")[0];
+
+      $(all_agent_monitor_section).hide();
+
+      agent_monitor_socket.emit(
+        'get_monitor_status', { "agent_id": agent_id , 'monitor_type': 'AGENT' }
+      );
+      agent_monitor_socket.emit(
+        'get_monitor_status', { "agent_id": agent_id , 'monitor_type': 'DEDICATED_SERVER' }
+      );
+      agent_monitor_socket.emit(
+        'get_monitor_status', { "agent_id": agent_id , 'monitor_type': 'UPDATES' }
+      );
+
+      triggerAgentInfoRequest(agent_id, emit_only=true);
+      $(all_agent_monitor_section).show();
+  });
+
+</script>
+
 
 {% endblock %}

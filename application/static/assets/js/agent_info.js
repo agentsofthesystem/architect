@@ -33,26 +33,14 @@ $(document).ready(function () {
     // Takes out the agent id. So it doesn't show up in URL and give people ideas.
     window.history.replaceState(null, "", agent_info_base_url);
 
-    var agent_info_section = $("#agent-info-section")[0];
-    var agent_game_info_section = $("#agent-game-info-section")[0];
-    var agent_membership_section = $("#system-agent-membership-section")[0];
-
-    $("#gameServerActionInProgress").modal('show');
-    $(agent_info_section).hide();
-    $(agent_game_info_section).hide()
-    $(agent_membership_section).hide()
-
-    agent_info_socket.on('connect', function () {
-        setTimeout(() =>
-            agent_info_socket.emit('get_agent_info', { "agent_id": agent_id }),
-            100
-        )
-    });
+    triggerAgentInfoRequest(agent_id);
 
     agent_info_socket.on("respond_agent_info", function (data) {
 
         var agent_id = data['agent_id'];
         var agent_info = data['agent_info'];
+        var agent_info_section = $("#agent-info-section")[0];
+        var agent_game_info_section = $("#agent-game-info-section")[0];
 
         console.log("Agent ID: " + agent_id + " responded with its info.");
 
@@ -255,6 +243,32 @@ $(document).ready(function () {
         }
     });
 });
+
+function triggerAgentInfoRequest(agent_id, emit_only = false) {
+    var agent_info_section = $("#agent-info-section")[0];
+    var agent_game_info_section = $("#agent-game-info-section")[0];
+    var agent_membership_section = $("#system-agent-membership-section")[0];
+
+    $("#gameServerActionInProgress").modal('show');
+    $(agent_info_section).hide();
+    $(agent_game_info_section).hide()
+    $(agent_membership_section).hide()
+
+    if(emit_only){
+        setTimeout(() =>
+            agent_info_socket.emit('get_agent_info', { "agent_id": agent_id }),
+            100
+        )
+    }
+    else{
+        agent_info_socket.on('connect', function () {
+            setTimeout(() =>
+                agent_info_socket.emit('get_agent_info', { "agent_id": agent_id }),
+                100
+            )
+        });
+    }
+}
 
 function showAgentMembership()  {
     var agent_membership_section = $("#system-agent-membership-section")[0];

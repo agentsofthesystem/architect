@@ -231,7 +231,7 @@ SYSTEM_DEFAULT_PROPERTIES = [
     },
     {
         "property_name": "USER_TIMEZONE",
-        "property_type": "string",
+        "property_type": "str",
         "property_default_value": "(UTC+0h) UTC",
         "property_description": "This is the default timezone for the user.",
     },
