@@ -8,6 +8,8 @@ from application.models.monitor import Monitor
 
 @SOCKETIO.on("get_monitor_status", namespace="/system/agent/monitor")
 def get_monitor_status(input_dict):
+    logger.debug(f"Received get_monitor_status request: {input_dict}")
+
     response = {}
 
     if "agent_id" not in input_dict:
