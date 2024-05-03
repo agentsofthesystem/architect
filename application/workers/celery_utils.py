@@ -2,6 +2,11 @@ from application.common import logger
 from application.extensions import CELERY
 
 
+# Revoke a task by id directly.
+def revoke_task_by_id(task_id: str) -> bool:
+    CELERY.control.revoke(task_id, terminate=True)
+
+
 # A function to revoke a task from the Celery queue using monitor_id and task_name as input.
 def revoke_task(task_name: str, monitor_id: int, is_scheduled=False) -> bool:
     """
@@ -25,6 +30,7 @@ def revoke_task(task_name: str, monitor_id: int, is_scheduled=False) -> bool:
                     logger.debug(f"Revoking scheduled task {task_name} with task_id {task_id}")
                     CELERY.control.revoke(task_id, terminate=True)
                     revoked = True
+                    break
     else:
         active_tasks = CELERY.control.inspect().active()
         for _, active_task in active_tasks.items():
@@ -35,6 +41,7 @@ def revoke_task(task_name: str, monitor_id: int, is_scheduled=False) -> bool:
                     logger.debug(f"Revoking active task {task_name} with task_id {task_id}")
                     CELERY.control.revoke(task_id, terminate=True)
                     revoked = True
+                    break
 
     return revoked
 

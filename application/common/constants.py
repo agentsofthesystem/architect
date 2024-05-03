@@ -1,4 +1,5 @@
 from enum import Enum
+from application.common.timezones import get_time_zone_dict, get_hours_list
 
 
 class DeployTypes(Enum):
@@ -73,6 +74,12 @@ DEFAULT_EMAIL_DELAY_SECONDS = 10
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html
 CONTAINER_CREDENTIALS_API_IP = "169.254.170.2"
 AGENT_SMITH_DEFAULT_PORT = 3000
+
+# Time-related Constants
+TIME_ZONE_DICT = get_time_zone_dict()
+HOURS_LIST = get_hours_list()
+TIMESTAMP_FORMAT_24_HR = "%Y-%m-%d %H:%M"  # 24 hour format
+TIMESTAMP_FORMAT_12_HR = "%Y-%m-%d %I:%M %p"  # 24 hour format
 
 # Defaults for Monitors
 AGENT_SMITH_TIMEOUT = 10  # seconds

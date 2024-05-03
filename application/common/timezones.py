@@ -2,6 +2,10 @@ import datetime
 import pytz
 
 
+def _apply_offset_to_datetime(dt: datetime.datetime, offset: int) -> datetime.datetime:
+    return dt + datetime.timedelta(hours=offset)
+
+
 def _offset_to_string(offset: int) -> str:
     if offset == 0:
         return "UTC+0h"

@@ -28,6 +28,7 @@ def upgrade():
         sa.Column("last_check", sa.DateTime(), nullable=True),
         sa.Column("next_check", sa.DateTime(), nullable=True),
         sa.Column("interval", sa.Integer(), nullable=False),
+        sa.Column("task_id", sa.String(length=256), nullable=True),
         sa.Column("has_fault", sa.Boolean(), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=False),
         sa.PrimaryKeyConstraint("monitor_id"),
