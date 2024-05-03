@@ -54,24 +54,27 @@ def create_monitor(agent_id, monitor_type):
         logger.info(f"Scheduled tasks: {scheduled_tasks.items()}")
         logger.info("/////////////////////////////////////")
 
+    new_task = None
+
     # Now kick off the monitor that was just created and/or enabled.
     if monitor_type == constants.MonitorTypes.AGENT:
-        fqn_task_name = "application.workers.agent_monitor.run_agent_health_monitor"
-        is_scheduled = celery_utils.is_task_scheduled(fqn_task_name, monitor_id)
-        is_running = celery_utils.is_task_running(fqn_task_name, monitor_id)
-
-        if not is_scheduled and not is_running:
-            logger.info(
-                f"Task {fqn_task_name} not running or found in scheduled tasks. Running Now."
-            )
-            run_agent_health_monitor.apply_async([monitor_obj.monitor_id])
-            # test_task.apply_async([monitor_obj.monitor_id])
-        else:
-            logger.info(f"Task {fqn_task_name} already scheduled. Skipping..")
-            return False
+        new_task = run_agent_health_monitor.apply_async([monitor_obj.monitor_id])
 
     else:
         logger.critical(f"Monitor type {monitor_type_str} not supported.")
+        return False
+
+    if new_task:
+        try:
+            monitor_obj.task_id = new_task.id
+            DATABASE.session.commit()
+        except Exception as e:
+            logger.error(f"Failed to update task_id for monitor {monitor_id}")
+            logger.error(e)
+            DATABASE.session.rollback()
+            return False
+    else:
+        logger.critical(f"Failed to create task for monitor {monitor_id}")
         return False
 
     return True
@@ -99,30 +102,18 @@ def disable_monitor(agent_id, monitor_type):
         logger.info("/////////////////////////////////////")
 
     monitor_id = monitor_obj.monitor_id
+    task_id = monitor_obj.task_id
 
-    if monitor_type == constants.MonitorTypes.AGENT:
-        fqn_task_name = "application.workers.agent_monitor.run_agent_health_monitor"
-    else:
-        logger.critical(f"Monitor type {monitor_type_str} not supported.")
-        return False
-
-    is_scheduled = celery_utils.is_task_scheduled(fqn_task_name, monitor_id)
-
-    if is_scheduled:
-        logger.info(f"Task {fqn_task_name} is scheduled. Revoking..")
-        revoked = celery_utils.revoke_task(fqn_task_name, monitor_id, is_scheduled=True)
-        if not revoked:
-            logger.error(
-                f"Failed to revoke scheduled task {fqn_task_name} for monitor {monitor_id}"
-            )
-            return False
+    if task_id is not None:
+        celery_utils.revoke_task_by_id(task_id)
+        logger.info(f"Revoking task {task_id} for monitor {monitor_id}")
 
     # Cleanup the monitor... the monitor might have been revoke while in the middle of
     # some operation. Check if the monitor has any active faults.
     has_fault = True if len(monitor_obj.faults) > 0 else False
 
     # Set active False, and next check is None because there will not be another check.
-    update_dict = {"active": False, "next_check": None, "has_fault": has_fault}
+    update_dict = {"active": False, "next_check": None, "has_fault": has_fault, "task_id": None}
 
     monitor_qry.update(update_dict)
 

@@ -1,9 +1,22 @@
 from flask_login import current_user
 from flask_socketio import emit
 
-from application.common import logger
+from application.common import logger, constants, timezones
 from application.extensions import SOCKETIO
 from application.models.monitor import Monitor
+
+
+def get_timezone_offset(tz_label: str) -> int:
+    tz_dict = constants.TIME_ZONE_DICT
+    offset = None
+
+    # Match label to timezone label in tz_dict and return offset.
+    for key, value in tz_dict.items():
+        if value["label"] == tz_label:
+            offset = value["utcoffset"]
+            break
+
+    return offset
 
 
 @SOCKETIO.on("get_monitor_status", namespace="/system/agent/monitor")
@@ -35,19 +48,26 @@ def get_monitor_status(input_dict):
         next_check = monitor_dict["next_check"]
         last_check = monitor_dict["last_check"]
 
+        # User properties to determine whether or not to apply offset
         user_properties = current_user.properties
+        offset_available = False
 
         if "USER_TIMEZONE" in user_properties:
             user_timezone = user_properties["USER_TIMEZONE"]
-            logger.debug(f"User's timezone is {user_timezone}")
+            user_offset = get_timezone_offset(user_timezone)
+            offset_available = True
+            logger.debug(f"User's timezone is {user_timezone}, offset: {user_offset}")
 
-        # TODO - Convert this to user's preference timezone.
         if next_check is not None:
-            next_check_time_str = next_check.strftime("%m/%d/%Y, %H:%M:%S")
+            if offset_available:
+                next_check = timezones._apply_offset_to_datetime(next_check, user_offset)
+            next_check_time_str = next_check.strftime(constants.TIMESTAMP_FORMAT_12_HR)
             monitor_dict["next_check"] = next_check_time_str
 
         if last_check is not None:
-            last_check_time_str = last_check.strftime("%m/%d/%Y, %H:%M:%S")
+            if offset_available:
+                last_check = timezones._apply_offset_to_datetime(last_check, user_offset)
+            last_check_time_str = last_check.strftime(constants.TIMESTAMP_FORMAT_12_HR)
             monitor_dict["last_check"] = last_check_time_str
 
         response.update(

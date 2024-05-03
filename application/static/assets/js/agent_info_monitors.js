@@ -150,6 +150,14 @@ function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
     var disable_event_propagation = true;
     var enable_toggle = null;
 
+    if(next_check == null){
+        next_check = "N/A";
+    }
+
+    if(last_check == null){
+        last_check = "N/A";
+    }
+
     console.log("Monitor Type: " + monitor_type);
 
     switch(monitor_type){

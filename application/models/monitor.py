@@ -27,6 +27,7 @@ class Monitor(PaginatedApi, DATABASE.Model):
         DATABASE.Integer, nullable=False, default=constants.DEFAULT_EMAIL_DELAY_SECONDS
     )  # Seconds
 
+    task_id = DATABASE.Column(DATABASE.String(256), nullable=True)
     has_fault = DATABASE.Column(DATABASE.Boolean, nullable=False, default=False)
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
 

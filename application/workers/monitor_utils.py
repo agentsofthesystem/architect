@@ -42,6 +42,18 @@ def set_monitor_fault_flag(monitor_id: int, has_fault: bool) -> None:
         raise e
 
 
+# Update the monitor object task_id field.
+def update_monitor_task_id(monitor_id: int, task_id: str) -> None:
+    monitor = Monitor.query.filter_by(monitor_id=monitor_id).first()
+    monitor.task_id = task_id
+
+    try:
+        DATABASE.session.commit()
+    except Exception as e:
+        DATABASE.session.rollback()
+        raise e
+
+
 # Determine whether or not the monitor has an attribute.
 def has_monitor_attribute(monitor: Monitor, attribute: str) -> bool:
     return True if attribute in monitor.attributes else False
@@ -51,10 +63,13 @@ def has_monitor_attribute(monitor: Monitor, attribute: str) -> bool:
 def update_monitor_check_times(monitor_id: int, is_stopped=False) -> None:
     monitor = Monitor.query.filter_by(monitor_id=monitor_id).first()
 
-    if has_monitor_attribute(monitor, "interval"):
-        interval = int(monitor.attributes["interval"])
+    if is_monitor_testing_enabled():
+        interval = constants.DEFAULT_MONITOR_TESTING_INTERVAL
     else:
-        interval = constants.DEFAULT_MONITOR_INTERVAL
+        if has_monitor_attribute(monitor, "interval"):
+            interval = int(monitor.attributes["interval"])
+        else:
+            interval = constants.DEFAULT_MONITOR_INTERVAL
 
     monitor.last_check = datetime.now(timezone.utc)
 

@@ -9,7 +9,7 @@ def get_monitor_faults(agent_id: int, monitor_type: str) -> bool:
 
     if monitor_obj is None:
         logger.error(f"No monitor found for agent {agent_id} with type {monitor_type}")
-        return {"status": "Monitor not found."}
+        return {"status": f"Monitor Type {monitor_type} not found."}
 
     active_faults = monitor_obj.faults
     num_faults = len(active_faults)

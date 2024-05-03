@@ -17,7 +17,7 @@ from application.api.controllers import friends
 from application.api.controllers import groups
 from application.api.controllers import messages
 from application.api.controllers import users
-from application.common import logger, constants, timezones
+from application.common import logger, constants
 from application.common.decorators import admin_required
 from application.common.decorators import agent_permission_required
 from application.common.decorators import verified_required
@@ -378,17 +378,14 @@ def account():
 def preferences():
     user_properties = current_user.properties
 
-    timezone_dict = timezones.get_time_zone_dict()
-    hours_list = timezones.get_hours_list()
-
     return render_template(
         "protected/account_preferences.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         payments_enabled=current_app.config["APP_ENABLE_PAYMENTS"],
         email_enabled=current_app.config["APP_ENABLE_EMAIL"],
         user_properties=user_properties,
-        timezone_dict=timezone_dict,
-        hours_list=hours_list,
+        timezone_dict=constants.TIME_ZONE_DICT,
+        hours_list=constants.HOURS_LIST,
     )
 
 

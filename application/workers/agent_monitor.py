@@ -27,6 +27,16 @@ def run_agent_health_monitor(self, monitor_id: int):
         logger.error(f"Monitor ID {monitor_id} not found.")
         return {"status": "Monitor ID not found."}
 
+    # Compare the task_id to the task_id in the monitor object. If they do not match, then
+    # this task is stale and should be revoked.
+    if monitor_obj.task_id != self.request.id:
+        logger.error(
+            f"Monitor ID {monitor_id} - "
+            f"Task ID Mismatch: {monitor_obj.task_id} != {self.request.id}"
+        )
+        logger.debug("This means the container restarted and the revoked task list reset.")
+        return {"status": "Task ID Mismatch."}
+
     # Get the agent object associated with the monitor
     agent_obj = _get_agent_obj(monitor_obj.agent_id)
 
@@ -109,12 +119,14 @@ def run_agent_health_monitor(self, monitor_id: int):
     if monitor_obj.active:
         logger.debug(f"Monitor ID {monitor_id} is active. Scheduling next health check.")
         monitor_utils.update_monitor_check_times(monitor_obj.monitor_id)
-        self.apply_async(
+        new_task = self.apply_async(
             [monitor_id],
             countdown=next_interval,
         )
+        monitor_utils.update_monitor_task_id(monitor_obj.monitor_id, new_task.id)
     else:
         monitor_utils.update_monitor_check_times(monitor_obj.monitor_id, is_stopped=True)
+        monitor_utils.update_monitor_task_id(monitor_obj.monitor_id, None)
         logger.debug(f"Monitor ID {monitor_id} is not active. Stopping further health checks..")
 
     return {"status": "Task Completed!"}
