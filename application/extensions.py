@@ -6,7 +6,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
 task_modules = [
-    "application.workers.agent_monitor",
+    "application.workers.monitor_agent",
+    "application.workers.monitor_dedicated_server",
+    "application.workers.monitor_test_task",
     "application.workers.email",
     "application.workers.game_server_control",
 ]

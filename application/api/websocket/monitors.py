@@ -33,13 +33,14 @@ def get_monitor_status(input_dict):
         logger.critical("Monitor type not provided... cannot contact agent.")
         response.update({"status": "Error"})
 
+    agent_id = input_dict["agent_id"]
+    monitor_type = input_dict["monitor_type"]
+
     # Get Monitor record
-    monitor_obj = Monitor.query.filter_by(
-        agent_id=input_dict["agent_id"], monitor_type=input_dict["monitor_type"]
-    ).first()
+    monitor_obj = Monitor.query.filter_by(agent_id=agent_id, monitor_type=monitor_type).first()
 
     if monitor_obj is None:
-        logger.critical("Monitor not found")
+        logger.critical(f"Monitor Type, {monitor_type} does not exist for agent id: {agent_id}")
         response.update({"status": "Error"})
     else:
         monitor_dict = monitor_obj.to_dict()
@@ -50,6 +51,7 @@ def get_monitor_status(input_dict):
 
         # User properties to determine whether or not to apply offset
         user_properties = current_user.properties
+        format_str = timezones._apply_time_format_preference(user_properties)
         offset_available = False
 
         if "USER_TIMEZONE" in user_properties:
@@ -61,13 +63,13 @@ def get_monitor_status(input_dict):
         if next_check is not None:
             if offset_available:
                 next_check = timezones._apply_offset_to_datetime(next_check, user_offset)
-            next_check_time_str = next_check.strftime(constants.TIMESTAMP_FORMAT_12_HR)
+            next_check_time_str = next_check.strftime(format_str)
             monitor_dict["next_check"] = next_check_time_str
 
         if last_check is not None:
             if offset_available:
                 last_check = timezones._apply_offset_to_datetime(last_check, user_offset)
-            last_check_time_str = last_check.strftime(constants.TIMESTAMP_FORMAT_12_HR)
+            last_check_time_str = last_check.strftime(format_str)
             monitor_dict["last_check"] = last_check_time_str
 
         response.update(
@@ -78,7 +80,7 @@ def get_monitor_status(input_dict):
         for key, value in attributes.items():
             response["attributes"].update({key: value})
 
-        for fault in monitor_obj.faults:
+        for fault in monitor_obj.faults(time_format_str=format_str):
             response["faults"].update({fault["name"]: fault})
 
     emit("respond_monitor_status", response, json=True, namespace="/system/agent/monitor")

@@ -1,6 +1,21 @@
 import datetime
 import pytz
 
+from application.common import constants
+
+
+# Check user properties and return the time format string which is appropriate.
+def _apply_time_format_preference(properties: dict) -> str:
+    if "USER_HOUR_FORMAT" in properties:
+        value = properties["USER_HOUR_FORMAT"]
+        time_format = (
+            constants.TIMESTAMP_FORMAT_12_HR if value == "12" else constants.TIMESTAMP_FORMAT_24_HR
+        )
+    else:
+        time_format = constants.DEFAULT_TIME_FORMAT_STR
+
+    return time_format
+
 
 def _apply_offset_to_datetime(dt: datetime.datetime, offset: int) -> datetime.datetime:
     return dt + datetime.timedelta(hours=offset)

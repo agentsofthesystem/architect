@@ -2,7 +2,8 @@ from application.common import logger, constants
 from application.extensions import DATABASE, CELERY
 from application.models.monitor import Monitor
 from application.workers import celery_utils
-from application.workers.agent_monitor import run_agent_health_monitor
+from application.workers.monitor_agent import agent_health_monitor
+from application.workers.monitor_dedicated_server import dedicated_server_monitor
 
 _MONITOR_DEBUG = False
 
@@ -58,8 +59,14 @@ def create_monitor(agent_id, monitor_type):
 
     # Now kick off the monitor that was just created and/or enabled.
     if monitor_type == constants.MonitorTypes.AGENT:
-        new_task = run_agent_health_monitor.apply_async([monitor_obj.monitor_id])
-
+        # This is the Agent Health Monitor
+        new_task = agent_health_monitor.apply_async([monitor_obj.monitor_id])
+    elif monitor_type == constants.MonitorTypes.DEDICATED_SERVER:
+        # THis is the dedicated server health monitor
+        new_task = dedicated_server_monitor.apply_async([monitor_obj.monitor_id])
+    elif monitor_type == constants.MonitorTypes.UPDATES:
+        # This is the updates monitor which checks for server updates
+        return True  # Not yet implemented
     else:
         logger.critical(f"Monitor type {monitor_type_str} not supported.")
         return False
@@ -110,7 +117,7 @@ def disable_monitor(agent_id, monitor_type):
 
     # Cleanup the monitor... the monitor might have been revoke while in the middle of
     # some operation. Check if the monitor has any active faults.
-    has_fault = True if len(monitor_obj.faults) > 0 else False
+    has_fault = True if len(monitor_obj.faults()) > 0 else False
 
     # Set active False, and next check is None because there will not be another check.
     update_dict = {"active": False, "next_check": None, "has_fault": has_fault, "task_id": None}

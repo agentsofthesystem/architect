@@ -79,15 +79,18 @@ AGENT_SMITH_DEFAULT_PORT = 3000
 TIME_ZONE_DICT = get_time_zone_dict()
 HOURS_LIST = get_hours_list()
 TIMESTAMP_FORMAT_24_HR = "%Y-%m-%d %H:%M"  # 24 hour format
-TIMESTAMP_FORMAT_12_HR = "%Y-%m-%d %I:%M %p"  # 24 hour format
-
-# Defaults for Monitors
-AGENT_SMITH_TIMEOUT = 10  # seconds
+TIMESTAMP_FORMAT_12_HR = "%Y-%m-%d %I:%M %p"  # 12 hour format
+DEFAULT_TIME_FORMAT_STR = TIMESTAMP_FORMAT_12_HR
 SECONDS_PER_MINUTE = 60
 SECONDS_PER_HOUR = SECONDS_PER_MINUTE * 60
 HOURS_PER_DAY = 24
 SECONDS_PER_DAY = SECONDS_PER_HOUR * 24
 
+# Defaults & Constants for Monitors
+AGENT_SMITH_TIMEOUT = 10  # seconds
+# These are the invalid statuses that can be returned from the agent. If Agent Smith ever
+# alters what these status are, then this will become broken.
+AGENT_SMITH_INVALID_HEALTH = ["InvalidAccessToken", "SSLError", "SSLCertMissing", None]
 DEFAULT_MONITOR_TESTING_INTERVAL = 60  # seconds
 DEFAULT_MONITOR_INTERVAL = 60 * SECONDS_PER_MINUTE  # 1 Hours
 
@@ -241,6 +244,12 @@ SYSTEM_DEFAULT_PROPERTIES = [
         "property_type": "str",
         "property_default_value": "(UTC+0h) UTC",
         "property_description": "This is the default timezone for the user.",
+    },
+    {
+        "property_name": "USER_HOUR_FORMAT",
+        "property_type": "str",
+        "property_default_value": "12",
+        "property_description": "This is the default hour format for the user.",
     },
 ]
 
