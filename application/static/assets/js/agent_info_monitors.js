@@ -64,7 +64,7 @@ $(".monitor-control").change(function() {
         case "AGENT_HEALTH_ALERT_ENABLE":
             // Coming from a toggle
             var value = $(this).prop('checked');
-            handleAlertToggle(agent_id, "AGENT", value, "alert_enable", value);
+            handleToggleAttribute(agent_id, "AGENT", value, "alert_enable", value);
             break;
         case "AGENT_HEALTH_INTERVAL":
             // Coming from a dropdown
@@ -82,12 +82,17 @@ $(".monitor-control").change(function() {
         case "DS_HEALTH_ALERT_ENABLE":
             // Coming from a toggle
             var value = $(this).prop('checked');
-            handleAlertToggle(agent_id, "DEDICATED_SERVER", value, "alert_enable", value);
+            handleToggleAttribute(agent_id, "DEDICATED_SERVER", value, "alert_enable", value);
             break;
         case "DS_HEALTH_INTERVAL":
             // Coming from a dropdown
             var value = $('#interval-select-2')[0].value;
             handleIntervalSelect(agent_id, "DEDICATED_SERVER", "interval", value);
+            break;
+        case "DS_AUTO_RESTART_ENABLE":
+            // Coming from a toggle
+            var value = $(this).prop('checked');
+            handleToggleAttribute(agent_id, "DEDICATED_SERVER", value, "server_auto_restart", value);
             break;
 
         /** This is for AGENT DEDICATED SERVER GAME UPDATES MONITORING */
@@ -100,7 +105,7 @@ $(".monitor-control").change(function() {
         case "DS_UPDATES_ALERT_ENABLE":
             // Coming from a toggle
             var value = $(this).prop('checked');
-            handleAlertToggle(agent_id, "UPDATES", value, "alert_enable", value);
+            handleToggleAttribute(agent_id, "UPDATES", value, "alert_enable", value);
             break;
         case "DS_UPDATES_CHECK_INTERVAL":
             // Coming from a dropdown
@@ -194,7 +199,15 @@ function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
                     $("#alert-enable-toggle-2").bootstrapToggle('on', disable_event_propagation)
                 }
             }
+            if('server_auto_restart' in attributes_data){
+                if(attributes_data['server_auto_restart']){
+                    $("#server-auto-restart-toggle").bootstrapToggle('on', disable_event_propagation)
+                }
+            }
             status_badge = $("#DS_HEALTH_STATUS")[0];
+            $("#DS_HEALTH_NEXT_CHECK")[0].innerHTML = "Next Check: " + next_check;
+            $("#DS_HEALTH_LAST_CHECK")[0].innerHTML = "Last Check: " + last_check;
+            updateFaultsSection("#monitor-faults-2", "#monitor-fault-list-2", faults_data, "DEDICATED_SERVER")
             break;
         case "UPDATES":
             enable_toggle = "#DS_UPDATE_ENABLE"
@@ -346,6 +359,12 @@ function updateStatusBadge(monitor_type){
                 if(monitor_type == "AGENT"){
                     $(monitor_enable_tag).bootstrapToggle('enable');
                 }
+                else if(monitor_type == "DEDICATED_SERVER"){
+                    $(monitor_enable_tag).bootstrapToggle('enable');
+                }
+                else if(monitor_type == "UPDATES"){
+                    $(monitor_enable_tag).bootstrapToggle('enable');
+                }
             }
         }
     });
@@ -476,7 +495,7 @@ function setMonitorEnable(agent_id, monitor_type, enable){
 
 }
 
-function handleAlertToggle(
+function handleToggleAttribute(
     agent_id, monitor_type, enable, attribute_name, attribute_value
 ){
     if(enable){

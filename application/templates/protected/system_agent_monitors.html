@@ -47,6 +47,12 @@
             <input id="alert-enable-toggle-2" class="form-check-input  monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_HEALTH_ALERT_ENABLE">
           </div>
         </div>
+        <div class="d-flex justify-content-start">
+          <div class="form-check form-check-inline">
+            <label for="server-auto-restart-toggle" class="form-check-label"><h6>Auto Restart Offline Servers</h6></label>
+            <input id="server-auto-restart-toggle" class="form-check-input  monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_AUTO_RESTART_ENABLE">
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -160,15 +166,12 @@
                         </div>
                     </div>
                 </div>
-                <div>
-                  <span class="badge badge-secondary badge-pill mb-2 monitor-status" id="DS_HEALTH_STATUS">Unknown</span>
-                </div>
                 <div class="d-flex justify-content-start mb-2">
                     <div class="text-small mr-2">
-                        <a><h6>Last Check: TBD</h6></a>
+                        <a><h6 id="DS_HEALTH_LAST_CHECK">Last Check: TBD</h6></a>
                     </div>
                     <div class="text-small">
-                        <a><h6>Next Check: TBD</h6></a>
+                        <a><h6 id="DS_HEALTH_NEXT_CHECK">Next Check: TBD</h6></a>
                     </div>
                 </div>
                 <div class="d-flex justify-content-start">
@@ -177,6 +180,7 @@
                         <input id="DS_HEALTH_ENABLE" class="form-check-input monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_HEALTH_ENABLE">
                     </div>
                 </div>
+                <span class="badge badge-secondary badge-pill mb-2 monitor-status" id="DS_HEALTH_STATUS">Unknown</span>
                 <div id="monitor-faults-2">
                   <ul class="list-group" id="monitor-fault-list-2">
 
@@ -209,9 +213,6 @@
                         </div>
                     </div>
                 </div>
-                <div>
-                  <span class="badge badge-secondary badge-pill mb-2 monitor-status" id="DS_UPDATE_STATUS">Unknown</span>
-                </div>
                 <div class="d-flex justify-content-start mb-2">
                     <div class="text-small mr-2">
                         <a><h6>Last Check: TBD</h6></a>
@@ -226,6 +227,7 @@
                         <input id="DS_UPDATE_ENABLE" class="form-check-input monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_UPDATE_ENABLE">
                     </div>
                 </div>
+                <span class="badge badge-secondary badge-pill mb-2 monitor-status" id="DS_UPDATE_STATUS">Unknown</span>
                 <div id="monitor-faults-3">
                   <ul class="list-group" id="monitor-fault-list-3">
 

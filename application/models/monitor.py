@@ -32,7 +32,14 @@ class Monitor(PaginatedApi, DATABASE.Model):
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
 
     @property
-    def faults(self):
+    def attributes(self):
+        all_attrs = MonitorAttribute.query.filter_by(monitor_id=self.monitor_id).all()
+        output_dict = {}
+        for attr in all_attrs:
+            output_dict[attr.attribute_name] = attr.attribute_value
+        return output_dict
+
+    def faults(self, time_format_str=constants.DEFAULT_TIME_FORMAT_STR):
         all_faults = MonitorFault.query.filter_by(monitor_id=self.monitor_id, active=True).all()
         fault_list = []
         count = 1
@@ -40,20 +47,12 @@ class Monitor(PaginatedApi, DATABASE.Model):
             fault_dict = fault.to_dict()
             fault_time = fault_dict["fault_time"]
             if fault_time is not None:
-                fault_dict["fault_time"] = fault_time.strftime("%Y-%m-%d %H:%M:%S")
+                fault_dict["fault_time"] = fault_time.strftime(time_format_str)
 
             fault_dict["name"] = f"Fault #{count}"
             fault_list.append(fault_dict)
             count += 1
         return fault_list
-
-    @property
-    def attributes(self):
-        all_attrs = MonitorAttribute.query.filter_by(monitor_id=self.monitor_id).all()
-        output_dict = {}
-        for attr in all_attrs:
-            output_dict[attr.attribute_name] = attr.attribute_value
-        return output_dict
 
     def to_dict(self):
         return {

@@ -1,4 +1,6 @@
-from application.common import logger
+from flask_login import current_user
+
+from application.common import logger, constants
 from application.models.monitor import Monitor
 from application.models.monitor_fault import MonitorFault
 from application.extensions import DATABASE
@@ -11,7 +13,15 @@ def get_monitor_faults(agent_id: int, monitor_type: str) -> bool:
         logger.error(f"No monitor found for agent {agent_id} with type {monitor_type}")
         return {"status": f"Monitor Type {monitor_type} not found."}
 
-    active_faults = monitor_obj.faults
+    if "USER_HOUR_FORMAT" in current_user.properties:
+        if current_user.properties["USER_HOUR_FORMAT"] == "12":
+            time_format_str = constants.TIMESTAMP_FORMAT_12_HR
+        else:
+            time_format_str = constants.TIMESTAMP_FORMAT_24_HR
+    else:
+        time_format_str = constants.DEFAULT_TIME_FORMAT_STR
+
+    active_faults = monitor_obj.faults(time_format_str=time_format_str)
     num_faults = len(active_faults)
 
     return {
@@ -55,7 +65,7 @@ def deactivate_monitor_fault(agent_id: int, monitor_type: str, fault_id: int) ->
         return False
 
     # Now check if the monitor has any other active faults
-    if len(monitor_obj.faults) == 0:
+    if len(monitor_obj.faults()) == 0:
         # If no active faults, set has_fault to False
         monitor_obj.has_fault = False
         DATABASE.session.commit()

@@ -10,11 +10,32 @@ from application.models.setting import SettingsSql
 from application.models.user import UserSql
 
 
+def _get_monitor_obj(monitor_id: int) -> Monitor:
+    return Monitor.query.filter_by(monitor_id=monitor_id).first()
+
+
+def _get_agent_obj(agent_id: int) -> Agents:
+    return Agents.query.filter_by(agent_id=agent_id).first()
+
+
 # Determine if the admin put the system in testing mode for monitors.
 def is_monitor_testing_enabled() -> bool:
     setting = SettingsSql.query.filter_by(name="MONITOR_TEST_MODE").first()
     setting_test = setting.value.lower()
     return True if setting_test == "true" else False
+
+
+# Check if the attribute string representation of a bool is True or False
+def is_attribute_true(monitor: Monitor, attribute: str) -> bool:
+    if not has_monitor_attribute(monitor, attribute):
+        return False
+    attribute_value = monitor.attributes[attribute]
+    return True if attribute_value.lower() == "true" else False
+
+
+# Determine whether or not the monitor has an attribute.
+def has_monitor_attribute(monitor: Monitor, attribute: str) -> bool:
+    return True if attribute in monitor.attributes else False
 
 
 # Update Monitor object to disable the monitor.
@@ -52,11 +73,6 @@ def update_monitor_task_id(monitor_id: int, task_id: str) -> None:
     except Exception as e:
         DATABASE.session.rollback()
         raise e
-
-
-# Determine whether or not the monitor has an attribute.
-def has_monitor_attribute(monitor: Monitor, attribute: str) -> bool:
-    return True if attribute in monitor.attributes else False
 
 
 # Update the Monitor object next_check and last_check fields.
@@ -101,6 +117,15 @@ def create_monitor_fault(monitor_id: int, fault: str) -> None:
     except Exception as e:
         DATABASE.session.rollback()
         raise e
+
+
+# Check database for a matching, active, fault with the same description.
+def is_fault_description_matching(monitor_id: int, fault_description: str) -> bool:
+    fault_obj = MonitorFault.query.filter_by(
+        monitor_id=monitor_id, fault_description=fault_description, active=True
+    ).first()
+
+    return True if fault_obj is not None else False
 
 
 # Add a user to a list if they are not already in the list.

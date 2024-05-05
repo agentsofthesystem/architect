@@ -80,6 +80,22 @@
                     <div class="card-body">
                         <div class="justify-content-start">
                             <div class="form-group">
+                                <label for="USER_HOUR_FORMAT" class="col-form-label"><h6>Time Format</h6></label>
+                                {% if 'USER_HOUR_FORMAT' in user_properties.keys() %}
+                                    {% set user_time_format = user_properties['USER_HOUR_FORMAT'] %}
+                                {% else %}
+                                    {% set user_time_format = '12' %}
+                                {% endif %}
+                                <select class="form-control" id="USER_HOUR_FORMAT">
+                                    <option selected data-time-format-int="{{user_time_format}}">{{user_time_format}} Hr</option>
+                                    {% if user_time_format == '12' %}
+                                        <option data-time-format-int="24">24 Hr</option>
+                                    {% else %}
+                                        <option data-time-format-int="12">12 Hr</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label for="USER_TIMEZONE" class="col-form-label"><h6>Time Zone</h6></label>
                                 {% if 'USER_TIMEZONE' in user_properties.keys() %}
                                     {% set user_timezone = user_properties['USER_TIMEZONE'] %}
@@ -242,6 +258,14 @@
         let label_string = `"${label}"`;
 
         updateProperty({{ current_user.user_id }}, "USER_TIMEZONE", label_string);
+    });
+
+    $("#USER_HOUR_FORMAT").change(function() {
+        var selected = $(this).find('option:selected');
+        var time_format = selected.data('time-format-int');
+        console.log('Time Format: ' + time_format);
+
+        updateProperty({{ current_user.user_id }}, "USER_HOUR_FORMAT", time_format);
     });
 
 </script>
