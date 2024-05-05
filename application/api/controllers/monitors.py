@@ -4,6 +4,7 @@ from application.models.monitor import Monitor
 from application.workers import celery_utils
 from application.workers.monitor_agent import agent_health_monitor
 from application.workers.monitor_dedicated_server import dedicated_server_monitor
+from application.workers.monitor_dedicated_server_updates import dedicated_server_update_monitor
 
 
 def create_monitor(agent_id, monitor_type):
@@ -50,11 +51,11 @@ def create_monitor(agent_id, monitor_type):
         # This is the Agent Health Monitor
         new_task = agent_health_monitor.apply_async([monitor_obj.monitor_id])
     elif monitor_type == constants.MonitorTypes.DEDICATED_SERVER:
-        # THis is the dedicated server health monitor
+        # This is the dedicated server health monitor
         new_task = dedicated_server_monitor.apply_async([monitor_obj.monitor_id])
     elif monitor_type == constants.MonitorTypes.UPDATES:
         # This is the updates monitor which checks for server updates
-        return True  # Not yet implemented
+        new_task = dedicated_server_update_monitor.apply_async([monitor_obj.monitor_id])
     else:
         logger.critical(f"Monitor type {monitor_type_str} not supported.")
         return False

@@ -23,10 +23,6 @@ class Monitor(PaginatedApi, DATABASE.Model):
     last_check = DATABASE.Column(DATABASE.DateTime, nullable=True)
     next_check = DATABASE.Column(DATABASE.DateTime, nullable=True)
 
-    interval = DATABASE.Column(
-        DATABASE.Integer, nullable=False, default=constants.DEFAULT_EMAIL_DELAY_SECONDS
-    )  # Seconds
-
     task_id = DATABASE.Column(DATABASE.String(256), nullable=True)
     has_fault = DATABASE.Column(DATABASE.Boolean, nullable=False, default=False)
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
@@ -61,7 +57,6 @@ class Monitor(PaginatedApi, DATABASE.Model):
             "monitor_type": self.monitor_type,
             "last_check": self.last_check,
             "next_check": self.next_check,
-            "interval": self.interval,
             "has_fault": self.has_fault,
             "active": self.active,
         }

@@ -112,6 +112,11 @@ $(".monitor-control").change(function() {
             var value = $('#interval-select-3')[0].value;
             handleIntervalSelect(agent_id, "UPDATES", "interval", value);
             break;
+        case "DS_AUTO_UPDATE_ENABLE":
+            // Coming from a toggle
+            var value = $(this).prop('checked');
+            handleToggleAttribute(agent_id, "UPDATES", value, "server_auto_update", value);
+            break;
 
         default:
             console.log("Error: Monitor Control ID not found. Unable to handle callback.")
@@ -223,7 +228,15 @@ function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
                     $("#alert-enable-toggle-3").bootstrapToggle('on', disable_event_propagation)
                 }
             }
+            if('server_auto_update' in attributes_data){
+                if(attributes_data['server_auto_update']){
+                    $("#server-auto-update-toggle").bootstrapToggle('on', disable_event_propagation)
+                }
+            }
             status_badge = $("#DS_UPDATE_STATUS")[0];
+            $("#DS_UPDATES_NEXT_CHECK")[0].innerHTML = "Next Check: " + next_check;
+            $("#DS_UPDATES_LAST_CHECK")[0].innerHTML = "Last Check: " + last_check;
+            updateFaultsSection("#monitor-faults-3", "#monitor-fault-list-3", faults_data, "UPDATES")
             break;
         default:
             console.log("Error: Monitor Type not found. Unable to update monitor user interface.")

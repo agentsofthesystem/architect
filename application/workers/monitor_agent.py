@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from application.api.controllers import messages
 from application.common import logger, constants, toolbox
@@ -9,7 +9,7 @@ from operator_client import Operator
 
 @CELERY.task(bind=True)
 def agent_health_monitor(self, monitor_id: int):
-    logger.debug(f"Agent Health Monitor Task Running at {datetime.now()}")
+    logger.debug(f"Agent Health Monitor Task Running at {datetime.now(timezone.utc)}")
 
     monitor_obj = monitor_utils._get_monitor_obj(monitor_id)
 

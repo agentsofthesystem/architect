@@ -3,13 +3,13 @@ from datetime import datetime, timezone
 from application.api.controllers import messages
 from application.common import logger, constants, toolbox
 from application.extensions import CELERY
-from application.workers import monitor_constants, monitor_utils
+from application.workers import monitor_utils
 from operator_client import Operator
 
 
 @CELERY.task(bind=True)
-def dedicated_server_monitor(self, monitor_id: int):
-    logger.debug(f"Dedicated Server Health Monitor Task Running at {datetime.now(timezone.utc)}")
+def dedicated_server_update_monitor(self, monitor_id: int):
+    logger.debug(f"Dedicated SErver Update Monitor Task Running at {datetime.now(timezone.utc)}")
 
     monitor_obj = monitor_utils._get_monitor_obj(monitor_id)
     alert_fmt_str = None
@@ -111,47 +111,6 @@ def dedicated_server_monitor(self, monitor_id: int):
                 continue
 
             logger.debug(f"Checking Server: {server_name} with PID: {server_pid}")
-
-            # When the server_pid is not None, then the Agent is reporting that the server
-            # SHOULD be running.
-            if server_pid is not None:
-                # Now, find out if the game is actually running.
-                server_status = client.game.get_game_status(server_name)
-                is_running = server_status["is_running"]
-
-                logger.debug(f"Server {server_name} is running: {is_running}")
-
-                # The server is not running
-                if not is_running:
-                    # Check and see if the user has enabled auto-restart.
-
-                    # TODO - Potentially this could retry forever??? - Consider creating a fault
-                    # anyway. This would prevent the monitor from spamming the user in the case
-                    # where the automation attempts to restart the server and fails.
-                    if monitor_utils.has_monitor_attribute(monitor_obj, "server_auto_restart"):
-                        # Do not need to check value else because if the value is 'false', then the
-                        # attribute does not exist. IF value is true then the attribute exists.
-                        arg_dict = {}
-                        logger.debug(f"Auto-Restart is enabled for Server: {server_name}.")
-                        logger.debug("Attempting to restart the server.")
-                        for arg in client.game.get_argument_by_game_name(server_name):
-                            arg_dict[arg["game_arg"]] = arg["game_arg_value"]
-                        client.game.game_startup(server_name, input_args=arg_dict)
-                        alert_fmt_str = monitor_constants.ALERT_MESSAGES_FMT_STR[
-                            "DEDICATED_SERVER_1"
-                        ]
-
-                    else:
-                        # The server is not running, and the user has not enabled auto-restart.
-                        # THerefore, create a fault and alert the user.
-                        monitor_utils.create_monitor_fault(monitor_obj.monitor_id, fault_string)
-
-                        # Set the fault flag on the monitor overall.
-                        monitor_utils.set_monitor_fault_flag(monitor_obj.monitor_id, has_fault=True)
-
-                        alert_fmt_str = monitor_constants.ALERT_MESSAGES_FMT_STR[
-                            "DEDICATED_SERVER_2"
-                        ]
 
             # Send alert to users, if enabled and a format str was set.
             if alert_enable and alert_fmt_str is not None:

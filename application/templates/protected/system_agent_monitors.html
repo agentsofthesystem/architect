@@ -63,7 +63,7 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Dedicated Server Updates Monitor - Settings</h5>
+        <h5 class="modal-title">Dedicated Server Update Monitor - Settings</h5>
       </div>
       <div class="modal-body">
         <div class="d-flex justify-content-start">
@@ -78,6 +78,12 @@
           <div class="form-check form-check-inline">
             <label for="alert-enable-toggle-3" class="form-check-label"><h6>Enable Alerts</h6></label>
             <input id="alert-enable-toggle-3" class="form-check-input  monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_UPDATES_ALERT_ENABLE">
+          </div>
+        </div>
+        <div class="d-flex justify-content-start">
+          <div class="form-check form-check-inline">
+            <label for="server-auto-update-toggle" class="form-check-label"><h6>Auto Update Outdated Servers</h6></label>
+            <input id="server-auto-update-toggle" class="form-check-input  monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_AUTO_UPDATE_ENABLE">
           </div>
         </div>
       </div>
@@ -215,10 +221,10 @@
                 </div>
                 <div class="d-flex justify-content-start mb-2">
                     <div class="text-small mr-2">
-                        <a><h6>Last Check: TBD</h6></a>
+                        <a><h6 id="DS_UPDATES_LAST_CHECK">Last Check: TBD</h6></a>
                     </div>
                     <div class="text-small">
-                        <a><h6>Next Check: TBD</h6></a>
+                        <a><h6 id="DS_UPDATES_NEXT_CHECK">Next Check: TBD</h6></a>
                     </div>
                 </div>
                 <div class="d-flex justify-content-start">
