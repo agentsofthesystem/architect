@@ -1,11 +1,9 @@
 from application.common import logger, constants
-from application.extensions import DATABASE, CELERY
+from application.extensions import DATABASE
 from application.models.monitor import Monitor
 from application.workers import celery_utils
 from application.workers.monitor_agent import agent_health_monitor
 from application.workers.monitor_dedicated_server import dedicated_server_monitor
-
-_MONITOR_DEBUG = False
 
 
 def create_monitor(agent_id, monitor_type):
@@ -45,16 +43,6 @@ def create_monitor(agent_id, monitor_type):
         return False
 
     monitor_id = monitor_obj.monitor_id
-
-    if _MONITOR_DEBUG:
-        active_tasks = CELERY.control.inspect().active()
-        scheduled_tasks = CELERY.control.inspect().scheduled()
-        logger.info("/////////////////////////////////////")
-        logger.info("Enabling monitor..")
-        logger.info(f"Active tasks: {active_tasks.items()}")
-        logger.info(f"Scheduled tasks: {scheduled_tasks.items()}")
-        logger.info("/////////////////////////////////////")
-
     new_task = None
 
     # Now kick off the monitor that was just created and/or enabled.
@@ -98,15 +86,6 @@ def disable_monitor(agent_id, monitor_type):
     if monitor_obj is None:
         logger.debug(f"No monitor found for agent {agent_id} with type {monitor_type_str}")
         return False
-
-    if _MONITOR_DEBUG:
-        active_tasks = CELERY.control.inspect().active()
-        scheduled_tasks = CELERY.control.inspect().scheduled()
-        logger.info("/////////////////////////////////////")
-        logger.info("Disabling monitor..")
-        logger.info(f"Active tasks: {active_tasks.items()}")
-        logger.info(f"Scheduled tasks: {scheduled_tasks.items()}")
-        logger.info("/////////////////////////////////////")
 
     monitor_id = monitor_obj.monitor_id
     task_id = monitor_obj.task_id

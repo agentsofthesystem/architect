@@ -124,12 +124,13 @@ def dedicated_server_monitor(self, monitor_id: int):
                 # The server is not running
                 if not is_running:
                     # Check and see if the user has enabled auto-restart.
+
                     # TODO - Potentially this could retry forever??? - Consider creating a fault
-                    # anyway. This would prevent the monitor from spamming the user. The user
-                    # would have to clear the fault to get the monitor to retry.
+                    # anyway. This would prevent the monitor from spamming the user in the case
+                    # where the automation attempts to restart the server and fails.
                     if monitor_utils.has_monitor_attribute(monitor_obj, "server_auto_restart"):
-                        # Do not need to check value else because if the value is 'false', then the attribute
-                        # does not exist. IF value is true then the attribute exists.
+                        # Do not need to check value else because if the value is 'false', then the
+                        # attribute does not exist. IF value is true then the attribute exists.
                         arg_dict = {}
                         logger.debug(f"Auto-Restart is enabled for Server: {server_name}.")
                         logger.debug("Attempting to restart the server.")
