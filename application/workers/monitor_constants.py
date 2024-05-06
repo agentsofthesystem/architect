@@ -34,4 +34,27 @@ ALERT_MESSAGES_FMT_STR = {
             " must manually restart the server.</p>"
         ),
     },
+    "DS_UPDATE_1": {
+        "subject": "Update Required: {hostname}",
+        "message": (
+            "<p><h3>Agent: {hostname}</h3></p>"
+            "<p>Server: {game_name} requires an update.</p>"
+            "<p></p>"
+            "<p>Current Ver: {current_version}, Target Ver: {target_version}.</p>"
+            "<p></p>"
+            "<p>The server requires manual intervention to update.</p>"
+        ),
+    },
+    "DS_UPDATE_2": {
+        "subject": "Update Required: {hostname}",
+        "message": (
+            "<p><h3>Agent: {hostname}</h3></p>"
+            "<p>Server: {game_name} requires an update.</p>"
+            "<p></p>"
+            "<p>The server will be stopped, updated, and restarted automatically.</p>"
+        ),
+    },
 }
+
+MAX_COMMAND_RETRIES = 6
+COMMAND_WAIT_TIME = 10

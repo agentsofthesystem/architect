@@ -1,8 +1,11 @@
+import pytz
+
 from datetime import datetime, timezone, timedelta
 
 from application.common import constants, logger
 from application.extensions import DATABASE
 from application.models.agent import Agents
+from application.models.default_property import DefaultProperty
 from application.models.group import Groups
 from application.models.monitor import Monitor
 from application.models.monitor_fault import MonitorFault
@@ -10,12 +13,47 @@ from application.models.setting import SettingsSql
 from application.models.user import UserSql
 
 
+# Add a user to a list if they are not already in the list.
+def _add_user_to_list(user_id: int, user_list: list) -> list:
+    if user_id not in user_list:
+        user_list.append(user_id)
+    return user_list
+
+
+# Get user object from Id
+def _get_user_object(user_id: int) -> list:
+    return UserSql.query.filter_by(user_id=user_id).first()
+
+
+# Convert the list of user IDs to a list of user objects
+def _get_user_objects(user_ids: list) -> list:
+    return DATABASE.session.query(UserSql).filter(UserSql.user_id.in_(user_ids)).all()
+
+
+# Get the monitor object from the monitor_id
 def _get_monitor_obj(monitor_id: int) -> Monitor:
     return Monitor.query.filter_by(monitor_id=monitor_id).first()
 
 
+# Get the agent object from the agent_id
 def _get_agent_obj(agent_id: int) -> Agents:
     return Agents.query.filter_by(agent_id=agent_id).first()
+
+
+# Get the value of a user preference based on the user_id and preference name.
+def get_user_property(user_id: int, property_name: str) -> str:
+    user_obj = _get_user_object(user_id)
+    user_properties = user_obj.properties
+    property_value = None
+
+    if property_name in user_properties:
+        property_value = user_properties[property_name]
+    else:
+        # Property value is the default value if it is not found in the user properties.
+        default_property = DefaultProperty.query.filter_by(property_name=property_name).first()
+        property_value = default_property.property_default_value
+
+    return property_value
 
 
 # Determine if the admin put the system in testing mode for monitors.
@@ -128,18 +166,6 @@ def is_fault_description_matching(monitor_id: int, fault_description: str) -> bo
     return True if fault_obj is not None else False
 
 
-# Add a user to a list if they are not already in the list.
-def _add_user_to_list(user_id: int, user_list: list) -> list:
-    if user_id not in user_list:
-        user_list.append(user_id)
-    return user_list
-
-
-# Convert the list of user IDs to a list of user objects
-def _get_user_objects(user_ids: list) -> list:
-    return DATABASE.session.query(UserSql).filter(UserSql.user_id.in_(user_ids)).all()
-
-
 # Get a list of all users that have access to the agent via groups or friendship.
 def get_agent_users(agent_id: int, return_objects=False) -> list:
     agent = Agents.query.filter_by(agent_id=agent_id).first()
@@ -170,3 +196,16 @@ def get_agent_users(agent_id: int, return_objects=False) -> list:
         return _get_user_objects(agent_users)
     else:
         return agent_users
+
+
+# Determine whether or not the current time is within the maintenance window.
+def is_inside_maintenance_hour(maintenance_hour: int, user_timezone: str) -> bool:
+    now = datetime.now(pytz.timezone(user_timezone))
+    maintenance_hour = datetime(
+        now.year, now.month, now.day, maintenance_hour, 0, 0, 0, pytz.timezone(user_timezone)
+    )
+
+    maintenance_hour_start = maintenance_hour
+    maintenance_hour_end = maintenance_hour_start + timedelta(hours=1)
+
+    return True if now >= maintenance_hour_start and now < maintenance_hour_end else False

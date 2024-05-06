@@ -51,13 +51,21 @@ def get_time_zone_dict() -> dict:
 
 
 # A function that generates a list of hours of the day in 12-hour format with AM/PM
-def get_hours_list() -> list:
+def get_hours_tuple_list() -> list:
     hours_list = []
+    count = 1
 
-    for i in range(1, 13):
-        hours_list.append(f"{i}:00 AM")
+    for i in range(1, 12):
+        hours_list.append((f"{i}:00 AM", count))
+        count += 1
 
-    for i in range(1, 13):
-        hours_list.append(f"{i}:00 PM")
+    hours_list.append(("12:00 PM", count))
+    count += 1
+
+    for i in range(1, 12):
+        hours_list.append((f"{i}:00 PM", count))
+        count += 1
+
+    hours_list.append(("12:00 AM", count))
 
     return hours_list
