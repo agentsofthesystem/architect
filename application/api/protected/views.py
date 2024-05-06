@@ -385,7 +385,7 @@ def preferences():
         email_enabled=current_app.config["APP_ENABLE_EMAIL"],
         user_properties=user_properties,
         timezone_dict=constants.TIME_ZONE_DICT,
-        hours_list=constants.HOURS_LIST,
+        hours_tuple_list=constants.HOURS_LIST,
     )
 
 

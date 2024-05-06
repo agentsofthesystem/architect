@@ -4,6 +4,7 @@ from application.api.controllers import messages
 from application.common import logger, constants, toolbox
 from application.extensions import CELERY
 from application.workers import monitor_constants, monitor_utils
+from application.workers import monitor_server_utils
 from operator_client import Operator
 
 
@@ -131,12 +132,10 @@ def dedicated_server_monitor(self, monitor_id: int):
                     if monitor_utils.has_monitor_attribute(monitor_obj, "server_auto_restart"):
                         # Do not need to check value else because if the value is 'false', then the
                         # attribute does not exist. IF value is true then the attribute exists.
-                        arg_dict = {}
                         logger.debug(f"Auto-Restart is enabled for Server: {server_name}.")
                         logger.debug("Attempting to restart the server.")
-                        for arg in client.game.get_argument_by_game_name(server_name):
-                            arg_dict[arg["game_arg"]] = arg["game_arg_value"]
-                        client.game.game_startup(server_name, input_args=arg_dict)
+                        result = monitor_server_utils._start_server(client, server_name)
+                        logger.debug(f"Server Startup Result: {result}")
                         alert_fmt_str = monitor_constants.ALERT_MESSAGES_FMT_STR[
                             "DEDICATED_SERVER_1"
                         ]

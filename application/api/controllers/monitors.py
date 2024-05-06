@@ -32,7 +32,6 @@ def create_monitor(agent_id, monitor_type):
             agent_id=agent_id,
             monitor_type=monitor_type_str,
             active=True,
-            interval=constants.DEFAULT_MONITOR_INTERVAL,
         )
         DATABASE.session.add(monitor_obj)
 

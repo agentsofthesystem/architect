@@ -54,18 +54,19 @@ def _is_user_category_disabled(user_id: int, category: MessageCategories, is_ema
     is_disabled = False
 
     user = UserSql.query.filter_by(user_id=user_id).first()
+    user_properties = user.properties
 
     if category == MessageCategories.SOCIAL and not is_email:
-        if "NOTIFICATION_DM_SOCIAL_ENABLED" in user.properties:
+        if "NOTIFICATION_DM_SOCIAL_ENABLED" in user_properties:
             is_disabled = True
     elif category == MessageCategories.SOCIAL and is_email:
-        if "NOTIFICATION_EMAIL_SOCIAL_ENABLED" in user.properties:
+        if "NOTIFICATION_EMAIL_SOCIAL_ENABLED" in user_properties:
             is_disabled = True
     elif category == MessageCategories.MONITOR and not is_email:
-        if "NOTIFICATION_DM_MONITOR_ENABLED" in user.properties:
+        if "NOTIFICATION_DM_MONITOR_ENABLED" in user_properties:
             is_disabled = True
     elif category == MessageCategories.MONITOR and is_email:
-        if "NOTIFICATION_EMAIL_MONITOR_ENABLED" in user.properties:
+        if "NOTIFICATION_EMAIL_MONITOR_ENABLED" in user_properties:
             is_disabled = True
 
     return is_disabled

@@ -1,5 +1,5 @@
 from enum import Enum
-from application.common.timezones import get_time_zone_dict, get_hours_list
+from application.common.timezones import get_time_zone_dict, get_hours_tuple_list
 
 
 class DeployTypes(Enum):
@@ -77,10 +77,11 @@ AGENT_SMITH_DEFAULT_PORT = 3000
 
 # Time-related Constants
 TIME_ZONE_DICT = get_time_zone_dict()
-HOURS_LIST = get_hours_list()
+HOURS_LIST = get_hours_tuple_list()
 TIMESTAMP_FORMAT_24_HR = "%Y-%m-%d %H:%M"  # 24 hour format
 TIMESTAMP_FORMAT_12_HR = "%Y-%m-%d %I:%M %p"  # 12 hour format
 DEFAULT_TIME_FORMAT_STR = TIMESTAMP_FORMAT_12_HR
+DEFAULT_MAINTENANCE_HR = 24  # 24:00 Hrs, midnight
 SECONDS_PER_MINUTE = 60
 SECONDS_PER_HOUR = SECONDS_PER_MINUTE * 60
 HOURS_PER_DAY = 24
@@ -250,6 +251,12 @@ SYSTEM_DEFAULT_PROPERTIES = [
         "property_type": "str",
         "property_default_value": "12",
         "property_description": "This is the default hour format for the user.",
+    },
+    {
+        "property_name": "USER_MAINTENANCE_HOUR",
+        "property_type": "int",
+        "property_default_value": "24",
+        "property_description": "This is the default midnight utc hour for maintenance operations.",
     },
 ]
 

@@ -3,7 +3,8 @@ from datetime import datetime, timezone
 from application.api.controllers import messages
 from application.common import logger, constants, toolbox
 from application.extensions import CELERY
-from application.workers import monitor_utils
+from application.workers import monitor_constants, monitor_utils
+from application.workers import monitor_server_utils
 from operator_client import Operator
 
 
@@ -13,6 +14,7 @@ def dedicated_server_update_monitor(self, monitor_id: int):
 
     monitor_obj = monitor_utils._get_monitor_obj(monitor_id)
     alert_fmt_str = None
+    owner_id = None
 
     if monitor_obj is None:
         logger.error(f"Monitor ID {monitor_id} not found.")
@@ -34,6 +36,13 @@ def dedicated_server_update_monitor(self, monitor_id: int):
     if agent_obj is None:
         logger.error(f"Agent ID {monitor_obj.agent_id} not found.")
         return {"status": "Agent ID not found."}
+
+    # Get the owner's maintenance window preference or assume the default.
+    owner_id = agent_obj.owner_id
+    maintenance_hour = monitor_utils.get_user_property(  # noqa: F841
+        owner_id, "USER_MAINTENANCE_HOUR"
+    )
+    user_timezone = monitor_utils.get_user_property(owner_id, "USER_TIMEZONE")  # noqa: F841
 
     if monitor_utils.is_monitor_testing_enabled():
         logger.debug("Monitor Testing is enabled. Using Default Test Interval Constant.")
@@ -100,24 +109,78 @@ def dedicated_server_update_monitor(self, monitor_id: int):
 
         # Loop through all the servers and check if they are running, and take actions if necessary.
         for server in installed_servers:
+            server_id = server["game_id"]
             server_pid = server["game_pid"]
             server_name = server["game_name"]
-            fault_string = f"Server {server_name} is not running."
+            fault_string_1 = f"Server {server_name} requires an update."
+            fault_string_2 = f"Server {server_name} was updated."
 
             # Get all active faults & skip if the fault already exists.  This prevents spamming
-            # the same fault over and over.
-            if monitor_utils.is_fault_description_matching(monitor_obj.monitor_id, fault_string):
-                logger.debug(f"Fault already exists for this Server: {server_name}. Skipping.")
+            # the same fault/action over and over.
+            if monitor_utils.is_fault_description_matching(monitor_obj.monitor_id, fault_string_1):
+                logger.debug(
+                    f"This monitor as already identified the server: {server_name}. "
+                    "Needs an update."
+                )
+                continue
+
+            if monitor_utils.is_fault_description_matching(monitor_obj.monitor_id, fault_string_2):
+                logger.debug(f"This monitor as already attempted to update server: {server_name}.")
                 continue
 
             logger.debug(f"Checking Server: {server_name} with PID: {server_pid}")
+
+            # Check if the server requires an update, it does not have to be running to do this.
+            update_info = client.game.check_for_updates(server_id)
+
+            if update_info is None:
+                logger.error(f"Server {server_name} - Update Check Failed.")
+                continue
+
+            is_required = update_info["is_required"]
+            current_version = update_info["current_version"]
+            target_version = update_info["target_version"]
+
+            if is_required:
+                # If the user has enabled auto-restart, then the server will be stopped, updated,
+                # and restarted.
+                if monitor_utils.has_monitor_attribute(monitor_obj, "server_auto_restart"):
+                    # Run shutdown subroutine
+                    monitor_server_utils._stop_server(client, server_name)
+
+                    # Now issue the update command.
+                    monitor_server_utils._update_server(client, server_name)
+
+                    # Finally, startup the server.
+                    monitor_server_utils._start_server(client, server_name)
+
+                    # Set the fault flag on the monitor overall.
+                    monitor_utils.create_monitor_fault(monitor_obj.monitor_id, fault_string_2)
+                    monitor_utils.set_monitor_fault_flag(monitor_obj.monitor_id, has_fault=True)
+
+                    alert_fmt_str = monitor_constants.ALERT_MESSAGES_FMT_STR["DS_UPDATE_2"]
+
+                # Otherwise, the user has not enabled auto-restart, and the server is left alone.
+                # Only create a fault/alert.
+                else:
+                    # The server is not running, and the user has not enabled auto-restart.
+                    # Therefore, create a fault and alert the user.
+                    monitor_utils.create_monitor_fault(monitor_obj.monitor_id, fault_string_2)
+
+                    # Set the fault flag on the monitor overall.
+                    monitor_utils.set_monitor_fault_flag(monitor_obj.monitor_id, has_fault=True)
+
+                    alert_fmt_str = monitor_constants.ALERT_MESSAGES_FMT_STR["DS_UPDATE_1"]
 
             # Send alert to users, if enabled and a format str was set.
             if alert_enable and alert_fmt_str is not None:
                 user_list = monitor_utils.get_agent_users(agent_obj.agent_id)
                 subject = alert_fmt_str["subject"].format(hostname=agent_obj.hostname)
                 message = alert_fmt_str["message"].format(
-                    hostname=agent_obj.hostname, game_name=server_name
+                    hostname=agent_obj.hostname,
+                    game_name=server_name,
+                    current_version=current_version,
+                    target_version=target_version,
                 )
                 # The message sender_id shall be the owner of the agent.
                 messages.message_user_list(

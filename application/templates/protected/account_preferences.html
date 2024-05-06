@@ -110,10 +110,16 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="USER_MAINTAINANCE_HOUR_START" class="col-form-label"><h6>Maintenance Hour</h6></label>
-                                <select class="form-control" id="USER_MAINTAINANCE_HOUR_START">
-                                    {% for hour in hours_list %}
-                                        <option>{{hour}}</option>
+                                <label for="USER_MAINTENANCE_HOUR" class="col-form-label"><h6>Maintenance Hour</h6></label>
+                                <select class="form-control" id="USER_MAINTENANCE_HOUR">
+                                    {% if 'USER_MAINTENANCE_HOUR' in user_properties.keys() %}
+                                        {% set user_maintenance_hour = user_properties['USER_MAINTENANCE_HOUR'] %}
+                                    {% else %}
+                                        {% set user_maintenance_hour = 24 %}
+                                    {% endif %}
+                                    {% for hour in hours_tuple_list %}
+                                        {% set is_selected = 'selected' if hour[1] == user_maintenance_hour else '' %}
+                                        <option data-hour="{{hour[1]}}" {{is_selected}}>{{hour[0]}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -266,6 +272,16 @@
         console.log('Time Format: ' + time_format);
 
         updateProperty({{ current_user.user_id }}, "USER_HOUR_FORMAT", time_format);
+    });
+
+    $("#USER_MAINTENANCE_HOUR").change(function() {
+        var selected = $(this).find('option:selected');
+        var maintenance_hour = selected.data('hour');
+        console.log('Maintenance Hour: ' + maintenance_hour);
+
+        let maintenance_hour_str = `"${maintenance_hour}"`;
+
+        updateProperty({{ current_user.user_id }}, "USER_MAINTENANCE_HOUR", maintenance_hour_str);
     });
 
 </script>
