@@ -42,6 +42,13 @@ class Agents(PaginatedApi, DATABASE.Model):
         lazy="dynamic",
     )
 
+    attached_monitors = DATABASE.relationship(
+        "Monitor",
+        foreign_keys="Monitor.agent_id",
+        backref="attached_monitors",
+        lazy="dynamic",
+    )
+
     def get_id(self):
         logger.debug(f"Called Agent.get_id: ID IS: {self.agent_id}")
         return str(self.agent_id)

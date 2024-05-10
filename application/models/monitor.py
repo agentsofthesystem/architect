@@ -27,6 +27,22 @@ class Monitor(PaginatedApi, DATABASE.Model):
     has_fault = DATABASE.Column(DATABASE.Boolean, nullable=False, default=False)
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
 
+    # Useful as a bacref... other property function is used to get all attributes as a dict.
+    monitor_attributes = DATABASE.relationship(
+        "MonitorAttribute",
+        foreign_keys="MonitorAttribute.monitor_id",
+        backref="monitor_attributes",
+        lazy="dynamic",
+    )
+
+    # Useful as a bacref... other property function is used to get all attributes as a dict.
+    monitor_faults = DATABASE.relationship(
+        "MonitorFault",
+        foreign_keys="MonitorFault.monitor_id",
+        backref="monitor_faults",
+        lazy="dynamic",
+    )
+
     @property
     def attributes(self):
         all_attrs = MonitorAttribute.query.filter_by(monitor_id=self.monitor_id).all()
