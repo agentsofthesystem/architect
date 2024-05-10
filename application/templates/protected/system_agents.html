@@ -273,6 +273,8 @@
 
             console.log("Agent ID: " + agent_id + ", Status: " + agent_status);
 
+            agent_info_url = "/app/system/agent/info/" + agent_id;
+
             // Since there is a regular sized and small sized table, have to loop.
             var badge = $("." + agent_id_class);
             var spinner = $("." + agent_spinner_id_class);
@@ -288,6 +290,7 @@
 
                 if(agent_status == "Alive"){
                     $(this_badge).attr("class", "badge badge-success agent-status-badge " + agent_id_class);
+                    $('.' + agent_info_link_class).attr("href", agent_info_url)
                 }
                 else if (agent_status == "Unreachable"){
                     $(this_badge).attr("class", "badge badge-danger agent-status-badge " + agent_id_class);
@@ -370,7 +373,9 @@
     $(".clickable-cell").click(function() {
         var cell = $(this)[0].parentElement
         var link = cell.getAttribute("href");
-        window.location = link;
+        if(link != null){
+            window.location = link;
+        }
     });
 
 </script>
