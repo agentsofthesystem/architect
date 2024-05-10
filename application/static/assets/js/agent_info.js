@@ -81,15 +81,35 @@ $(document).ready(function () {
             var new_small_row = document.createElement('tr');
 
             let game_server_name = game['game_name'];
+            let game_server_pid = game['game_pid'];
             let game_server_pretty_name = game['game_pretty_name'];
             let game_last_update = game['game_last_update']
-            let game_server_status_badge = game['game_status'] == "Not Running" ? "badge-danger" : "badge-success";
             let game_server_status = game['game_status'];
             let game_steam_build_id = game['game_steam_build_id']
             let game_steam_build_branch = game['game_steam_build_branch']
             let game_update_badge = game['update_required'] == true ? '<span class="badge badge-danger">*</span>' : "";
-            let drop_down_menu = ''
-            let drop_down = ''
+
+            let derived_server_status = '';
+            let game_server_status_badge = '';
+            let drop_down_menu = '';
+            let drop_down = '';
+
+            var has_pid = game_server_pid != null ? true : false;
+
+            if(game_server_status == "Not Running"){
+                if(has_pid){
+                    derived_server_status = "Offline"
+                    game_server_status_badge = "badge-danger"
+                }
+                else{
+                    derived_server_status = "Shutdown"
+                    game_server_status_badge = "badge-warning"
+                }
+            }
+            else{
+                derived_server_status = "Online"
+                game_server_status_badge = "badge-success"
+            }
 
             let year = new Date().getFullYear()  // returns the current year
             let split_last_update = game_last_update.split(year);
@@ -127,13 +147,13 @@ $(document).ready(function () {
                 <td>${game_last_update}</td>
                 <td>${game_steam_build_id} ${game_update_badge}</td>
                 <td>${game_steam_build_branch}</td>
-                <td><span class="badge ${game_server_status_badge}">${game_server_status}</span></td>
+                <td><span class="badge ${game_server_status_badge}">${derived_server_status}</span></td>
                 ${drop_down}
             `
 
             new_small_row.innerHTML = `
                 <td>${game_server_pretty_name}</td>
-                <td><span class="badge ${game_server_status_badge}">${game_server_status}</span></td>
+                <td><span class="badge ${game_server_status_badge}">${derived_server_status}</span></td>
                 ${drop_down}
             `
 
