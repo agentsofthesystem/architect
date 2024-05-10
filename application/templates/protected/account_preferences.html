@@ -104,8 +104,8 @@
                                 {% endif %}
                                 <select class="form-control" id="USER_TIMEZONE" data-user-timezone="{{user_timezone}}">
                                     {% for tz in timezone_dict.keys() %}
-                                        {% set is_selected = 'selected' if timezone_dict[tz]['label'] == user_timezone else '' %}
-                                        <option data-time-zone-id="{{ timezone_dict[tz]['time_zone_id'] }}" data-gmt-adjustment="{{ timezone_dict[tz]['utcoffset'] }}" value="{{ timezone_dict[tz]['utcoffset'] }}" {{is_selected}}>{{ timezone_dict[tz]['label']}}</option>
+                                        {% set is_selected = 'selected' if tz == user_timezone else '' %}
+                                        <option data-time-zone-id="{{ timezone_dict[tz]['time_zone_id'] }}" data-gmt-adjustment="{{ timezone_dict[tz]['utcoffset'] }}" value="{{ timezone_dict[tz]['utcoffset'] }}" {{is_selected}}>{{ tz }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

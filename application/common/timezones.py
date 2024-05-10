@@ -38,16 +38,29 @@ def get_time_zone_dict() -> dict:
         tz_now = datetime.datetime.now(pytz.timezone(time_zone))
         offset = int(tz_now.utcoffset().total_seconds() / 60 / 60)
         offset_str = _offset_to_string(offset)
+        label_str = f"({offset_str}) {time_zone}"
 
-        time_zone_dict[time_zone] = {
+        time_zone_dict[label_str] = {
             "time_zone_id": count,
             "time_zone": time_zone,
             "utcoffset": offset,
-            "label": f"({offset_str}) {time_zone}",
+            "label": label_str,
         }
         count += 1
 
     return time_zone_dict
+
+
+# A function to convert label to utc offset
+def tz_label_to_offset(label: str) -> int:
+    tz_entry = constants.TIME_ZONE_DICT[label]
+    return tz_entry["utcoffset"]
+
+
+# A function to convert label to pytz timezone
+def tz_label_to_timezone(label: str) -> int:
+    tz_entry = constants.TIME_ZONE_DICT[label]
+    return tz_entry["time_zone"]
 
 
 # A function that generates a list of hours of the day in 12-hour format with AM/PM

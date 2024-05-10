@@ -7,23 +7,34 @@ from application.workers import monitor_constants
 from operator_client import Operator
 
 
+def _is_server_running(client: Operator, server_pid: str, server_name: str) -> bool:
+    server_status = client.game.get_game_status(server_name)
+    is_running = server_status["is_running"]
+    is_pid = False if server_pid is None else True
+    return is_running and is_pid
+
+
 # A sub-routine to start the server.
 def _start_server(client: Operator, server_name: str) -> bool:
     # Start the server. Issue the start command regardless.
-    client.game.game_startup(server_name)
+    game_arguments = client.game.get_argument_by_game_name(server_name)
+
+    # First attempt
+    arg_dict = {}
+    for arg in game_arguments:
+        arg_dict[arg["game_arg"]] = arg["game_arg_value"]
+
+    client.game.game_startup(server_name, input_args=arg_dict)
 
     # Check that the server actually is running.
-    retry_count = 0
+    retry_count = 1
     server_status = client.game.get_game_status(server_name)
     is_running = server_status["is_running"]
 
-    while not is_running and (retry_count < monitor_constants.MAX_COMMAND_RETRIES):
+    while not is_running and (retry_count <= monitor_constants.MAX_COMMAND_RETRIES):
         logger.debug(
             f"Server {server_name} is not running. Retrying startup. Attempt: {retry_count}"
         )
-        arg_dict = {}
-        for arg in client.game.get_argument_by_game_name(server_name):
-            arg_dict[arg["game_arg"]] = arg["game_arg_value"]
         client.game.game_startup(server_name, input_args=arg_dict)
         time.sleep(monitor_constants.COMMAND_WAIT_TIME)
         server_status = client.game.get_game_status(server_name)
@@ -43,11 +54,11 @@ def _stop_server(client: Operator, server_name: str) -> bool:
     client.game.game_shutdown(server_name)
 
     # Check that the server actually is shutdown.
-    retry_count = 0
+    retry_count = 1
     server_status = client.game.get_game_status(server_name)
     is_running = server_status["is_running"]
 
-    while is_running and (retry_count < monitor_constants.MAX_COMMAND_RETRIES):
+    while is_running and (retry_count <= monitor_constants.MAX_COMMAND_RETRIES):
         logger.debug(
             f"Server {server_name} is still running. Retrying shutdown. Attempt: {retry_count}"
         )

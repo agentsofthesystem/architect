@@ -37,9 +37,9 @@
           <div class="form-check form-check-inline">
             <label for="interval-select-2" class="form-check-label"><h6>Polling Interval</h6></label>
             <select id="interval-select-2" class="form-control ml-2 monitor-control" data-name="DS_HEALTH_INTERVAL">
-              <option value="15">15 Minutes</option>
-              <option value="30">30 Minutes</option>
-              <option value="60">1 Hour</option>
+              <option value="900">15 Minutes</option>
+              <option value="1800">30 Minutes</option>
+              <option value="3600">1 Hour</option>
             </select>
           </div>
           <div class="form-check form-check-inline">
@@ -70,14 +70,24 @@
           <div class="form-check form-check-inline">
             <label for="interval-select-3" class="form-check-label"><h6>Polling Interval</h6></label>
             <select id="interval-select-3" class="form-control ml-2 monitor-control" data-name="DS_UPDATES_CHECK_INTERVAL">
-              <option value="15">15 Minutes</option>
-              <option value="30">30 Minutes</option>
-              <option value="60">1 Hour</option>
+              <option value="900">15 Minutes</option>
+              <option value="1800">30 Minutes</option>
+              <option value="3600">1 Hour</option>
             </select>
           </div>
           <div class="form-check form-check-inline">
             <label for="alert-enable-toggle-3" class="form-check-label"><h6>Enable Alerts</h6></label>
             <input id="alert-enable-toggle-3" class="form-check-input  monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="DS_UPDATES_ALERT_ENABLE">
+          </div>
+        </div>
+        <div class="d-flex justify-content-start">
+          <div class="form-check form-check-inline">
+            <label for="update-final-state" class="form-check-label"><h6>Final Server State</h6></label>
+            <select id="update-final-state" class="form-control ml-2 monitor-control" data-name="DS_UPDATES_FINAL_SERVER_STATE">
+              <option value="SAME">Same</option>
+              <option value="ONLINE">Online</option>
+              <option value="OFFLINE">Offline</option>
+            </select>
           </div>
         </div>
         <div class="d-flex justify-content-start">
