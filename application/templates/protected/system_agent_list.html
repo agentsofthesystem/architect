@@ -15,7 +15,7 @@
       <tbody>
 
         {% for agent in all_agents_list %}
-        <tr class="bg-white agent-info-link-{{agent['agent_id']}}" href="{{url_for('protected.system_agent_info', agent_id=agent['agent_id'])}}">
+        <tr class="bg-white agent-info-link-{{agent['agent_id']}}" data-agent-id="{{agent['agent_id']}}">
           <td class="clickable-cell">
             <a class="align-items-center">
               {% if current_user.user_id == agent['owner_id'] %}
