@@ -2,7 +2,7 @@ import pytz
 
 from datetime import datetime, timezone, timedelta
 
-from application.common import constants, logger
+from application.common import constants, logger, timezones
 from application.extensions import DATABASE
 from application.models.agent import Agents
 from application.models.default_property import DefaultProperty
@@ -198,14 +198,59 @@ def get_agent_users(agent_id: int, return_objects=False) -> list:
         return agent_users
 
 
+"""
 # Determine whether or not the current time is within the maintenance window.
-def is_inside_maintenance_hour(maintenance_hour: int, user_timezone: str) -> bool:
-    now = datetime.now(pytz.timezone(user_timezone))
-    maintenance_hour = datetime(
-        now.year, now.month, now.day, maintenance_hour, 0, 0, 0, pytz.timezone(user_timezone)
-    )
+def is_inside_maintenance_hour(maintenance_hour: int, user_timezone_offset: str) -> bool:
+    # Write a function that returns a timezone based on UTC offset.
+    def get_timezone_by_utc_offset(offset):
+        # Return the first timezone found that has the specified UTC offset.
+        for tz_string in pytz.common_timezones:
+            tz = pytz.timezone(tz_string)
+            if tz.utcoffset(datetime.now()).total_seconds() == offset * 3600:
+                return tz
+        return None
 
-    maintenance_hour_start = maintenance_hour
+    desired_tz = get_timezone_by_utc_offset(user_timezone_offset)
+    now = datetime.now()
+
+    maintenance_hour_start = datetime(now.year, now.month, now.day, maintenance_hour, 00)
     maintenance_hour_end = maintenance_hour_start + timedelta(hours=1)
+
+    localized_now = desired_tz.localize(now)
+    localized_maintenance_hour_start = desired_tz.localize(maintenance_hour_start)
+    localized_maintenance_hour_end = desired_tz.localize(maintenance_hour_end)
+
+    logger.debug(f"Desired timezone: {desired_tz}")
+    logger.debug(f"Current time: {localized_now}")
+    logger.debug(f"Maintenance start time: {localized_maintenance_hour_start}")
+    logger.debug(f"Maintenance end time: {localized_maintenance_hour_end}")
+
+    return (
+        True
+        if localized_now >= localized_maintenance_hour_start
+        and localized_now < localized_maintenance_hour_end
+        else False
+    )
+"""
+
+
+# Determine whether or not the current time is within the maintenance window.
+def is_inside_maintenance_hour(maintenance_hour: int, user_timezone_label: str) -> bool:
+    # Write a function that returns a timezone based on UTC offset.
+    user_timezone = timezones.tz_label_to_timezone(user_timezone_label)
+    pytz_timezone = pytz.timezone(user_timezone)
+
+    now = datetime.now(pytz_timezone)
+
+    start_hour = datetime(now.year, now.month, now.day, maintenance_hour, 00)
+    end_hour = start_hour + timedelta(hours=1)
+
+    maintenance_hour_start = pytz_timezone.localize(start_hour)
+    maintenance_hour_end = pytz_timezone.localize(end_hour)
+
+    logger.debug(f"Desired timezone: {pytz_timezone}")
+    logger.debug(f"Current time: {now}")
+    logger.debug(f"Maintenance start time: {maintenance_hour_start}")
+    logger.debug(f"Maintenance end time: {maintenance_hour_end}")
 
     return True if now >= maintenance_hour_start and now < maintenance_hour_end else False

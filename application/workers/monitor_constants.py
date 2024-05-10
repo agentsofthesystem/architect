@@ -54,6 +54,16 @@ ALERT_MESSAGES_FMT_STR = {
             "<p>The server will be stopped, updated, and restarted automatically.</p>"
         ),
     },
+    "DS_UPDATE_3": {
+        "subject": "Update Required: {hostname}",
+        "message": (
+            "<p><h3>Agent: {hostname}</h3></p>"
+            "<p>Server: {game_name} requires an update.</p>"
+            "<p></p>"
+            "<p>The server will be updated at the next maintenance window of in the agent owner's "
+            "timezone.</p>"
+        ),
+    },
 }
 
 MAX_COMMAND_RETRIES = 6

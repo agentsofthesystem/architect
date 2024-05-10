@@ -10,11 +10,12 @@ from operator_client import Operator
 
 @CELERY.task(bind=True)
 def dedicated_server_update_monitor(self, monitor_id: int):
-    logger.debug(f"Dedicated SErver Update Monitor Task Running at {datetime.now(timezone.utc)}")
+    logger.debug(f"Dedicated Server Update Monitor Task Running at {datetime.now(timezone.utc)}")
 
     monitor_obj = monitor_utils._get_monitor_obj(monitor_id)
     alert_fmt_str = None
     owner_id = None
+    final_server_state = None
 
     if monitor_obj is None:
         logger.error(f"Monitor ID {monitor_id} not found.")
@@ -39,10 +40,14 @@ def dedicated_server_update_monitor(self, monitor_id: int):
 
     # Get the owner's maintenance window preference or assume the default.
     owner_id = agent_obj.owner_id
-    maintenance_hour = monitor_utils.get_user_property(  # noqa: F841
-        owner_id, "USER_MAINTENANCE_HOUR"
-    )
-    user_timezone = monitor_utils.get_user_property(owner_id, "USER_TIMEZONE")  # noqa: F841
+    maintenance_hour = monitor_utils.get_user_property(owner_id, "USER_MAINTENANCE_HOUR")
+    user_tz_label = monitor_utils.get_user_property(owner_id, "USER_TIMEZONE")
+
+    if monitor_utils.has_monitor_attribute(monitor_obj, "final_server_state"):
+        final_server_state_str = monitor_obj.attributes["final_server_state"]
+        final_server_state = constants.server_state_from_string(final_server_state_str)
+    else:
+        final_server_state = constants.ServerStates.SAME
 
     if monitor_utils.is_monitor_testing_enabled():
         logger.debug("Monitor Testing is enabled. Using Default Test Interval Constant.")
@@ -110,28 +115,14 @@ def dedicated_server_update_monitor(self, monitor_id: int):
         # Loop through all the servers and check if they are running, and take actions if necessary.
         for server in installed_servers:
             server_id = server["game_id"]
-            server_pid = server["game_pid"]
             server_name = server["game_name"]
+            server_pid = server["game_pid"]
             fault_string_1 = f"Server {server_name} requires an update."
             fault_string_2 = f"Server {server_name} was updated."
-
-            # Get all active faults & skip if the fault already exists.  This prevents spamming
-            # the same fault/action over and over.
-            if monitor_utils.is_fault_description_matching(monitor_obj.monitor_id, fault_string_1):
-                logger.debug(
-                    f"This monitor as already identified the server: {server_name}. "
-                    "Needs an update."
-                )
-                continue
-
-            if monitor_utils.is_fault_description_matching(monitor_obj.monitor_id, fault_string_2):
-                logger.debug(f"This monitor as already attempted to update server: {server_name}.")
-                continue
-
-            logger.debug(f"Checking Server: {server_name} with PID: {server_pid}")
+            fault_string_3 = f"Server {server_name} will be updated at the next maintenance window."
 
             # Check if the server requires an update, it does not have to be running to do this.
-            update_info = client.game.check_for_updates(server_id)
+            update_info = client.game.check_for_update(server_id)
 
             if update_info is None:
                 logger.error(f"Server {server_name} - Update Check Failed.")
@@ -141,31 +132,105 @@ def dedicated_server_update_monitor(self, monitor_id: int):
             current_version = update_info["current_version"]
             target_version = update_info["target_version"]
 
+            logger.debug(
+                f"Server {server_name} - Current Version: {current_version}, "
+                f"Target Version: {target_version}, Update Required: {is_required}"
+            )
+
             if is_required:
                 # If the user has enabled auto-restart, then the server will be stopped, updated,
                 # and restarted.
-                if monitor_utils.has_monitor_attribute(monitor_obj, "server_auto_restart"):
-                    # Run shutdown subroutine
-                    monitor_server_utils._stop_server(client, server_name)
+                if monitor_utils.has_monitor_attribute(monitor_obj, "server_auto_update"):
+                    logger.debug(f"Server {server_name} - Auto-Update Enabled.")
 
-                    # Now issue the update command.
-                    monitor_server_utils._update_server(client, server_name)
+                    logger.debug(
+                        f"Checking if inside maintenance hour: {maintenance_hour}, "
+                        f":TZ: {user_tz_label}"
+                    )
 
-                    # Finally, startup the server.
-                    monitor_server_utils._start_server(client, server_name)
+                    if not monitor_utils.is_inside_maintenance_hour(
+                        maintenance_hour, user_tz_label
+                    ):
+                        logger.debug("Outside Maintenance Window. Skipping Server Update.")
 
-                    # Set the fault flag on the monitor overall.
-                    monitor_utils.create_monitor_fault(monitor_obj.monitor_id, fault_string_2)
-                    monitor_utils.set_monitor_fault_flag(monitor_obj.monitor_id, has_fault=True)
+                        if monitor_utils.is_fault_description_matching(
+                            monitor_obj.monitor_id, fault_string_3
+                        ):
+                            logger.debug(
+                                f"This monitor has already alerted that update is coming in next "
+                                f"maintenance window: {server_name}."
+                            )
+                            continue
 
-                    alert_fmt_str = monitor_constants.ALERT_MESSAGES_FMT_STR["DS_UPDATE_2"]
+                        monitor_utils.create_monitor_fault(monitor_obj.monitor_id, fault_string_3)
+                        monitor_utils.set_monitor_fault_flag(monitor_obj.monitor_id, has_fault=True)
+                        alert_fmt_str = monitor_constants.ALERT_MESSAGES_FMT_STR["DS_UPDATE_3"]
+                    else:
+                        logger.debug("Inside Maintenance Window. Updating Server.")
 
-                # Otherwise, the user has not enabled auto-restart, and the server is left alone.
+                        if monitor_utils.is_fault_description_matching(
+                            monitor_obj.monitor_id, fault_string_2
+                        ):
+                            logger.debug(
+                                "This monitor as already attempted to update "
+                                f"server: {server_name}."
+                            )
+                            continue
+
+                        # Prior to startup, is the server running?
+                        is_server_running = monitor_server_utils._is_server_running(
+                            client, server_pid, server_name
+                        )
+
+                        # Run shutdown subroutine - If server is already offline, can't hurt to do
+                        # this anyway.
+                        shutdown_result = monitor_server_utils._stop_server(client, server_name)
+
+                        # Now issue the update command.
+                        update_result = monitor_server_utils._update_server(client, server_name)
+
+                        # Finally, startup the server.
+                        if final_server_state == constants.ServerStates.ONLINE:
+                            # User wants final state to be online no matter what.
+                            startup_result = monitor_server_utils._start_server(client, server_name)
+                        elif (
+                            final_server_state == constants.ServerStates.SAME and is_server_running
+                        ):
+                            # Server was running to begin with and user wants it to resume its
+                            # last state, so start it back up.
+                            startup_result = monitor_server_utils._start_server(client, server_name)
+                        else:
+                            startup_result = False
+
+                        logger.debug(
+                            f"Server {server_name} - Shutdown: {shutdown_result}, "
+                            f"Update: {update_result}, Startup: {startup_result}"
+                        )
+
+                        # Set the fault flag on the monitor overall.
+                        monitor_utils.create_monitor_fault(monitor_obj.monitor_id, fault_string_2)
+                        monitor_utils.set_monitor_fault_flag(monitor_obj.monitor_id, has_fault=True)
+
+                        alert_fmt_str = monitor_constants.ALERT_MESSAGES_FMT_STR["DS_UPDATE_2"]
+
+                # Otherwise, the user has not enabled auto-Update, and the server is left alone.
                 # Only create a fault/alert.
                 else:
-                    # The server is not running, and the user has not enabled auto-restart.
+                    logger.debug(f"Server {server_name} - Auto-Update Disabled.")
+
+                    # This prevents spamming the same fault/action over and over.
+                    if monitor_utils.is_fault_description_matching(
+                        monitor_obj.monitor_id, fault_string_1
+                    ):
+                        logger.debug(
+                            f"This monitor as already identified the server: {server_name}. "
+                            "Needs an update."
+                        )
+                        continue
+
+                    # The server is not running, and the user has not enabled auto-Update.
                     # Therefore, create a fault and alert the user.
-                    monitor_utils.create_monitor_fault(monitor_obj.monitor_id, fault_string_2)
+                    monitor_utils.create_monitor_fault(monitor_obj.monitor_id, fault_string_1)
 
                     # Set the fault flag on the monitor overall.
                     monitor_utils.set_monitor_fault_flag(monitor_obj.monitor_id, has_fault=True)

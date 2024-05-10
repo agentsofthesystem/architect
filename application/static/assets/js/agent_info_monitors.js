@@ -69,7 +69,7 @@ $(".monitor-control").change(function() {
         case "AGENT_HEALTH_INTERVAL":
             // Coming from a dropdown
             var value = $('#interval-select-1')[0].value;
-            handleIntervalSelect(agent_id, "AGENT", "interval", value);
+            handleSelectAttribute(agent_id, "AGENT", "interval", value);
             break;
 
         /** This is for AGENT DEDICATED SERVER MONITORING */
@@ -87,7 +87,7 @@ $(".monitor-control").change(function() {
         case "DS_HEALTH_INTERVAL":
             // Coming from a dropdown
             var value = $('#interval-select-2')[0].value;
-            handleIntervalSelect(agent_id, "DEDICATED_SERVER", "interval", value);
+            handleSelectAttribute(agent_id, "DEDICATED_SERVER", "interval", value);
             break;
         case "DS_AUTO_RESTART_ENABLE":
             // Coming from a toggle
@@ -110,7 +110,12 @@ $(".monitor-control").change(function() {
         case "DS_UPDATES_CHECK_INTERVAL":
             // Coming from a dropdown
             var value = $('#interval-select-3')[0].value;
-            handleIntervalSelect(agent_id, "UPDATES", "interval", value);
+            handleSelectAttribute(agent_id, "UPDATES", "interval", value);
+            break;
+        case "DS_UPDATES_FINAL_SERVER_STATE":
+            // Coming from a dropdown
+            var value = $('#update-final-state')[0].value;
+            handleSelectAttribute(agent_id, "UPDATES", "final_server_state", value);
             break;
         case "DS_AUTO_UPDATE_ENABLE":
             // Coming from a toggle
@@ -233,6 +238,9 @@ function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
                     $("#server-auto-update-toggle").bootstrapToggle('on', disable_event_propagation)
                 }
             }
+            if('final_server_state' in attributes_data){
+                $("#update-final-state").val(attributes_data['final_server_state']);
+            }
             status_badge = $("#DS_UPDATE_STATUS")[0];
             $("#DS_UPDATES_NEXT_CHECK")[0].innerHTML = "Next Check: " + next_check;
             $("#DS_UPDATES_LAST_CHECK")[0].innerHTML = "Last Check: " + last_check;
@@ -250,7 +258,11 @@ function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
     if(has_fault){
         status_badge.classList.add('badge-danger');
         status_badge.innerHTML = "Fault(s) Detected";
-        $(enable_toggle).bootstrapToggle('disable');
+        // Only need to disable the agent health monitor. The other types can generate faults
+        // still have this button enabled for control.
+        if( monitor_type == "AGENT"){
+            $(enable_toggle).bootstrapToggle('disable');
+        }
     }
     else{
         if(active){
@@ -522,7 +534,7 @@ function handleToggleAttribute(
 
 }
 
-function handleIntervalSelect(
+function handleSelectAttribute(
     agent_id, monitor_type, attribute_name, attribute_value
 ){
     updateMonitorAttribute(agent_id, monitor_type, attribute_name, attribute_value);

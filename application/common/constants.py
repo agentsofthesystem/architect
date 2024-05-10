@@ -35,7 +35,39 @@ class MonitorTypes(Enum):
     NOT_SET = 3
 
 
+class ServerStates(Enum):
+    ONLINE = 0
+    OFFLINE = 1
+    SAME = 3
+    UNKNOWN = 4
+
+
 # Conversion functions between strings and Enums can go in this file.
+
+
+# A function that takes a string and retursn the corresponding Enum value for ServerStates
+def server_state_from_string(server_state: str) -> ServerStates:
+    server_state = server_state.upper()
+    if server_state == "ONLINE":
+        return ServerStates.ONLINE
+    elif server_state == "OFFLINE":
+        return ServerStates.OFFLINE
+    elif server_state == "SAME":
+        return ServerStates.SAME
+    else:
+        return ServerStates.UNKNOWN
+
+
+# A function that takes a ServerState Enum value and returns the corresponding string
+def server_state_to_string(server_state: ServerStates) -> str:
+    if server_state == ServerStates.ONLINE:
+        return "ONLINE"
+    elif server_state == ServerStates.OFFLINE:
+        return "OFFLINE"
+    elif server_state == ServerStates.SAME:
+        return "SAME"
+    else:
+        return "UNKNOWN"
 
 
 # A function that takes a string and returns the corresponding Enum value for MonitorTypes
