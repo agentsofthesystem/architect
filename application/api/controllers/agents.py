@@ -189,8 +189,12 @@ def update_agent(request):
 
 
 def deactivate_agent(object_id: int) -> bool:
-    # TODO - When deleting an agent, may want to later just mark active=False, and will also
-    # have to handle friend/group relationships.
+    """
+    Remove an agent from database along with all relationships.
+
+    Args:
+        object_id: Agent ID to delete.
+    """
     agent_qry = Agents.query.filter_by(agent_id=object_id)
 
     agent_obj = agent_qry.first()
@@ -200,12 +204,39 @@ def deactivate_agent(object_id: int) -> bool:
             "Unable to Delete Agent ID # {object_id}. Does Not Exist!", status_code=400
         )
 
+    logger.debug(f"Deactivating Agent: {agent_obj.name}")
+    agent_groups = agent_obj.groups_with_access.all()
+    agent_friends = agent_obj.friends_with_access.all()
+    attached_monitors = agent_obj.attached_monitors.all()
+
     try:
-        DATABASE.session.delete(agent_obj)
+        # Delete monitor faults and attributes.
+        for monitor in attached_monitors:
+            mfaults = monitor.monitor_faults.all()
+            mattrs = monitor.monitor_attributes.all()
+            for fault in mfaults:
+                DATABASE.session.delete(fault)
+            for mattribute in mattrs:
+                DATABASE.session.delete(mattribute)
+
+        # Delete monitor itself
+        for monitor in attached_monitors:
+            DATABASE.session.delete(monitor)
+
+        # Delete group relationships
+        for group in agent_groups:
+            DATABASE.session.delete(group)
+
+        # Delete friend relationships
+        for friend in agent_friends:
+            DATABASE.session.delete(friend)
+
+        DATABASE.session.delete(agent_obj)  # Agent
         DATABASE.session.commit()
     except Exception as error:
         logger.critical(error)
         flash("Could not Remove Agent. Database Error!", "danger")
+        DATABASE.session.rollback()
         return False
 
     return True
