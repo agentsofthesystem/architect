@@ -160,13 +160,38 @@ def create_direct_message(
 
 
 def message_user_list(
-    sender_id: int, user_list: list, message: str, subject: str, category: MessageCategories
+    sender_id: int, user_id_list: list, message: str, subject: str, category: MessageCategories
 ) -> None:
-    for user_id in user_list:
-        if MessageCategories.MONITOR == category:
-            create_direct_message(sender_id, user_id, message, subject, category)
-        else:
-            logger.critical("Invalid category for message_user_list")
+    final_user_list = []
+    # First send out, one by one, direct messages to each user, if they're enabled.
+    for recipient_id in user_id_list:
+        if not _is_user_category_disabled(recipient_id, category):
+            _create_message(sender_id, recipient_id, message, subject, is_global=False)
+
+        # Determine, who on the list has email enabled in this loop.
+        if not _is_user_category_disabled(recipient_id, category, is_email=True):
+            user = UserSql.query.filter_by(user_id=recipient_id).first()
+            final_user_list.append(user.email)
+
+    # If the final user list is empty, we don't need to send out any emails.
+    if len(final_user_list) == 0:
+        logger.debug("No users to send email to.")
+        return
+
+    # From the final list, send out the email all at once.
+    try:
+        send_email.apply_async(
+            [
+                # This is the sender email. Okay to use app config because it never changes.
+                current_app.config["DEFAULT_MAIL_SENDER"],
+                subject,
+                final_user_list,
+                message,
+            ]
+        )
+    except OperationalError as error:
+        logger.error("ERROR: Unable to communicate with Celery Backend.")
+        logger.error(error)
 
 
 def get_direct_messages():

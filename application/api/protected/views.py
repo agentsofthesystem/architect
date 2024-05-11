@@ -215,6 +215,8 @@ def system_groups():
     invite_to_group_form = forms.InviteFriendToGroupForm()
     invite_to_group_form.populate_choices()
 
+    group_message_form = forms.GroupMessageForm()
+
     if request.method == "POST":
         data = request.form
         method = data["method"]
@@ -260,6 +262,14 @@ def system_groups():
                 flash("Error Transferring Friend to Group.", "danger")
 
             return redirect(url_for("protected.system_groups"))
+        elif method == "PATCH_GROUP_MESSAGE":
+            logger.debug("Group: Sending message to group.")
+            result = groups.send_group_message(request)
+
+            if not result:
+                flash("Error Sending Message to Group.", "danger")
+
+            return redirect(url_for("protected.system_groups"))
 
     owned_groups = groups.get_owned_groups()
     associated_groups = groups.get_associated_groups()
@@ -277,6 +287,7 @@ def system_groups():
         friend_to_group_form=friend_to_group_form,
         transfer_group_form=transfer_group_form,
         invite_to_group_form=invite_to_group_form,
+        group_message_form=group_message_form,
     )
 
 
