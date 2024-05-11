@@ -411,9 +411,13 @@ def verify_email(token):
 
     user_id = decoded_data["sub"]  # Has the user id.
 
-    if int(current_user.user_id) != int(user_id):
-        logger.error("VERIFY EMAIL: User ID does not match the current user.")
-        return False
+    # There are two conditions. The user might already be logged in and trying to verify their
+    # email. In this case, check the user_id against the current user to see if they are the
+    # same.  This prevents the token from being used by another user that is logged in.
+    if hasattr(current_user, "user_id"):
+        if int(current_user.user_id) != int(user_id):
+            logger.error("VERIFY EMAIL: User ID does not match the current user.")
+            return False
 
     user_qry = UserSql.query.filter_by(user_id=user_id)
     user_obj = user_qry.first()

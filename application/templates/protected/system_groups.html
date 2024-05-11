@@ -174,6 +174,47 @@
     </div>
 </div>
 
+
+<div class="modal fade" id="messageGroupModal" tabindex="-1" role="dialog" aria-labelledby="message-title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Message Group</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form  action="{{url_for('protected.system_groups')}}" method="post">
+                {{ group_message_form.csrf_token }}
+                {{ group_message_form.method(value="PATCH_GROUP_MESSAGE") }}
+                {{ group_message_form.group_id(id="update-message-group-id-input") }}
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        {{group_message_form.subject.label}}
+                        {{group_message_form.subject(class="form-control", placeholder="Message Group Members.")}}
+                      </div>
+                      <div class="form-group">
+                        {{group_message_form.message.label}}
+                        {{group_message_form.message(class="form-control", placeholder="Enter your message here...")}}
+                      </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <div class="form-group">
+                        {{group_message_form.send(class="form-control btn btn-success")}}
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% if is_empty %}
 <div class="col text-center">
     {% include "protected/groups_empty_state.html" %}
@@ -224,6 +265,12 @@
         console.log("Group ID is: "+ group_id);
         $('#update-transfer-group-id-input')[0].value = group_id;
         $('#transferGroupModal').modal('show')
+    }
+
+    function showMessageGroupModal(group_id){
+        console.log("Group ID is: "+ group_id);
+        $('#update-message-group-id-input')[0].value = group_id;
+        $('#messageGroupModal').modal('show')
     }
 
 </script>

@@ -51,7 +51,17 @@
                       <a class="dropdown-item" onclick="showUpdateGroupModal({{group['group_id']}})">Update Group</a>
                       <div class="dropdown-divider"></div>
                       <a class="dropdown-item" onclick="showTransferGroupModal({{group['group_id']}})">Transfer Ownership</a>
-                        <a class="dropdown-item delete-group" id="{{group['group_id']}}">Disband Group</a>
+                      <a class="dropdown-item" onclick="showMessageGroupModal({{group['group_id']}})">Message Group</a>
+                      <a class="dropdown-item delete-group" id="{{group['group_id']}}">Disband Group</a>
+                    </div>
+                  </div>
+                  {% else %}
+                  <div class="dropdown">
+                    <button class="btn btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="icon-dots-three-horizontal"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-sm">
+                      <a class="dropdown-item" onclick="showMessageGroupModal({{group['group_id']}})">Message Group</a>
                     </div>
                   </div>
                   {% endif %}

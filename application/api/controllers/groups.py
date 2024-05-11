@@ -4,6 +4,7 @@ from flask import flash, url_for
 from flask_login import current_user
 
 from application.common import logger, toolbox, constants
+from application.common.constants import MessageCategories
 from application.api.controllers import messages as message_control
 from application.extensions import DATABASE
 from application.models.agent_group_member import AgentGroupMembers
@@ -627,5 +628,53 @@ def resolve_group_invitation(request) -> bool:
         return False
 
     flash(flash_message, flash_message_type)
+
+    return True
+
+
+def send_group_message(request) -> bool:
+    """
+    Send a message to the entire group.
+    """
+    logger.debug("Sending Group Message")
+
+    data = request.form
+
+    try:
+        group_id = data["group_id"]
+        message = data["message"]
+        subject = data["subject"]
+    except KeyError:
+        logger.error("Invite Friend to Group: Missing Form Input Data")
+        flash("Unable to resolve invitation to group because the form was missing data!", "danger")
+        return False
+
+    # Make sure group exists, first.
+    group_obj = Groups.query.filter_by(group_id=group_id).first()
+
+    if group_obj is None:
+        flash("Error: Group does not exist!", "danger")
+        return False
+
+    # Get all group members
+    group_members = group_obj.members.all()
+
+    # Id of user sending the message.
+    current_user_id = current_user.user_id
+
+    # Build a list of user ids to send the message to.
+    recipient_id_list = []
+    for member in group_members:
+        member_id = member.member_id
+        # Don't sent a message to the user that is sending the message.
+        if member_id != current_user_id:
+            recipient_id_list.append(member_id)
+
+    # Send the message to all group members.
+    message_control.message_user_list(
+        current_user_id, recipient_id_list, message, subject, MessageCategories.SOCIAL
+    )
+
+    flash("Group Message Sent!", "info")
 
     return True

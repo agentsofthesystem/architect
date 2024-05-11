@@ -52,6 +52,14 @@ class DirectMessageForm(FlaskForm):
     send = SubmitField("Send")
 
 
+class GroupMessageForm(FlaskForm):
+    subject = StringField("Subject", validators=[DataRequired()])
+    message = TextAreaField("Message", validators=[DataRequired()])
+    method = HiddenField("PATCH")
+    group_id = HiddenField("Group", validators=[DataRequired()])
+    send = SubmitField("Send")
+
+
 class NewAgentForm(FlaskForm):
     owner_id = HiddenField("Owner User ID")
     method = HiddenField("POST")
