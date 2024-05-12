@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from application.api.controllers import messages
+from application.api.controllers.agent_logs import create_agent_log
 from application.common import logger, constants, toolbox
 from application.extensions import CELERY
 from application.workers import monitor_constants, monitor_utils
@@ -139,6 +140,11 @@ def dedicated_server_monitor(self, monitor_id: int):
                         alert_fmt_str = monitor_constants.ALERT_MESSAGES_FMT_STR[
                             "DEDICATED_SERVER_1"
                         ]
+
+                        log_message = f"Monitor: Auto-Restart: {server_name}"
+                        create_agent_log(
+                            agent_obj.owner_id, agent_obj.agent_id, log_message, is_automated=True
+                        )
 
                     else:
                         # The server is not running, and the user has not enabled auto-restart.

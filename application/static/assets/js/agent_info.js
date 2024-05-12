@@ -41,6 +41,8 @@ $(document).ready(function () {
         var agent_info = data['agent_info'];
         var agent_info_section = $("#agent-info-section")[0];
         var agent_game_info_section = $("#agent-game-info-section")[0];
+        var all_agent_monitor_section = $("#all-agent-monitor-section")[0];
+        var agent_activity_section = $("#agent-activity-section")[0];
 
         console.log("Agent ID: " + agent_id + " responded with its info.");
 
@@ -118,13 +120,13 @@ $(document).ready(function () {
             // Show the correct set of buttons.
             if (game['game_status'] == "Running") {
                 drop_down_menu = `
-                <a class="dropdown-item stop-game-server" onclick="shutdownGameServer('${game_server_name}')">Stop Server</a>
+                <a class="dropdown-item stop-game-server" onclick="shutdownGameServer('${game_server_name}')">Shutdown Server</a>
                 <a class="dropdown-item restart-game-server" onclick="restartGameServer('${game_server_name}')">Restart Server</a>
                 `
             }
             else {
                 drop_down_menu = `
-                <a class="dropdown-item start-game-server" onclick="startupGameServer('${game_server_name}')">Start Server</a>
+                <a class="dropdown-item start-game-server" onclick="startupGameServer('${game_server_name}')">Startup Server</a>
                 <a class="dropdown-item update-game-server" onclick="updateGameServer('${game_server_name}')">Update</a>
                 `
             }
@@ -164,6 +166,10 @@ $(document).ready(function () {
         $("#gameServerActionInProgress").modal('hide');
         $(agent_info_section).show();
         $(agent_game_info_section).show();
+
+        // These come from agent_info_monitor.js - Placing here for timing.
+        $(all_agent_monitor_section).show();
+        $(agent_activity_section).show();
 
     });
 

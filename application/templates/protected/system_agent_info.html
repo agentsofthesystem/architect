@@ -62,7 +62,7 @@
 <div class="container">
 
   <!--Agent Info Header-->
-  <section class="bg-white">
+  <section class="bg-white space-sm">
     <div class="container">
       <div class="row justify-content-between">
         <div class="col">
@@ -94,7 +94,7 @@
         <!--end of col-->
         <div class="col-auto">
           <div class="btn-group mb-2">
-            <button type="button" class="btn btn-success btn-lg" id="agent-info-refresh"><i class="icon-cw"></i></button>
+            <button type="button" class="btn btn-success btn-lg" id="agent-info-refresh"><span>Update  <i class="icon-cw"></i></span></button>
             <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split dropdown-toggle-no-arrow"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="icon-dots-three-horizontal"></i>
@@ -114,7 +114,7 @@
   </section>
   <!--end of section-->
 
-  <section class="bg-white">
+  <section class="bg-white flush-with-above">
 
     <div class="container">
 
@@ -133,20 +133,38 @@
 
           {% include 'protected/system_agent_server_table.html' %}
 
-          <!--
-          <div class="card">
+          <div class="card" id="agent-activity-section">
             <div class="card-header">
-              <span class="h6">Agent Activity</span>
+              <div class="d-flex justify-content-between">
+                <span class="h6">Activity Logs</span>
+                <a class="btn btn-success" role="button" href="{{url_for('protected.system_agent_logs', agent_id=agent_info['agent']['agent_id'])}}">View All</a>
+              </div>
             </div>
             <div class="card-body">
-              <div class="d-flex justify-content-between">
-                <div>
-                  <a class="mb-1"><h4>Logs</h4></a>
-                  <span>Coming Soon...</span>
-                </div>
-              </div>
+              <table class="table table-bordered table-hover align-items-center">
+                <thead>
+                    <tr>
+                        <th scope="col">User</th>
+                        <th scope="col">Timestamp</th>
+                        <th scope="col">Message</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    {% for log in recent_logs %}
+                      <tr>
+                          {% if log['is_automated'] %}
+                            <td><span class="badge badge-warning">Automated</span></td>
+                          {% else %}
+                            <td><span class="badge badge-success">{{log['username']}}</span></td>
+                          {% endif %}
+                          <td>{{log['timestamp']}}</td>
+                          <td>{{log['message']}}</td>
+                      </tr>
+                    {% endfor %}
+                </tbody>
+              </table>
+            </div>
           </div>
-          -->
 
         </div>
         <!--end of col-->
@@ -154,7 +172,7 @@
       </div>
       <!--end of row-->
 
-    </div>
+     </div>
     <!--end of container-->
 
   </section>
@@ -184,9 +202,11 @@
 
       // get agent id
       var agent_id = $("meta[name='agent-info-id']").attr("content");
-      var all_agent_monitor_section = $("#all_agent_monitor_section")[0];
+      var all_agent_monitor_section = $("#all-agent-monitor-section")[0];
+      var agent_activity_section = $("#agent-activity-section")[0];
 
       $(all_agent_monitor_section).hide();
+      $(agent_activity_section).hide();
 
       agent_monitor_socket.emit(
         'get_monitor_status', { "agent_id": agent_id , 'monitor_type': 'AGENT' }
@@ -199,7 +219,6 @@
       );
 
       triggerAgentInfoRequest(agent_id, emit_only=true);
-      $(all_agent_monitor_section).show();
   });
 
 </script>

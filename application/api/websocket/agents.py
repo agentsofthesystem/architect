@@ -104,8 +104,6 @@ def get_agent_info(input_dict):
 def get_action_result(input_dict):
     response = {}
 
-    logger.info("Websocket GET ACTION RESULT... TRIGGERED!!!!")
-
     if "agent_id" not in input_dict:
         logger.critical("Agent ID not provided...")
         response.update({"result": "Error"})

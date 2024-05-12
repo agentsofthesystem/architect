@@ -2,17 +2,18 @@ var agent_monitor_socket = io("/system/agent/monitor");
 
 $(document).ready(function () {
 
-    var csrftoken = $('meta[name=csrf-token]').attr('content');
     var agent_id = $('meta[name=agent-info-id]').attr('content');
 
     var agent_health_monitor_section = $("#monitoring-agent-health")[0];
     var dedicated_server_monitor_section = $("#monitoring-dedicated-servers")[0];
     var update_monitoring_section = $("#monitoring-ds-updates")[0];
-    var all_agent_monitor_section = $("#all_agent_monitor_section")[0];
+    var all_agent_monitor_section = $("#all-agent-monitor-section")[0];
+    var agent_activity_section = $("#agent-activity-section")[0];
 
     $(dedicated_server_monitor_section).hide();
     $(update_monitoring_section).hide();
     $(all_agent_monitor_section).hide();
+    $(agent_activity_section).hide();
 
     agent_monitor_socket.on('connect', function () {
         // For now assume the monitor to check is always the Agent Health Monitor
@@ -39,8 +40,6 @@ $(document).ready(function () {
         var faults = data['faults'];
 
         updateMonitorUserInterface(monitor, attributes, faults);
-
-        $(all_agent_monitor_section).show();
     });
 
 });

@@ -13,6 +13,7 @@ from flask import (
 from flask_login import login_required, current_user
 
 from application.api.controllers import agents
+from application.api.controllers import agent_logs
 from application.api.controllers import friends
 from application.api.controllers import groups
 from application.api.controllers import messages
@@ -80,7 +81,7 @@ def system_agents():
     share_to_group_form = forms.ShareAgentToGroupForm()
     share_to_friend_form = forms.ShareAgentToFriendForm()
 
-    # TODO - Would be great to work out inheritance so this function call is not needed.
+    # TODO - Would be great to work out form inheritance so this function call is not needed.
     # Applies to groups front-end as well.
     share_to_group_form.populate_choices()
     share_to_friend_form.populate_choices()
@@ -150,6 +151,14 @@ def system_agent_info_catch():
     return redirect(url_for("protected.system_agents"))
 
 
+@protected.route("/system/agent/logs", methods=["GET"])
+@login_required
+@verified_required
+def system_agent_logs_catch():
+    """This will take the user back to the system agents list page."""
+    return redirect(url_for("protected.system_agents"))
+
+
 @protected.route("/system/agent/info/<int:agent_id>", methods=["GET", "POST"])
 @login_required
 @verified_required
@@ -158,6 +167,8 @@ def system_agent_info(agent_id: int):
     # Get Agent Info.
     agent_obj = agents.get_agent_by_id(agent_id, as_obj=True)
     agent_dict = agent_obj.to_dict()
+
+    recent_logs = agent_logs.get_recent_agent_logs(agent_id)
 
     owner_obj = users.get_user_by_id(agent_obj.owner_id)
     agent_dict["owner"] = owner_obj.to_dict()
@@ -195,6 +206,40 @@ def system_agent_info(agent_id: int):
         "protected/system_agent_info.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         agent_info=agent_info,
+        recent_logs=recent_logs,
+    )
+
+
+@protected.route("/system/agent/logs/<int:agent_id>", methods=["GET", "POST"])
+@login_required
+@verified_required
+@agent_permission_required
+def system_agent_logs(agent_id: int):
+    agent_obj = agents.get_agent_by_id(agent_id, as_obj=True)
+    agent_dict = agent_obj.to_dict()
+
+    owner_obj = users.get_user_by_id(agent_obj.owner_id)
+    agent_dict["owner"] = owner_obj.to_dict()
+
+    group_member_qry = agent_obj.groups_with_access
+    friend_member_qry = agent_obj.friends_with_access
+
+    num_groups = group_member_qry.count()
+    num_friends = friend_member_qry.count()
+
+    agent_info = {
+        "agent": agent_dict,
+        "num_groups": num_groups,
+        "num_friends": num_friends,
+    }
+
+    agent_logs_list = agent_logs.get_all_agent_logs(agent_id)
+
+    return render_template(
+        "protected/system_agent_logs.html",
+        pretty_name=current_app.config["APP_PRETTY_NAME"],
+        agent_info=agent_info,
+        agent_logs=agent_logs_list,
     )
 
 

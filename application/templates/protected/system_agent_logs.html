@@ -1,0 +1,190 @@
+{% extends "layout/base.html" %}
+
+{% block head %}
+
+{{super()}}
+
+{% endblock %}
+
+{% block area %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="agent-info-id" content="{{ agent_info['agent']['agent_id'] }}">
+
+<!-- Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Agent is Unreachable</h5>
+      </div>
+
+      <div class="modal-body">
+        <p>There has been an error retrieving information from the Agent. It's not reachable
+          at the Host/Port provided.</p>
+
+        <p>Please go back to the <a href="{{url_for('protected.system_agents')}}">Agents</a> page.</p>
+
+      </div>
+
+      <div class="modal-footer">
+        <a type="button" class="btn btn-secondary" href="{{url_for('protected.system_agents')}}">Go to Agents Page</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!--Agent Info Header-->
+  <section class="bg-white space-sm">
+    <div class="container">
+      <div class="row justify-content-between">
+        <div class="col">
+          <div class="media align-items-center">
+            {% if current_user.user_id == agent_info['agent']['owner_id'] %}
+            <img alt="I own this Agent" src="{{ url_for('static', filename='assets/img/agent-black.svg') }}"
+              class="avatar avatar-lg avatar-square rounded" />
+            {% else %}
+            <img alt="Shared Agent" src="{{ url_for('static', filename='assets/img/agent-green.png') }}"
+              class="avatar avatar-lg avatar-square rounded" />
+            {% endif %}
+            <div class="media-body">
+              <h1 class="mb-0"><strong>Agent Name:</strong> {{agent_info['agent']['name']}} </h1>
+              <h2 class="lead mb-2">Agent URL/Port: {{agent_info['agent']['hostname']}}:{{agent_info['agent']['port']}}
+              </h2>
+              <div class="d-flex align-items-center">
+                <span class="badge badge-secondary mr-3">Owned By: {{agent_info['agent']['owner']['username']}}</span>
+                <ul class="list-inline text-small d-inline-block">
+                  <!-- Groups -->
+                  <li class="list-inline-item"><i class="icon-globe"></i> Groups: {{agent_info['num_groups']}}</li>
+                  <!-- Groups -->
+                  <li class="list-inline-item"><i class="icon-game-controller"></i> Friends:
+                    {{agent_info['num_friends']}}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--end of col-->
+        <div class="col-auto">
+          <div class="btn-group mb-2">
+            <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split dropdown-toggle-no-arrow"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="icon-dots-three-horizontal"></i>
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right dropdown-menu-sm">
+              <a class="dropdown-item" onclick="clearAgentLogs()">Clear Logs</a>
+            </div>
+          </div>
+        </div>
+        <!--end of col-->
+      </div>
+      <!--end of row-->
+    </div>
+    <!--end of container-->
+  </section>
+  <!--end of section-->
+
+  <section class="bg-white flush-with-above">
+
+    <div class="container">
+      <div class="card" id="agent-activity-section">
+        <div class="card-header">
+          <span class="h6">Activity Logs</span>
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered table-hover align-items-center display" id="activity-log-table">
+            <thead>
+                <tr>
+                    <th scope="col">User</th>
+                    <th scope="col">Timestamp</th>
+                    <th scope="col">Message</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white">
+                {% for log in agent_logs %}
+                  <tr>
+                      {% if log['is_automated'] %}
+                        <td><span class="badge badge-warning">Automated</span></td>
+                      {% else %}
+                        <td><span class="badge badge-success">{{log['username']}}</span></td>
+                      {% endif %}
+                      <td>{{log['timestamp']}}</td>
+                      <td>{{log['message']}}</td>
+                  </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  <!--end of section-->
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+{{super()}}
+
+<script>
+
+
+  var agent_logs_base_url = "/app/system/agent/logs"
+
+  function reloadAgentLogs(agent_id) {
+    document.location.href = agent_logs_base_url + '/' + agent_id;
+  }
+
+  document.addEventListener('keydown', function (event) {
+    // Check if F5 key was pressed
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
+
+    if (event.keyCode === 116) {
+        // Prevent the default behavior of the F5 key (page reload)
+        event.preventDefault();
+
+        reloadAgentLogs(agent_id);
+    }
+  });
+
+  $(document).ready(function () {
+    var csrftoken = $('meta[name=csrf-token]').attr('content');
+
+    // Takes out the agent id. So it doesn't show up in URL and give people ideas.
+    window.history.replaceState(null, "", agent_logs_base_url);
+
+    $('#activity-log-table').DataTable({
+      responsive: true,
+    });
+
+    $.ajaxSetup({
+      beforeSend: function (xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrftoken)
+          }
+      }
+    })
+  });
+
+  function clearAgentLogs(){
+    var agent_id = $('meta[name=agent-info-id]').attr('content');
+
+    $.ajax({
+      url: '/app/backend/agent/logs/clear/' + agent_id ,
+      type: 'DELETE',
+      success: function (data) {
+        reloadAgentLogs(agent_id);
+      }
+    });
+  }
+
+
+
+</script>
+
+
+{% endblock %}
