@@ -4,6 +4,7 @@ from flask_login import login_required
 
 from application.api.controllers import agents
 from application.api.controllers import agent_control
+from application.api.controllers import agent_logs
 from application.api.controllers import friends
 from application.api.controllers import groups
 from application.api.controllers import monitors
@@ -13,8 +14,9 @@ from application.api.controllers import properties
 from application.common import logger
 from application.common.decorators import verified_required
 from application.models.agent import Agents
-from application.models.agent import AgentFriendMembers
-from application.models.agent import AgentGroupMembers
+from application.models.agent_friend_member import AgentFriendMembers
+from application.models.agent_group_member import AgentGroupMembers
+from application.models.agent_log import AgentLog
 from application.models.friend import Friends
 from application.models.friend_request import FriendRequests
 from application.models.group import Groups
@@ -27,6 +29,19 @@ from application.models.property import Property
 
 
 backend = Blueprint("backend", __name__, url_prefix="/app/backend")
+
+
+class AgentLogsBackendApi(MethodView):
+    def __init__(self, model):
+        self.model = model
+
+    @login_required
+    @verified_required
+    def delete(self, agent_id):
+        if agent_logs.delete_all_agent_logs(agent_id):
+            return "", 204
+        else:
+            return "Error!", 500
 
 
 class MonitorFaultsBackendApi(MethodView):
@@ -274,6 +289,12 @@ class AgentsBackendApi(MethodView):
         else:
             return "Error!", 500
 
+
+backend.add_url_rule(
+    "/agent/logs/clear/<int:agent_id>",
+    view_func=AgentLogsBackendApi.as_view("agent_logs_api", AgentLog),
+    methods=["DELETE"],
+)
 
 backend.add_url_rule(
     "/monitor/<int:agent_id>/<string:monitor_type>",

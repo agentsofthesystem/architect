@@ -17,6 +17,21 @@ def _apply_time_format_preference(properties: dict) -> str:
     return time_format
 
 
+# Check user properties and return the time format string which is appropriate.
+def _apply_time_log_format_preference(properties: dict) -> str:
+    if "USER_HOUR_FORMAT" in properties:
+        value = properties["USER_HOUR_FORMAT"]
+        time_format = (
+            constants.TIMESTAMP_LOG_FORMAT_12_HR
+            if value == "12"
+            else constants.TIMESTAMP_LOG_FORMAT_24_HR
+        )
+    else:
+        time_format = constants.DEFAULT_TIME_LOG_FORMAT_STR
+
+    return time_format
+
+
 def _apply_offset_to_datetime(dt: datetime.datetime, offset: int) -> datetime.datetime:
     return dt + datetime.timedelta(hours=offset)
 
@@ -33,8 +48,9 @@ def _offset_to_string(offset: int) -> str:
 def get_time_zone_dict() -> dict:
     count = 1
     time_zone_dict = {}
+    common_time_zones = list(pytz.common_timezones)
 
-    for time_zone in pytz.common_timezones:
+    for time_zone in common_time_zones[::-1]:
         tz_now = datetime.datetime.now(pytz.timezone(time_zone))
         offset = int(tz_now.utcoffset().total_seconds() / 60 / 60)
         offset_str = _offset_to_string(offset)

@@ -33,6 +33,10 @@ def get_monitor_status(input_dict):
         logger.critical("Monitor type not provided... cannot contact agent.")
         response.update({"status": "Error"})
 
+    if not hasattr(current_user, "properties"):
+        logger.critical("User properties not found.")
+        response.update({"status": "Error"})
+
     agent_id = input_dict["agent_id"]
     monitor_type = input_dict["monitor_type"]
 
@@ -58,7 +62,11 @@ def get_monitor_status(input_dict):
             user_timezone = user_properties["USER_TIMEZONE"]
             user_offset = get_timezone_offset(user_timezone)
             offset_available = True
-            logger.debug(f"User's timezone is {user_timezone}, offset: {user_offset}")
+        else:
+            user_timezone = constants.DEFAULT_USER_TIMEZONE
+            user_offset = 0
+
+        logger.debug(f"User's timezone is {user_timezone}, offset: {user_offset}")
 
         if next_check is not None:
             if offset_available:

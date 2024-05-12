@@ -1,7 +1,9 @@
 import json
 
 from flask import current_app
+from flask_login import current_user
 
+from application.api.controllers.agent_logs import create_agent_log
 from application.common import logger, toolbox
 from application.models.agent import Agents
 from application.workers.game_server_control import restart_game_server
@@ -44,6 +46,11 @@ def startup(request):
         ]
     )
 
+    log_message = f"Manual Startup: {game_name}"
+    if not create_agent_log(current_user.user_id, agent_id, log_message):
+        logger.error(f"Failed to create agent log for {agent_id}!")
+        return False
+
     return True
 
 
@@ -80,6 +87,11 @@ def shutdown(request):
             game_name,
         ]
     )
+
+    log_message = f"Manual Shutdown: {game_name}"
+    if not create_agent_log(current_user.user_id, agent_id, log_message):
+        logger.error(f"Failed to create agent log for {agent_id}!")
+        return False
 
     return True
 
@@ -118,6 +130,11 @@ def restart(request):
         ]
     )
 
+    log_message = f"Manual Restart: {game_name}"
+    if not create_agent_log(current_user.user_id, agent_id, log_message):
+        logger.error(f"Failed to create agent log for {agent_id}!")
+        return False
+
     return True
 
 
@@ -154,5 +171,10 @@ def update(request):
             game_name,
         ]
     )
+
+    log_message = f"Manual Update: {game_name}"
+    if not create_agent_log(current_user.user_id, agent_id, log_message):
+        logger.error(f"Failed to create agent log for {agent_id}!")
+        return False
 
     return True

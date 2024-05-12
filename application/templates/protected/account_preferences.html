@@ -235,21 +235,10 @@
                 deleteProperty({{ current_user.user_id }}, name);
             } else {
                 console.log('Create Property record');
-                createProperty({{ current_user.user_id }}, name, "false");
+                updateProperty({{ current_user.user_id }}, name, "false");
             }
 
         });
-    });
-
-
-    $('#unsubscribe').click(function() {
-        console.log('Unsubscribing from all notification/alert types.');
-        // Just need to change the state of the button.  The other toggle callback will
-        // trigger and handle property deletion.
-        setButtonStateOff("NOTIFICATION_DM_GLOBAL_ENABLED");
-        setButtonStateOff("NOTIFICATION_EMAIL_GLOBAL_ENABLED");
-        setButtonStateOff("NOTIFICATION_DM_SOCIAL_ENABLED");
-        setButtonStateOff("NOTIFICATION_EMAIL_SOCIAL_ENABLED");
     });
 
     $("#USER_TIMEZONE").change(function() {
@@ -282,6 +271,19 @@
         let maintenance_hour_str = `"${maintenance_hour}"`;
 
         updateProperty({{ current_user.user_id }}, "USER_MAINTENANCE_HOUR", maintenance_hour_str);
+    });
+
+
+    $('#unsubscribe').click(function() {
+        console.log('Unsubscribing from all notification/alert types.');
+        // Just need to change the state of the button.  The other toggle callback will
+        // trigger and handle property deletion.
+        setButtonStateOff("NOTIFICATION_DM_GLOBAL_ENABLED");
+        setButtonStateOff("NOTIFICATION_EMAIL_GLOBAL_ENABLED");
+        setButtonStateOff("NOTIFICATION_DM_SOCIAL_ENABLED");
+        setButtonStateOff("NOTIFICATION_EMAIL_SOCIAL_ENABLED");
+        setButtonStateOff("NOTIFICATION_DM_MONITOR_ENABLED");
+        setButtonStateOff("NOTIFICATION_EMAIL_MONITOR_ENABLED");
     });
 
 </script>
