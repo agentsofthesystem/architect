@@ -1,6 +1,7 @@
 import json
 import stripe
 
+from datetime import datetime, timezone
 from flask import (
     Blueprint,
     redirect,
@@ -14,17 +15,18 @@ from flask import (
 from flask_login import current_user
 
 from application.api.controllers import users
-from application.common import logger
-from application.common.toolbox import _get_setting
-from application.extensions import CSRF, DATABASE
-from application.models.user import UserSql
-from application.models.setting import SettingsSql
 from application.api.public.forms import (
     SignupForm,
     SignInForm,
     ForgotPasswordForm,
     ResetPasswordForm,
 )
+from application.common import logger
+from application.common.toolbox import _get_setting
+from application.extensions import CSRF, DATABASE
+from application.models.user import UserSql
+from application.models.setting import SettingsSql
+from application.workers.email import send_email
 
 public = Blueprint("public", __name__)
 
@@ -53,12 +55,11 @@ def coming_soon():
     )
 
 
-# TODO - Uncomment when ready
-# @public.route("/pricing")
-# def pricing():
-#     return render_template(
-#         "public/pricing.html", pretty_name=current_app.config["APP_PRETTY_NAME"]
-#     )
+@public.route("/pricing")
+def pricing():
+    return render_template(
+        "public/pricing.html", pretty_name=current_app.config["APP_PRETTY_NAME"], is_internal=False
+    )
 
 
 @public.route("/support")
@@ -257,14 +258,22 @@ def verify():
 @public.route("/webhook", methods=["POST"])
 @CSRF.exempt
 def webhook():
-    setting_objs = SettingsSql.query.filter_by(category="payments").all()
-    webhook_secret = _get_setting("STRIPE_WEBHOOK_SECRET", setting_objs)
-
     try:
         request_data = json.loads(request.data)
     except json.decoder.JSONDecodeError as error:
         logger.critical(error)
         request_data = request.data
+
+    # Sender, Subject, recipient, html
+    origin_host = request.host
+    email_subject = None
+    email_message = None
+    customer_email = None
+
+    setting_objs = SettingsSql.query.all()
+    webhook_secret = _get_setting("STRIPE_WEBHOOK_SECRET", setting_objs)
+    email_enabled_str = _get_setting("APP_ENABLE_EMAIL", setting_objs)
+    email_enabled = True if email_enabled_str.lower() == "true" else False
 
     if webhook_secret:
         # Retrieve the event by verifying the signature using the raw body and
@@ -305,6 +314,7 @@ def webhook():
         # of the email.
         if customer_email is None:
             usr_qry = UserSql.query.filter_by(customer_id=customer)
+            customer_email = usr_qry.first().email
         else:
             usr_qry = UserSql.query.filter_by(email=customer_email)
 
@@ -314,8 +324,47 @@ def webhook():
             "customer_id": customer,
         }
 
+        now = datetime.now(timezone.utc)
+
+        email_subject = "Subscription Confirmation"
+        email_message = render_template(
+            "email/new_subscriber.html",
+            pretty_name=current_app.config["APP_PRETTY_NAME"],
+            app_site=origin_host,
+            renewal_day=now.day,
+        )
+
         usr_qry.update(update_dict)
         DATABASE.session.commit()
+
+    elif event_type == "customer.subscription.updated":
+        logger.debug("🔔 Subscription updated!")
+        logger.debug(data_object)
+        customer_id = data_object["customer"]
+        cancel_at = data_object["cancel_at"]
+
+        usr_qry = UserSql.query.filter_by(customer_id=customer_id)
+        user_obj = usr_qry.first()
+
+        if user_obj:
+            customer_email = user_obj.email
+
+        # Update in this case the user is cancelling.
+        if cancel_at is not None:
+            email_subject = "Sorry to see you go!"
+            email_message = render_template(
+                "email/cancel_subscriber.html",
+                pretty_name=current_app.config["APP_PRETTY_NAME"],
+                app_site=origin_host,
+            )
+        else:
+            # Else, the user is renewing, returning, etc..
+            email_subject = "Subscription Renewed"
+            email_message = render_template(
+                "email/new_subscriber.html",
+                pretty_name=current_app.config["APP_PRETTY_NAME"],
+                app_site=origin_host,
+            )
 
     elif event_type == "customer.subscription.deleted":
         logger.debug("🔔 Customer canceled their subscription!")
@@ -323,11 +372,32 @@ def webhook():
         customer_id = data_object["customer"]
 
         usr_qry = UserSql.query.filter_by(customer_id=customer_id)
+        user_obj = usr_qry.first()
 
-        if usr_qry.first():
+        if user_obj:
+            customer_email = user_obj.email
             usr_qry.update({"subscribed": False, "subscription_id": ""})
             DATABASE.session.commit()
+
+        email_subject = "Your subscription has ended."
+        email_message = render_template(
+            "email/end_subscriber.html",
+            pretty_name=current_app.config["APP_PRETTY_NAME"],
+            app_site=origin_host,
+        )
+
     else:
         logger.debug(f"Received Event: {event_type} but not doing anything with it.")
+
+    # If all of these items were populated, then send the email.
+    if email_enabled and email_subject and email_message and customer_email:
+        send_email.apply_async(
+            [
+                current_app.config["DEFAULT_ADMIN_EMAIL"],
+                email_subject,
+                [customer_email],
+                email_message,
+            ]
+        )
 
     return jsonify({"status": "success"})

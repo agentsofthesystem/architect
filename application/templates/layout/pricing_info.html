@@ -1,0 +1,233 @@
+<section>
+    <div class="container">
+      <div class="row justify-content-center text-center section-intro">
+        <div class="col-12 col-md-9 col-lg-8">
+          <span class="title-decorative" data-aos="fade-up" data-aos-delay="10">Pricing</span>
+          <h2 class="display-4" data-aos="fade-up" data-aos-delay="100"></h2>
+          <span class="lead" data-aos="fade-up" data-aos-delay="200">Subscriptions come with a 30-day free trial. Cancel Anytime.</span>
+        </div>
+        <!--end of col-->
+      </div>
+      <!--end of row-->
+
+      <div class="row justify-content-center">
+        <div class="col">
+          <table class="table table-bordered table-responsive pricing">
+            <thead>
+              <tr>
+                <th scope="col"></th>
+                <th scope="col">
+                  <span class="h4 text-blue">Blue Pill</span>
+                </th>
+                <th scope="col">
+                  <span class="h4 text-red">Red Pill</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Price</th>
+                <td>
+                  <span class="display-4">Free</span>
+                  <span class="text-small"></span>
+                </td>
+                <td>
+                  <span class="display-4">$10</span>
+                  <span class="text-small">per user / month</span>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Agent Smith Connections</th>
+                <td>1</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <th scope="row" class="text-right">Dedicated Servers / Agent</th>
+                <td>1</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <th scope="row" class="text-right">Server Control</th>
+                <td>Manual Only</td>
+                <td>Manual & Automated</td>
+              </tr>
+              <tr>
+                <th scope="row" class="text-right">Group Sizes</th>
+                <td>Groups Limited to 3 Members</td>
+                <td>Unlimited</td>
+              </tr>
+              <tr>
+                <th scope="row" class="text-right">Number of Friend Groups</th>
+                <td>1</td>
+                <td>Unlimited</td>
+              </tr>
+              <tr>
+                <th scope="row" class="text-right">Sharing Agents with Friends & Groups</th>
+                <td>Limited to 1</td>
+                <td>Unlimited</td>
+              </tr>
+              <tr>
+                <th scope="row" class="text-right">Agent & Server Monitoring</th>
+                <td><i class="icon-circle-with-cross text-red"></i>
+                </td>
+                <td><i class="icon-check text-green"></i>
+                </td>
+              </tr>
+              <!--
+              <tr>
+                <th scope="row" class="text-right">Server Scheduling</th>
+                <td><i class="icon-circle-with-cross text-red"></i>
+                </td>
+                <td><i class="icon-check text-green"></i>
+                </td>
+              </tr>
+              -->
+              <tr>
+                <th scope="row" class="text-right">Email Notifications (per user)</th>
+                <td><i class="icon-circle-with-cross text-red"></i>
+                </td>
+                <td><i class="icon-check text-green"></i>
+                </td>
+              </tr>
+
+              <tr>
+                <th scope="row" class="text-right">Discord Access</th>
+                <td><i class="icon-check text-green"></i>
+                </td>
+                <td><i class="icon-check text-green"></i>
+                </td>
+              </tr>
+              {%if is_internal %}
+              <tr>
+                <th scope="row"></th>
+                <td></td>
+                <td>
+                  {% if current_user.subscribed %}
+                  <a class="btn btn-lg btn-success" disabled>Select this plan</a>
+                  {% else%}
+                  <a class="btn btn-lg btn-success" href="{{url_for('protected.account',tab='billing')}}">Upgrade</a>
+                  {% endif %}
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <th scope="row"></th>
+                <td>
+                  <a class="btn btn-lg btn-success" href="{{url_for('public.signup')}}">Get Started</a>
+                </td>
+                <td>
+                  <a class="btn btn-lg btn-success" href="{{url_for('public.signup')}}">Select this plan</a>
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        <!--end of col-->
+        <hr>
+      </div>
+
+    </div>
+    <!--end of container-->
+  </section>
+  <!--end of section-->
+
+  <section>
+    <div class="container">
+      <div class="row justify-content-center section-intro">
+        <div class="col-auto">
+          <h2 class="h1">Frequently Asked Questions</h2>
+        </div>
+        <!--end of col-->
+      </div>
+      <!--end of row-->
+      <ul class="row feature-list feature-list-sm justify-content-center">
+
+        <li class="col-12 col-md-6 col-lg-5">
+          <div class="card">
+            <div class="card-body">
+              <h6>How does payment work?</h6>
+              <p>
+                Payments are handled through Stripe. None of your payment information is stored on our servers.
+              </p>
+            </div>
+          </div>
+        </li>
+
+        <li class="col-12 col-md-6 col-lg-5">
+          <div class="card">
+            <div class="card-body">
+              <h6>When may I cancel?</h6>
+              <p>
+                Anytime. No questions asked. If you cancel in the middle of a your billing period, your subscription
+                will remain active until the end of the billing period.
+              </p>
+            </div>
+          </div>
+        </li>
+
+        <li class="col-12 col-md-6 col-lg-5">
+          <div class="card">
+            <div class="card-body">
+              <h6>If I cancel, do I get a refund?</h6>
+              <p>
+                No. If you sign up and cancel your subscription, you will not be refunded for the remaining time in
+                your billing period.  Don't worry, you'll still have access for the remaining of the billing period.
+              </p>
+            </div>
+          </div>
+        </li>
+
+        <li class="col-12 col-md-6 col-lg-5">
+          <div class="card">
+            <div class="card-body">
+              <h6>Is this a subscription?</h6>
+              <p>
+                Yes. Your subscription will automatically renew at the end of each billing period. You can cancel at
+                any time.
+              </p>
+            </div>
+          </div>
+        </li>
+
+        <li class="col-12 col-md-6 col-lg-5">
+          <div class="card">
+            <div class="card-body">
+              <h6>If I cancel in the middle of the Month, what happens?</h6>
+              <p>
+                You will still have access to the service until the end of the billing period. You will
+                not be refunded for the remaining time in your billing period. You will no longer be billed.
+              </p>
+            </div>
+          </div>
+        </li>
+
+        <li class="col-12 col-md-6 col-lg-5">
+          <div class="card">
+            <div class="card-body">
+              <h6>Why are there limits on Agents and Servers if I pay?</h6>
+              <p>
+                There are even limits when paying because we want to ensure that the service is not abused.
+              </p>
+            </div>
+          </div>
+        </li>
+
+
+      </ul>
+      <!--end of row-->
+
+      <div class="row justify-content-center text-center section-outro">
+        <div class="col-lg-4 col-md-5">
+          <h6>Did we miss something?</h6>
+          <p>Feel free to drop us a line with any further questions in our Discord.</p>
+          <a href="https://discord.gg/E5wWbrwFBE">Get in touch &rsaquo;</a>
+        </div>
+        <!--end of col-->
+      </div>
+      <!--end of row-->
+
+    </div>
+    <!--end of container-->
+  </section>
+  <!--end of section-->
