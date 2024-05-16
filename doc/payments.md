@@ -44,6 +44,5 @@ NOTE:
 
 * STRIPE_PUBLISHABLE_KEY - Overal API Public Key of format "pk_abc123"
 * STRIPE_SECRET_KEY - Overall API secret of format "sk_abc123"
-* STRIPE_MONTHLY_PRICE_ID - Monthly Subscription Price ID
-* STRIPE_ANNUAL_PRICE_ID - Annual Subscription Price ID
+* STRIPE_PRICE_ID_1 - Monthly Subscription Price ID - May others later.
 * STRIPE_WEBHOOK_SECRET - This comes from the webhook page.

@@ -3,17 +3,12 @@ import sqlalchemy
 import sys
 import traceback
 
-from flask import (
-    Flask,
-    send_from_directory,
-    render_template,
-    request,
-)
-
 from alembic import command
 from alembic.config import Config
+from flask import Flask, send_from_directory, render_template, request, redirect, flash, url_for
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuLink
+from flask_wtf.csrf import CSRFError
 from kombu.utils.url import safequote
 
 from application.common import logger
@@ -200,6 +195,11 @@ def create_app(config=None, init_db=True, init_celery=True):
     @flask_app.errorhandler(500)
     def server_error(e):
         return render_template("public/500.html")
+
+    @flask_app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        flash("For your protection, Please resubmit the form.", "warning")
+        return redirect(url_for(request.endpoint))
 
     @flask_app.before_request
     def before_request_func():

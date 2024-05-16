@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import os
+import uuid
 
 from datetime import timedelta
 
@@ -18,7 +19,6 @@ class DefaultConfig:
     APP_NAME = "TheArchitect"
     APP_WEBSITE = f"www.{APP_DOMAIN}"
     APP_PRETTY_NAME = "The Architect"
-    SECRET_KEY = "super-secret-key-be-sure-to-change-me"
     DEPLOYMENT_TYPE = "docker_compose"  # also supports kubernetes
 
     # Top-level App Controls
@@ -55,7 +55,9 @@ class DefaultConfig:
     ENV = "production"
     FLASK_RUN_HOST = "0.0.0.0"
     FLASK_RUN_PORT = "3000"
+    SECRET_KEY = str(uuid.uuid4())
     WTF_CSRF_ENABLED = True
+    WTF_CSRF_SECRET_KEY = str(uuid.uuid4())
     PERMANENT_SESSION_LIFETIME = timedelta(hours=constants.DEFAULT_SESSION_HOURS)
     IS_SEEDED = True
 
@@ -73,8 +75,7 @@ class DefaultConfig:
     # This is a test key. Okay to expose.
     STRIPE_PUBLISHABLE_KEY = "pk_test1"
     STRIPE_SECRET_KEY = "pk_test2"
-    STRIPE_MONTHLY_PRICE_ID = "price_id1"
-    STRIPE_ANNUAL_PRICE_ID = "price_id2"
+    STRIPE_PRICE_ID_1 = "price_id1"
     STRIPE_WEBHOOK_SECRET = "whsec_abc123"
 
     # Admin Stuff

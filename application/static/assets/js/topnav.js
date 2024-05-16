@@ -91,7 +91,7 @@ $(document).ready(function($){
 
             // Toggle on/off
             if( !is_on_product_menu_item){
-                showProductMenu();
+                setTimeout(function(){showProductMenu()}, 300);
             }
             else{
                 hideProductMenu();
@@ -108,7 +108,7 @@ $(document).ready(function($){
 
             // Toggle on/off
             if( !is_on_doc_menu_item){
-                showDocMenu();
+                setTimeout(function(){showDocMenu()}, 300);
             }
             else{
                 hideDocMenu();

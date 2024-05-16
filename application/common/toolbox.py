@@ -50,7 +50,7 @@ def _get_application_path():
 
 
 @staticmethod
-def _get_setting(setting_name: str, setting_objs: list):
+def _get_setting(setting_name: str, setting_objs: list) -> str:
     setting_value = None
     for setting in setting_objs:
         if setting.name == setting_name:

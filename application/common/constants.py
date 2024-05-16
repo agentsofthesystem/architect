@@ -179,14 +179,8 @@ SYSTEM_SETTINGS = {
         "category": "payments",
         "type": "str",
     },
-    "STRIPE_MONTHLY_PRICE_ID": {
-        "pretty": "Price ID For Monthly Price Option",
-        "description": "",
-        "category": "payments",
-        "type": "str",
-    },
-    "STRIPE_ANNUAL_PRICE_ID": {
-        "pretty": "Price ID For Annual Price Option",
+    "STRIPE_PRICE_ID_1": {
+        "pretty": "Price ID For Price Option #1",
         "description": "",
         "category": "payments",
         "type": "str",

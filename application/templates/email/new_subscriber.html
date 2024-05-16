@@ -1,0 +1,21 @@
+{% extends "/email/layouts/base.html" %}
+
+{% block content %}
+
+<h1>Your subscription is confirmed!</h1>
+<h2>Welcome to Agents of the System</h2>
+
+<p>
+    This is a monthly subscription, which will renew on day {{renewal_day}} of each month.
+</p>
+
+<p>
+    You have been billed for your subscription, and will continue to be billed each new billing period until you cancel it.
+    You can cancel your subscription at any time by visiting your account page.
+</p>
+
+<p style="margin-top: 1em;">
+    <small style="color:#8899a6;text-decoration:none;"></small>
+</p>
+
+{% endblock %}
