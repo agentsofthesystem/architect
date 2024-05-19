@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import logging
 import os
 import uuid
 
@@ -59,7 +60,8 @@ class DefaultConfig:
     WTF_CSRF_ENABLED = True
     WTF_CSRF_SECRET_KEY = str(uuid.uuid4())
     PERMANENT_SESSION_LIFETIME = timedelta(hours=constants.DEFAULT_SESSION_HOURS)
-    IS_SEEDED = True
+    IS_SEEDED = False
+    LOG_LEVEL = logging.DEBUG
 
     # SQL Database Settings
     SQL_DATABASE_USER = "admin"

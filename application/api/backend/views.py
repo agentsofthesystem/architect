@@ -167,7 +167,6 @@ class GameServerControlBackendApi(MethodView):
             return "Error!", 400
 
         if command == "startup":
-            logger.info("Running startup command...")
             command_success = agent_control.startup(request)
         elif command == "shutdown":
             command_success = agent_control.shutdown(request)
