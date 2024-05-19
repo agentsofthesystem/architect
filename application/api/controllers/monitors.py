@@ -92,7 +92,7 @@ def disable_monitor(agent_id, monitor_type):
 
     if task_id is not None:
         celery_utils.revoke_task_by_id(task_id)
-        logger.info(f"Revoking task {task_id} for monitor {monitor_id}")
+        logger.debug(f"Revoking task {task_id} for monitor {monitor_id}")
 
     # Cleanup the monitor... the monitor might have been revoke while in the middle of
     # some operation. Check if the monitor has any active faults.

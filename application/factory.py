@@ -1,3 +1,4 @@
+import logging
 import os
 import sqlalchemy
 import sys
@@ -11,7 +12,7 @@ from flask_admin.menu import MenuLink
 from flask_wtf.csrf import CSRFError
 from kombu.utils.url import safequote
 
-from application.common import logger
+from application.common import logger, constants
 from application.common.credentials import get_credentials
 from application.common.user_loader import load_user  # noqa: F401
 from application.common.toolbox import MyAdminIndexView, _get_application_path
@@ -121,8 +122,31 @@ def _handle_migrations(flask_app: Flask) -> None:
             command.upgrade(alembic_cfg, "head")
 
 
+def _handle_logging(logger_level=constants.DEFAULT_LOG_LEVEL):
+    """Update log configuration."""
+    # Remove all handlers associated with the root logger object.
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
+    if type(logger_level) is str:
+        logger_level = logger_level.upper()
+        level = logging.getLevelName(logger_level)
+    else:
+        level = logger_level
+
+    # Reconfigure logging again, this time with a file in addition to stdout.
+    formatter = logging.Formatter(constants.DEFAULT_LOG_FORMAT)
+
+    # Also route to stdout
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setLevel(level)
+    stdout_handler.setFormatter(formatter)
+
+    logger.addHandler(stdout_handler)
+
+
 def create_app(config=None, init_db=True, init_celery=True):
-    logger.info("Begin initialization.")
+    logger.debug("Begin initialization.")
 
     if config is None:
         config = DefaultConfig("python")
@@ -147,11 +171,11 @@ def create_app(config=None, init_db=True, init_celery=True):
 
     # Configure Celery Settings
     if init_celery:
-        logger.info("Initializing Celery")
+        logger.debug("Initializing Celery")
         with flask_app.app_context():
             _configure_celery(flask_app.config)
     else:
-        logger.info("SKIP: Initializing Celery")
+        logger.debug("SKIP: Initializing Celery")
 
     # All the extension initializations go here
     LOGIN_MANAGER.login_view = "public.signin"
@@ -222,7 +246,10 @@ def create_app(config=None, init_db=True, init_celery=True):
     from application.api.websocket import agents  # noqa: F401
     from application.api.websocket import monitors  # noqa: F401
 
-    logger.info(f"{flask_app.name} has successfully initialized.")
+    # Configure Logging
+    _handle_logging(logger_level=config.LOG_LEVEL)
+
+    logger.debug(f"{flask_app.name} has successfully initialized.")
 
     return flask_app
 

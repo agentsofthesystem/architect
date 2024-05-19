@@ -1,3 +1,5 @@
+import logging
+
 from enum import Enum
 from application.common.timezones import get_time_zone_dict, get_hours_tuple_list
 
@@ -106,6 +108,11 @@ DEFAULT_EMAIL_DELAY_SECONDS = 10
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html
 CONTAINER_CREDENTIALS_API_IP = "169.254.170.2"
 AGENT_SMITH_DEFAULT_PORT = 3000
+
+# Logging
+DEFAULT_LOG_LEVEL = logging.NOTSET
+DEFAULT_LOG_DATE_FORMAT = "%m/%d/%Y %I:%M:%S %p"
+DEFAULT_LOG_FORMAT = "%(filename)s:%(lineno)s %(levelname)s:%(message)s"
 
 # Time-related Constants
 TIME_ZONE_DICT = get_time_zone_dict()

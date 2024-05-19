@@ -397,7 +397,6 @@ def update_account_password():
 @protected.route("/account", methods=["GET", "POST"])
 @login_required
 def account():
-    logger.debug("Account: GET/POST")
     profile_form = forms.AccountProfileForm()
     update_password_form = forms.AccountUpdatePasswordForm()
 
