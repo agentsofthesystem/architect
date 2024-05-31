@@ -282,6 +282,14 @@ class AgentsBackendApi(MethodView):
 
     @login_required
     @verified_required
+    def patch(self, object_id):
+        if agents.reactivate_agent(object_id):
+            return "", 204
+        else:
+            return "Error!", 500
+
+    @login_required
+    @verified_required
     def delete(self, object_id):
         if agents.deactivate_agent(object_id):
             return "", 204
@@ -376,5 +384,5 @@ backend.add_url_rule(
 backend.add_url_rule(
     "/agent/<int:object_id>",
     view_func=AgentsBackendApi.as_view("agents_api", Agents),
-    methods=["GET", "DELETE"],
+    methods=["GET", "PATCH", "DELETE"],
 )

@@ -12,6 +12,7 @@ from flask_socketio import emit
 from application.common import logger, toolbox
 from application.extensions import SOCKETIO
 from application.models.agent import Agents
+from application.models.user import UserSql
 
 from operator_client import Operator
 
@@ -71,6 +72,7 @@ def get_agent_info(input_dict):
     response.update({"agent_id": input_dict["agent_id"]})
 
     agent_obj = Agents.query.filter_by(agent_id=input_dict["agent_id"]).first()
+    owner_obj = UserSql.query.filter_by(user_id=agent_obj.owner_id).first()
 
     if agent_obj is None:
         logger.critical("Agent ID Does not exist... cannot contact agent.")
@@ -95,6 +97,10 @@ def get_agent_info(input_dict):
         logger.error("Contacted agent, but it did not respond.")
         response.update({"agent_info": "Error"})
     else:
+        # Limit the games list to one, if there is at least one object in the list.
+        if not owner_obj.subscribed and len(client_response["games"]) > 1:
+            client_response["games"] = client_response["games"][:1]
+
         response.update({"agent_info": client_response})
 
     emit("respond_agent_info", response, json=True, namespace="/system/agent/info")

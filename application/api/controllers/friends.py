@@ -1,5 +1,4 @@
 import json
-import uuid
 
 from flask import flash, url_for
 from flask_login import current_user
@@ -12,10 +11,6 @@ from application.extensions import DATABASE
 from application.models.friend import Friends
 from application.models.friend_request import FriendRequests
 from application.models.user import UserSql
-
-
-def generate_friend_code(email: str):
-    return uuid.uuid5(uuid.NAMESPACE_DNS, email)
 
 
 def add_friend_code_to_user(user_id: int, friend_code: str):

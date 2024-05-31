@@ -2,7 +2,6 @@
 import json
 import logging
 import os
-import uuid
 
 from datetime import timedelta
 
@@ -56,9 +55,8 @@ class DefaultConfig:
     ENV = "production"
     FLASK_RUN_HOST = "0.0.0.0"
     FLASK_RUN_PORT = "3000"
-    SECRET_KEY = str(uuid.uuid4())
+    SECRET_KEY = "CHANGE_ME"
     WTF_CSRF_ENABLED = True
-    WTF_CSRF_SECRET_KEY = str(uuid.uuid4())
     PERMANENT_SESSION_LIFETIME = timedelta(hours=constants.DEFAULT_SESSION_HOURS)
     IS_SEEDED = False
     LOG_LEVEL = logging.DEBUG

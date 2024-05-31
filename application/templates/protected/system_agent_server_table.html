@@ -22,12 +22,17 @@
                 </tbody>
             </table>
         </div>
+        {% if not agent_info['is_owner_subscribed'] %}
+        <div class="card-footer">
+            <span class="h6 text-muted">Limited to one server without subscription.</span>
+        </div>
+        {% endif %}
     </div>
 
     <!-- Condensed version of the table shows for small screens -->
     <div class="card d-block d-sm-none">
         <div class="card-header">
-            <span class="h6">Dedicated Servers</span>
+            <span class="h6">Installed Dedicated Servers</span>
         </div>
         <div class="card-body">
             <table class="table table-bordered table-hover align-items-center">
@@ -43,6 +48,11 @@
                 </tbody>
             </table>
         </div>
+        {% if not agent_info['is_owner_subscribed'] %}
+        <div class="card-footer">
+            <span class="h6 text-muted">Limited to one server without subscription.</span>
+        </div>
+        {% endif %}
     </div>
 
 </div>

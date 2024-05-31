@@ -18,7 +18,7 @@ from application.api.controllers import friends
 from application.api.controllers import groups
 from application.api.controllers import messages
 from application.api.controllers import users
-from application.common import logger, constants
+from application.common import logger, constants, toolbox
 from application.common.decorators import admin_required
 from application.common.decorators import agent_permission_required
 from application.common.decorators import verified_required
@@ -43,7 +43,7 @@ def main():
 def dashboard():
     # This code is present to handle the event where a user exits with a Null friend code.
     if current_user.friend_code is None:
-        uuid = friends.generate_friend_code(current_user.email)
+        uuid = toolbox.generate_friend_code(current_user.email)
         if not friends.add_friend_code_to_user(current_user.user_id, str(uuid)):
             flash("Unable to update user with Friend Code", "danger")
 
@@ -128,14 +128,36 @@ def system_agents():
 
     owned_agent_list = agents.get_agents_by_owner(current_user.user_id)
     associated_agents_list = agents.get_associated_agents()
+
+    num_owned_active_agents = 0
+    num_owned_inactive_agents = 0
+
+    for agent in owned_agent_list:
+        if agent["active"]:
+            num_owned_active_agents += 1
+        else:
+            num_owned_inactive_agents += 1
+
+    num_shared_agents = len(associated_agents_list)
+
     all_agents_list = owned_agent_list + associated_agents_list
     is_empty = True if all_agents_list == [] else False
+
+    num_allowed_agents = (
+        constants.DEFAULT_AGENTS_PER_USER_PAID
+        if current_user.subscribed
+        else constants.DEFAULT_AGENTS_PER_USER_FREE
+    )
 
     return render_template(
         "protected/system_agents.html",
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         is_empty=is_empty,
         all_agents_list=all_agents_list,
+        num_owned_active_agents=num_owned_active_agents,
+        num_owned_inactive_agents=num_owned_inactive_agents,
+        num_shared_agents=num_shared_agents,
+        num_allowed_agents=num_allowed_agents,
         new_agent_form=new_agent_form,
         update_agent_form=update_agent_form,
         share_to_group_form=share_to_group_form,
@@ -194,12 +216,22 @@ def system_agent_info(agent_id: int):
         friend_dict["agent_friend_member_id"] = friend_member.agent_friend_member_id
         friend_list.append(friend_dict)
 
+    agent_share_limit = (
+        constants.DEFAULT_USERS_PER_AGENT_PAID
+        if owner_obj.subscribed
+        else constants.DEFAULT_USERS_PER_AGENT_FREE
+    )
+
     agent_info = {
         "agent": agent_dict,
         "num_groups": num_groups,
+        "num_users": agent_obj.num_users,
         "num_friends": num_friends,
         "groups": group_list,
         "friends": friend_list,
+        "is_owner_subscribed": owner_obj.subscribed,
+        "agent_owner_id": agent_obj.owner_id,
+        "agent_share_limit": agent_share_limit,
     }
 
     return render_template(

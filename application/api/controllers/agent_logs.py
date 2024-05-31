@@ -41,7 +41,7 @@ def create_agent_log(user_id: int, agent_id: int, message: str, is_automated: bo
     return True
 
 
-# A function to get the 5 most recent agent logs
+# A function to get the 3 most recent agent logs
 def get_recent_agent_logs(agent_id: int) -> list[dict]:
     # User properties to determine whether or not to apply offset
     user_properties = current_user.properties
@@ -57,7 +57,7 @@ def get_recent_agent_logs(agent_id: int) -> list[dict]:
     recent_agent_logs = (
         AgentLog.query.filter_by(agent_id=agent_id)
         .order_by(AgentLog.timestamp.desc())
-        .limit(5)
+        .limit(constants.DEFAULT_AGENT_LOGS_PER_AGENT_FREE)
         .all()
     )
     return [log.to_dict(format_str, user_timezone) for log in recent_agent_logs]
@@ -79,6 +79,20 @@ def get_all_agent_logs(agent_id: int) -> list[dict]:
     all_agent_logs = (
         AgentLog.query.filter_by(agent_id=agent_id).order_by(AgentLog.timestamp.desc()).all()
     )
+
+    if current_user.subscribed:
+        all_agent_logs_qry = AgentLog.query.filter_by(agent_id=agent_id).order_by(
+            AgentLog.timestamp.desc()
+        )
+    else:
+        all_agent_logs_qry = (
+            AgentLog.query.filter_by(agent_id=agent_id)
+            .order_by(AgentLog.timestamp.desc())
+            .limit(constants.DEFAULT_AGENT_LOGS_PER_AGENT_FREE)
+        )
+
+    all_agent_logs = all_agent_logs_qry.all()
+
     return [log.to_dict(format_str, user_timezone) for log in all_agent_logs]
 
 

@@ -36,6 +36,19 @@ def get_agents_by_owner(owner_id: int) -> []:
 
     agent_items = owner_agents["items"]
 
+    for item in agent_items:
+        owner_id = item["owner_id"]
+        owner_obj = user_control.get_user_by_id(owner_id)
+        agent_share_limit = (
+            constants.DEFAULT_USERS_PER_AGENT_FREE
+            if not owner_obj.subscribed
+            else constants.DEFAULT_USERS_PER_AGENT_PAID
+        )
+        agent_obj = Agents.query.filter_by(agent_id=item["agent_id"]).first()
+        item["agent_share_limit"] = agent_share_limit
+        item["num_users"] = agent_obj.num_users
+        item["num_groups"] = agent_obj.groups_with_access.count()
+
     return agent_items
 
 
@@ -81,17 +94,27 @@ def get_associated_agents() -> dict:
     # Get all agents with ids matching the list.
     agent_qry = Agents.query.filter(Agents.agent_id.in_(combined_agent_list))
 
-    agents_obj = Agents.to_collection_dict(
+    agents_dict = Agents.to_collection_dict(
         agent_qry, constants.DEFAULT_PAGE, constants.DEFAULT_PER_PAGE_MAX, "", ignore_links=True
     )
 
-    agent_items = agents_obj["items"]
+    agent_items = agents_dict["items"]
 
     # Pack in the user information.
     for agent in agent_items:
+        agents_obj = get_agent_by_id(agent["agent_id"], as_obj=True)
         owner_id = agent["owner_id"]
         owner_obj = user_control.get_user_by_id(owner_id)
         agent["owner"] = owner_obj.to_dict()
+        agent_share_limit = (
+            constants.DEFAULT_USERS_PER_AGENT_FREE
+            if not owner_obj.subscribed
+            else constants.DEFAULT_USERS_PER_AGENT_PAID
+        )
+        agent_obj = Agents.query.filter_by(agent_id=agent["agent_id"]).first()
+        agent["agent_share_limit"] = agent_share_limit
+        agent["num_users"] = agents_obj.num_users
+        agent["num_groups"] = agent_obj.groups_with_access.count()
 
     return agent_items
 
@@ -242,6 +265,35 @@ def deactivate_agent(object_id: int) -> bool:
     return True
 
 
+def reactivate_agent(object_id: int) -> bool:
+    """
+    Set the agent active flag to True.
+
+    Args:
+        object_id: Agent ID to delete.
+    """
+    agent_qry = Agents.query.filter_by(agent_id=object_id)
+
+    agent_obj = agent_qry.first()
+
+    if agent_obj is None:
+        raise InvalidUsage(
+            "Unable to Delete Agent ID # {object_id}. Does Not Exist!", status_code=400
+        )
+
+    update_dict = {"active": True}
+    try:
+        agent_qry.update(update_dict)
+        DATABASE.session.commit()
+    except Exception as error:
+        logger.critical(error)
+        flash("Could not Reactivate Agent. Database Error!", "danger")
+        DATABASE.session.rollback()
+        return False
+
+    return True
+
+
 def share_agent_with_group(request) -> bool:
     data = request.form
 
@@ -260,13 +312,45 @@ def share_agent_with_group(request) -> bool:
 
     group_id = group_list[0]
 
-    # Make sure its not already shared...
+    # Make sure the agent is not already shared with a different group.
+    agent_obj = get_agent_by_id(agent_id, as_obj=True)
+    group_obj = group_control.get_group_by_id(group_id, as_obj=True)
+    agent_owner_id = agent_obj.owner_id
+    num_groups = agent_obj.groups_with_access.count()
+    group_members = group_obj.members.all()
+
+    # Get the group id member list, but remove the owner id.
+    group_members_ids = [member.member_id for member in group_members]
+    group_members_ids.remove(group_obj.owner_id)
+
+    if num_groups > 0:
+        flash("Error: This agent is already shared with a group.", "danger")
+        return False
+
+    # Make sure its not already shared... This an an extra check to be on safe side.
     share_obj = AgentGroupMembers.query.filter_by(
         agent_id=agent_id, group_member_id=group_id
     ).first()
 
     if share_obj:
         flash("Error: This group has already been shared to this Agent.", "danger")
+        return False
+
+    # Before creating the group membership, check if the the number of people in the group
+    # will exceed the share limit.
+    owner_obj = user_control.get_user_by_id(agent_owner_id)
+    agent_unique_user_id_list = agent_obj.get_users(as_list=True)
+    agent_share_limit = (
+        constants.DEFAULT_USERS_PER_AGENT_FREE
+        if not owner_obj.subscribed
+        else constants.DEFAULT_USERS_PER_AGENT_PAID
+    )
+
+    # Eliminate duplicates with exclusive or.
+    exclusive_list = list(set(group_members_ids) ^ set(agent_unique_user_id_list))
+
+    if len(exclusive_list) > agent_share_limit:
+        flash("Error: Adding this group will put the agent over the share limit.", "danger")
         return False
 
     new_group_member = AgentGroupMembers()
@@ -280,10 +364,6 @@ def share_agent_with_group(request) -> bool:
         logger.critical(error)
         flash("Could not Share Agent To Group. Database Error!", "danger")
         return False
-
-    agent_obj = get_agent_by_id(agent_id=agent_id, as_obj=True)
-    group_obj = group_control.get_group_by_id(group_id, as_obj=True)
-    group_members = group_obj.members.all()
 
     subject = "Agent Shared via Group"
     agent_href = url_for("protected.system_agent_info", agent_id=agent_id, _external=True)
@@ -331,13 +411,28 @@ def share_agent_with_friend(request) -> bool:
     friend_user_id = friend_list[0]
 
     agent_obj = get_agent_by_id(agent_id, as_obj=True)
+    agent_owner_id = agent_obj.owner_id
 
+    # Check whether or not the friend is already a member of the agent.
     share_obj = AgentFriendMembers.query.filter_by(
         agent_id=agent_id, friend_member_id=friend_user_id
     ).first()
 
     if share_obj:
         flash("Error: This Friend has already been shared to this Agent.", "danger")
+        return False
+
+    # Check whether or not adding the friend will put the agent over the share budget/limit.
+    owner_obj = user_control.get_user_by_id(agent_owner_id)
+    num_users = agent_obj.num_users
+    agent_share_limit = (
+        constants.DEFAULT_USERS_PER_AGENT_FREE
+        if not owner_obj.subscribed
+        else constants.DEFAULT_USERS_PER_AGENT_PAID
+    )
+
+    if num_users + 1 > agent_share_limit:
+        flash("Error: Adding this friend will put the agent over the share limit.", "danger")
         return False
 
     new_friend_member = AgentFriendMembers()

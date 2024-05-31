@@ -2,6 +2,7 @@
 import os
 import re
 import sys
+import uuid
 
 from flask import redirect, url_for
 from flask_admin import AdminIndexView, expose
@@ -64,7 +65,7 @@ def format_url_prefix(input: str) -> str:
 
     # If user somehow put http:// in, update it to https://
     if "http://" in input:
-        hostname = f"https://{input}"
+        hostname = hostname.replace("http://", "https://")
 
     # If just put in the domain name; eg.example.com
     # The add https:// prefix.
@@ -90,3 +91,8 @@ def is_friend(left_side_id, right_side_id) -> bool:
     # If either the pair or reciprocal pair are populated (I.e. Not None) then the two ids are
     # friends.
     return pair_exists or reciprocal_pair_exists
+
+
+@staticmethod
+def generate_friend_code(email: str):
+    return uuid.uuid5(uuid.NAMESPACE_DNS, email)

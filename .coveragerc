@@ -3,3 +3,4 @@ omit =
         *__init__*
         /usr/lib/*
         tests/*
+        application/debugger.py

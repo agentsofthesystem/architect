@@ -35,7 +35,7 @@ class Monitor(PaginatedApi, DATABASE.Model):
         lazy="dynamic",
     )
 
-    # Useful as a bacref... other property function is used to get all attributes as a dict.
+    # Useful as a backref... other property function is used to get all attributes as a dict.
     monitor_faults = DATABASE.relationship(
         "MonitorFault",
         foreign_keys="MonitorFault.monitor_id",

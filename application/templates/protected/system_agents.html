@@ -210,6 +210,26 @@
     </div>
 </div>
 
+<div class="modal fade" id="shareLimitReached" tabindex="-1" role="dialog" aria-labelledby="message-title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sharing Limit has been reached.</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% if not current_user.subscribed %}
+            <div class="modal-body">
+                <p>If you would like to increase the share limit, please subscribe!</p>
+                <button type="button" class="btn btn-success" onclick="window.location.href='{{url_for('protected.account',tab='billing')}}'">Subscribe</button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 <div class="col text-center">
 
     {% if is_empty %}
@@ -341,13 +361,18 @@
     function showShareAgentToGroupModal(agent_id){
         console.log("Agent ID is: "+ agent_id);
         $('#update-share-group-agent-id-input')[0].value = agent_id;
-        $('#shareAgentToGroupModal').modal('show')
+        $('#shareAgentToGroupModal').modal('show');
     }
 
-    function showShareAgentToFriendModal(agent_id){
+    function showShareAgentToFriendModal(agent_id, is_limit_reached){
         console.log("Agent ID is: "+ agent_id);
         $('#update-share-friend-agent-id-input')[0].value = agent_id;
-        $('#shareAgentToFriendModal').modal('show')
+        if(is_limit_reached == 'True'){
+            $('#shareLimitReached').modal('show');
+        }
+        else{
+            $('#shareAgentToFriendModal').modal('show');
+        }
     }
 
     // Goes with system_agent_list[_small_screen].html
@@ -368,6 +393,23 @@
             }
         });
 
+    });
+
+    $('.reactivate-agent').click(function(){
+        console.log("Re-activating agent " + this.id);
+
+        $.ajax({
+            type: "PATCH",
+            url: "/app/backend/agent/" + this.id,
+            contentType: 'application/json',
+            success: function(){
+                console.log("Agent" + this.id + ' reactivated.')
+                location.reload();
+            },
+            error: function( ){
+                console.log('error!')
+            }
+        });
     });
 
     $(".clickable-cell").click(function() {

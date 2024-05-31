@@ -10,6 +10,7 @@
         <div id="accordion">
 
           {% for group in all_groups %}
+            {% set is_owner_subscribed = 'badge-danger' if group['owner']['subscribed'] else 'badge-primary' %}
           <div class="card">
 
             <div class="card-header align-middle" id="group-heading-{{group['group_id']}}">
@@ -26,7 +27,7 @@
                 <div class="col-sm" >
                   <ul class="list-inline">
                     <li class="list-inline-item"><h5>Owner: </h5></li>
-                    <li class="list-inline-item"><p> {{group['owner']['username']}}</p></li>
+                    <li class="list-inline-item"><p><span class="badge badge-pill {{is_owner_subscribed}}">{{group['owner']['username']}}</span></p></li>
                   </ul>
                 </div>
                 <div class="col-sm">
@@ -50,7 +51,7 @@
                     <div class="dropdown-menu dropdown-menu-sm">
                       <a class="dropdown-item" onclick="showUpdateGroupModal({{group['group_id']}})">Update Group</a>
                       <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" onclick="showTransferGroupModal({{group['group_id']}})">Transfer Ownership</a>
+                      <!--<a class="dropdown-item" onclick="showTransferGroupModal({{group['group_id']}})">Transfer Ownership</a>-->
                       <a class="dropdown-item" onclick="showMessageGroupModal({{group['group_id']}})">Message Group</a>
                       <a class="dropdown-item delete-group" id="{{group['group_id']}}">Disband Group</a>
                     </div>
@@ -80,15 +81,16 @@
                     </thead>
                     <tbody>
                       {% for member in group['members'] %}
+                        {% set is_member_subscribed = 'badge-danger' if member['user']['subscribed'] else 'badge-primary' %}
                       <tr class="bg-white">
-                        <td>{{member['user']['username']}}<span style="color:red">{{ '*' if member['user']['is_friend'] is sameas true else ''}}</span></td>
+                        <td><span class="badge badge-pill {{is_member_subscribed}}">{{member['user']['username']}}</span><span class="badge badge-pill badge-success">{{ 'friend' if member['user']['is_friend'] is sameas true else ''}}</span></td>
                         <td>{{ 'Owner' if member['user']['user_id'] == group['owner_id'] else 'Member' }}</td>
                         <!-- If the current user is the group owner, all buttons are enabled except for the owner.  That way the owner cannot delete itself from the group -->
                         {% if current_user.user_id == group['owner_id'] %}
                         <td>
                           {% set is_disabled = 'disabled="true"' if member['user']['user_id'] == group['owner_id'] else '' %}
                           <div class="dropdown">
-                            <button class="btn btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{is_disabled}}>
+                            <button class="btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{is_disabled}}>
                               <i class="icon-dots-three-horizontal"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-sm">
@@ -101,7 +103,7 @@
                         <td>
                           {% set is_disabled = 'disabled="true"' if member['user']['user_id'] != current_user.user_id else '' %}
                           <div class="dropdown">
-                            <button class="btn btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{is_disabled}}>
+                            <button class="btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{is_disabled}}>
                               <i class="icon-dots-three-horizontal"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-sm">
@@ -125,7 +127,7 @@
                     <tbody>
                       {% for invite in group['invites'] %}
                         <tr class="bg-white">
-                          <td>{{invite['user']['username']}}<span style="color:red">{{ '*' if invite['user']['is_friend'] is sameas true else ''}}</span></td>
+                          <td>{{invite['user']['username']}}<span class="badge badge-pill badge-success">{{ '(friend)' if invite['user']['is_friend'] is sameas true else ''}}</span></td>
                           <td>
                             <div class="dropdown">
                               <button class="btn btn btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -143,9 +145,22 @@
                   </table>
                 </div>
                 {% endif %}
-                <div class="row d-flex">
-                  <p><span style="color:red">*</span> Means User is also your friend.</p>
+                {% if group['agent_count'] | int > 0 %}
+                <div class="row">
+                  <table class="table table-bordered">
+                    <thead>
+                      <th>Agent Association(s):</th>
+                    </thead>
+                    <tbody>
+                      {% for agent in group['agent_name_list'] %}
+                        <tr class="bg-white">
+                          <td><span class="h6">{{agent}}</span></td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
                 </div>
+                {% endif %}
               </div>
               <div class="card-footer">
                 <div class="row">

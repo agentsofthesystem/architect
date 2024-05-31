@@ -2,9 +2,9 @@
     <div class="container">
       <div class="row justify-content-center text-center section-intro">
         <div class="col-12 col-md-9 col-lg-8">
-          <span class="title-decorative" data-aos="fade-up" data-aos-delay="10">Pricing</span>
+          <span class="title-decorative" data-aos="fade-up" data-aos-delay="10">Pricing Options</span>
           <h2 class="display-4" data-aos="fade-up" data-aos-delay="100"></h2>
-          <span class="lead" data-aos="fade-up" data-aos-delay="200">Subscriptions come with a 30-day free trial. Cancel Anytime.</span>
+          <!--<span class="lead" data-aos="fade-up" data-aos-delay="200">Subscriptions come with a 30-day free trial. Cancel Anytime.</span>-->
         </div>
         <!--end of col-->
       </div>
@@ -37,34 +37,44 @@
                 </td>
               </tr>
               <tr>
-                <th scope="row">Agent Smith Connections</th>
+                <th scope="row"># Managed Agents</th>
                 <td>1</td>
-                <td>3</td>
+                <td>6</td>
               </tr>
               <tr>
                 <th scope="row" class="text-right">Dedicated Servers / Agent</th>
                 <td>1</td>
-                <td>3</td>
-              </tr>
-              <tr>
-                <th scope="row" class="text-right">Server Control</th>
-                <td>Manual Only</td>
-                <td>Manual & Automated</td>
-              </tr>
-              <tr>
-                <th scope="row" class="text-right">Group Sizes</th>
-                <td>Groups Limited to 3 Members</td>
                 <td>Unlimited</td>
               </tr>
               <tr>
-                <th scope="row" class="text-right">Number of Friend Groups</th>
-                <td>1</td>
-                <td>Unlimited</td>
+                <th scope="row" class="text-right">Agent Sharing</th>
+                <td>2 Users / Agent</td>
+                <td>10 Users / Agent</td>
               </tr>
               <tr>
-                <th scope="row" class="text-right">Sharing Agents with Friends & Groups</th>
-                <td>Limited to 1</td>
+                <th scope="row" class="text-right">Activity Logs</th>
+                <td>Last 3</td>
                 <td>Unlimited</td>
+              <tr>
+                <th scope="row" class="text-right">Manual Control</th>
+                <td><i class="icon-check text-green"></i>
+                </td>
+                <td><i class="icon-check text-green"></i>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="text-right">Email Alerts</th>
+                <td><i class="icon-check text-green"></i>
+                </td>
+                <td><i class="icon-check text-green"></i>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="text-right">Discord Community</th>
+                <td><i class="icon-check text-green"></i>
+                </td>
+                <td><i class="icon-check text-green"></i>
+                </td>
               </tr>
               <tr>
                 <th scope="row" class="text-right">Agent & Server Monitoring</th>
@@ -73,31 +83,8 @@
                 <td><i class="icon-check text-green"></i>
                 </td>
               </tr>
-              <!--
-              <tr>
-                <th scope="row" class="text-right">Server Scheduling</th>
-                <td><i class="icon-circle-with-cross text-red"></i>
-                </td>
-                <td><i class="icon-check text-green"></i>
-                </td>
-              </tr>
-              -->
-              <tr>
-                <th scope="row" class="text-right">Email Notifications (per user)</th>
-                <td><i class="icon-circle-with-cross text-red"></i>
-                </td>
-                <td><i class="icon-check text-green"></i>
-                </td>
-              </tr>
 
-              <tr>
-                <th scope="row" class="text-right">Discord Access</th>
-                <td><i class="icon-check text-green"></i>
-                </td>
-                <td><i class="icon-check text-green"></i>
-                </td>
-              </tr>
-              {%if is_internal %}
+              {% if is_internal %}
               <tr>
                 <th scope="row"></th>
                 <td></td>

@@ -5,7 +5,9 @@ from flask_login import current_user
 
 from application.common import logger, toolbox, constants
 from application.common.constants import MessageCategories
+from application.api.controllers import agents as agent_control
 from application.api.controllers import messages as message_control
+from application.api.controllers import users as user_control
 from application.extensions import DATABASE
 from application.models.agent_group_member import AgentGroupMembers
 from application.models.group import Groups
@@ -65,9 +67,18 @@ def get_owned_groups() -> list:
             )
             invitation_list.append(invite_dict)
 
-        group_dict["agent_count"] = AgentGroupMembers.query.filter_by(
-            group_member_id=group.group_id
-        ).count()
+        agent_members_qry = AgentGroupMembers.query.filter_by(group_member_id=group.group_id)
+        agent_count = agent_members_qry.count()
+        agent_list = []
+
+        if agent_count > 0:
+            # Get a list of agent names.
+            for agent_member in agent_members_qry.all():
+                agent_obj = agent_control.get_agent_by_id(agent_member.agent_id, as_obj=True)
+                agent_list.append(agent_obj.name)
+
+        group_dict["agent_count"] = agent_count
+        group_dict["agent_name_list"] = agent_list
         group_dict["members"] = members_list
         group_dict["invites"] = invitation_list
 
@@ -104,9 +115,18 @@ def get_associated_groups() -> list:
             member_dict["user"]["is_friend"] = toolbox.is_friend(current_user.user_id, member_id)
             members_list.append(member_dict)
 
-        group_dict["agent_count"] = AgentGroupMembers.query.filter_by(
-            group_member_id=group.group_id
-        ).count()
+        agent_members_qry = AgentGroupMembers.query.filter_by(group_member_id=group.group_id)
+        agent_count = agent_members_qry.count()
+        agent_list = []
+
+        if agent_count > 0:
+            # Get a list of agent names.
+            for agent_member in agent_members_qry.all():
+                agent_obj = agent_control.get_agent_by_id(agent_member.agent_id, as_obj=True)
+                agent_list.append(agent_obj.name)
+
+        group_dict["agent_count"] = agent_count
+        group_dict["agent_name_list"] = agent_list
         group_dict["members"] = members_list
 
         member_to_groups_list.append(group_dict)
@@ -258,6 +278,12 @@ def add_friend_to_group(request) -> bool:
 
     users_added = 0
 
+    if len(friends_list) == 0:
+        flash("Error: No friends selected to add to group.", "danger")
+        return False
+
+    friends_list = [int(friend) for friend in friends_list]
+
     # Get group name
     group_obj = Groups.query.filter_by(group_id=group_id).first()
 
@@ -272,6 +298,37 @@ def add_friend_to_group(request) -> bool:
         f"<p>You have been added to group, {group_name}, by the group owner. Go to the "
         f'<a href="{group_href}">Groups Page</a> to and have a look..</p>'
     )
+
+    # Check and see if this group is associated with any agents.
+    agent_members = AgentGroupMembers.query.filter_by(group_member_id=group_id).all()
+
+    if len(agent_members) > 0:
+        # Find out how many unique users are associated with the agents.
+        for agent_member in agent_members:
+            agent_obj = agent_control.get_agent_by_id(agent_member.agent_id, as_obj=True)
+            owner_obj = user_control.get_user_by_id(agent_obj.owner_id)
+            agent_unique_user_list = agent_obj.get_users(as_list=True)
+            agent_share_limit = (
+                constants.DEFAULT_USERS_PER_AGENT_FREE
+                if not owner_obj.subscribed
+                else constants.DEFAULT_USERS_PER_AGENT_PAID
+            )
+            exclusive_list = list(set(agent_unique_user_list) ^ set(friends_list))
+
+            # logger.info("****************************")
+            # logger.info(f"Agent: {agent_obj.name}")
+            # logger.info(f"Owner: {owner_obj.username}")
+            # logger.info(f"Agent Share Limit: {agent_share_limit}")
+            # logger.info(f"Exclusive List: {exclusive_list}")
+            # logger.info("****************************")
+
+            if len(exclusive_list) > agent_share_limit:
+                flash(
+                    f"Error: Agent: {agent_obj.name} has a user limit of {agent_share_limit}. "
+                    f"Cannot add fit, {len(friends_list)}, more users to group.",
+                    "danger",
+                )
+                return False
 
     for user_id in friends_list:
         # Make sure friend isn't already in the group.

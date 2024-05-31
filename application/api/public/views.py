@@ -14,7 +14,7 @@ from flask import (
 )
 from flask_login import current_user
 
-from application.api.controllers import users
+from application.api.controllers import users as user_control
 from application.api.public.forms import (
     SignupForm,
     SignInForm,
@@ -93,7 +93,7 @@ def signup():
         return redirect(url_for("protected.dashboard"))
 
     if request.method == "POST":
-        result = users.signup(request)
+        result = user_control.signup(request)
         if result:
             # TODO - Maybe go to an onboarding page.
             return redirect(url_for("protected.dashboard"))
@@ -120,7 +120,7 @@ def signin():
         return redirect(url_for("protected.dashboard"))
 
     if request.method == "POST":
-        result = users.signin(request)
+        result = user_control.signin(request)
         if result:
             return redirect(url_for("protected.dashboard"))
         else:
@@ -142,7 +142,7 @@ def signin():
 
 @public.route("/signout")
 def signout():
-    users.signout(current_user)
+    user_control.signout(current_user)
     return redirect(url_for("public.index"))
 
 
@@ -155,7 +155,7 @@ def forgot():
         return redirect(url_for("protected.dashboard"))
 
     if request.method == "POST":
-        result = users.forgot_password(request)
+        result = user_control.forgot_password(request)
         if result:
             flash("Please check your email.", "info")
             return render_template(
@@ -187,7 +187,7 @@ def reset():
     # In this case, the reset has been POSTed and there ought to be
     # a reset token.
     if request.method == "POST":
-        result = users.reset_password(request)
+        result = user_control.reset_password(request)
 
         if result:
             flash("Password reset successful! Please login.", "info")
@@ -229,7 +229,7 @@ def verify():
     # The user is not logged in.
     if current_user.is_active is False:
         # Login the user and verify the email address.
-        result = users.verify_email(token)
+        result = user_control.verify_email(token)
         if result:
             flash("Email verified! Please log in.", "info")
             return redirect(url_for("public.signin"))
@@ -242,7 +242,7 @@ def verify():
     # The user was logged in, verify, then take to account
     # page.
     else:
-        result = users.verify_email(token)
+        result = user_control.verify_email(token)
 
         if result:
             flash("Email verified. Thank you!", "info")
@@ -378,6 +378,7 @@ def webhook():
             customer_email = user_obj.email
             usr_qry.update({"subscribed": False, "subscription_id": ""})
             DATABASE.session.commit()
+            user_control.delete_subscription(user_obj.user_id)
 
         email_subject = "Your subscription has ended."
         email_message = render_template(
