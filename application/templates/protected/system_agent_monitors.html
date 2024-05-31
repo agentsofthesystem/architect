@@ -104,8 +104,16 @@
 <!-- Card -->
 <div class="card mb-2" id="all-agent-monitor-section">
 
+  {% set is_owner_subscribed = agent_info['is_owner_subscribed'] %}
+  {% set is_owner_viewing = current_user.user_id == agent_info['agent_owner_id'] %}
+  {% set is_current_user_subscribed = current_user.subscribed %}
+
+  <!-- If the person viewing the monitor owns the agent and is subscribed, monitor controls are allowed.   -->
+  <!-- If the person viewing the monitor doesn't own the agent, but it's shared to them and is subscribed, monitor controls are allowed. -->
+  {% set monitor_disabled = '' if (is_owner_subscribed and is_owner_viewing) or is_current_user_subscribed else 'disabled' %}
+
   <div class="card-header">
-    <button class="btn btn-success dropdown-toggle h6" type="button" id="monitor-select" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <button class="btn btn-success dropdown-toggle h6" type="button" id="monitor-select" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{monitor_disabled}}>
       Agent Health
     </button>
     <div class="dropdown-menu" aria-labelledby="monitor-select">
@@ -147,7 +155,7 @@
                     <div class="d-flex justify-content-start">
                         <div class="form-check form-check-inline">
                             <label for="AGENT_HEALTH_ENABLE" class="form-check-label"><h6>Enable Monitor</h6></label>
-                            <input id="AGENT_HEALTH_ENABLE" class="form-check-input monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="AGENT_HEALTH_ENABLE">
+                            <input id="AGENT_HEALTH_ENABLE" class="form-check-input monitor-control" type="checkbox" data-onstyle="success" data-offstyle="success" data-style="ml-2" data-toggle="toggle" data-size="md" data-name="AGENT_HEALTH_ENABLE" {{monitor_disabled}}>
                         </div>
                     </div>
                     <span class="badge badge-secondary badge-pill mb-2 monitor-status" id="AGENT_HEALTH_STATUS">Unknown</span>

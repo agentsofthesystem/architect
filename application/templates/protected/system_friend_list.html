@@ -20,9 +20,11 @@
           </td>
 
           {% if current_user.user_id == friend['initiator_id'] %}
-          <td>{{friend['receiver']['username']}}</td>
+            {% set is_subscribed = friend['receiver']['subscribed'] %}
+          <td><span class="badge badge-pill {{ 'badge-danger' if is_subscribed else 'badge-primary' }}">{{friend['receiver']['username']}}</span></td>
           {% else %}
-          <td>{{friend['initiator']['username']}}</td>
+            {% set is_subscribed = friend['initiator']['subscribed'] %}
+          <td><span class="badge badge-pill {{ 'badge-danger' if is_subscribed else 'badge-primary' }}">{{friend['initiator']['username']}}</span></td>
           {% endif %}
 
           <td>

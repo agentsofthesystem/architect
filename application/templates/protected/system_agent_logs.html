@@ -91,9 +91,14 @@
     <div class="container">
       <div class="card" id="agent-activity-section">
         <div class="card-header">
-          <span class="h6">Activity Logs</span>
+          <span class="h4">Activity Logs</span>
         </div>
         <div class="card-body">
+          {% if current_user.subscribed %}
+            <span class="h6 text-red">Unlimited Log Access.</span>
+          {% else %}
+            <span class="h6 text-blue">Restricted to last 3 logs.</span>
+          {% endif %}
           <table class="table table-bordered table-hover align-items-center display" id="activity-log-table">
             <thead>
                 <tr>

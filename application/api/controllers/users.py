@@ -11,9 +11,9 @@ from flask_login import login_user, logout_user, current_user
 from kombu.exceptions import OperationalError
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.api.controllers.friends import generate_friend_code
+from application.api.controllers import agents as agent_control
 from application.common import logger, constants, toolbox
-from application.extensions import DATABASE
+from application.extensions import DATABASE, CELERY
 from application.models.beta_user import BetaUser
 from application.models.setting import SettingsSql
 from application.models.user import UserSql
@@ -31,7 +31,7 @@ def _create_new_user(email, password):
     new_user.email = email
 
     new_user.password = generate_password_hash(password)
-    new_user.friend_code = generate_friend_code(email)
+    new_user.friend_code = toolbox.generate_friend_code(email)
     new_user.last_message_read_time = datetime.now(timezone.utc)
 
     try:
@@ -441,3 +441,50 @@ def get_user_by_id(user_id: int) -> UserSql:
         return None
 
     return user_obj
+
+
+def delete_subscription(user_id: int) -> None:
+    """
+    For each agent:
+    1. Turn off each monitor.
+    2. Stop any potential monitor task(s).
+    3. Detach agent shares to groups and/or friends.
+    """
+    skip_first_agent = True
+    user_agents = agent_control.get_agents_by_owner(user_id)
+
+    for agent in user_agents:
+        # Agent Monitors.
+        agent_obj = agent_control.get_agent_by_id(agent["agent_id"], as_obj=True)
+        agent_monitors = agent_obj.attached_monitors.all()
+
+        for monitor in agent_monitors:
+            # Set monitor to inactive, revoke task, and delete faults.
+            monitor.active = False
+
+            task_id = monitor.task_id
+            monitor.task_id = None
+
+            if task_id is not None:
+                CELERY.control.revoke(task_id, terminate=True)
+
+            for fault in monitor.monitor_faults.all():
+                DATABASE.session.delete(fault)
+            DATABASE.session.commit()
+
+        # Agent Shares.
+        group_shares = agent_obj.groups_with_access.all()
+        friend_shares = agent_obj.friends_with_access.all()
+        for group in group_shares:
+            DATABASE.session.delete(group)
+
+        for friend in friend_shares:
+            DATABASE.session.delete(friend)
+
+        if skip_first_agent:
+            skip_first_agent = False
+            continue
+        else:
+            agent_obj.active = False
+
+    DATABASE.session.commit()

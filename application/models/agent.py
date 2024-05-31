@@ -6,6 +6,7 @@ from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
 from application.models.agent_group_member import AgentGroupMembers  # noqa: F401
 from application.models.agent_friend_member import AgentFriendMembers  # noqa: F401
+from application.models.group import Groups  # noqa: F401
 
 
 class Agents(PaginatedApi, DATABASE.Model):
@@ -48,6 +49,37 @@ class Agents(PaginatedApi, DATABASE.Model):
         backref="attached_monitors",
         lazy="dynamic",
     )
+
+    @property
+    def num_users(self):
+        return self.get_users()
+
+    def get_users(self, as_list=False):
+        unique_user_ids = []
+        group_member_id_list = [group.group_member_id for group in self.groups_with_access.all()]
+        friend_id_list = [friend.friend_member_id for friend in self.friends_with_access.all()]
+
+        for friend_id in friend_id_list:
+            if friend_id not in unique_user_ids:
+                unique_user_ids.append(friend_id)
+
+        # For each group_member_id in group_member_id_list, get the groups.
+        for group_member_id in group_member_id_list:
+            group_obj = Groups.query.filter_by(group_id=group_member_id).first()
+            members = group_obj.members.all()
+            for member in members:
+                member_id = member.member_id
+                if member_id not in unique_user_ids:
+                    unique_user_ids.append(member_id)
+
+        # Do not count the agent owner user_id
+        if self.owner_id in unique_user_ids:
+            unique_user_ids.remove(self.owner_id)
+
+        if as_list:
+            return unique_user_ids
+        else:
+            return len(unique_user_ids)
 
     def get_id(self):
         logger.debug(f"Called Agent.get_id: ID IS: {self.agent_id}")

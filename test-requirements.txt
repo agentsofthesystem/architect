@@ -1,5 +1,6 @@
 black
 coverage
+debugpy
 flake8
 flower
 pytest

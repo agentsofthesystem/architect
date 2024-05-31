@@ -81,11 +81,12 @@
               <div class="d-flex align-items-center">
                 <span class="badge badge-secondary mr-3">Owned By: {{agent_info['agent']['owner']['username']}}</span>
                 <ul class="list-inline text-small d-inline-block">
+                  <!-- Friends -->
+                  <li class="list-inline-item"><i class="icon-game-controller"></i> Friends: {{agent_info['num_friends']}}</li>
                   <!-- Groups -->
-                  <li class="list-inline-item"><i class="icon-globe"></i> Groups: {{agent_info['num_groups']}}</li>
-                  <!-- Groups -->
-                  <li class="list-inline-item"><i class="icon-game-controller"></i> Friends:
-                    {{agent_info['num_friends']}}</li>
+                  <li class="list-inline-item"><i class="icon-globe"></i> Groups: {{agent_info['num_groups']}} / 1</li>
+                  <!-- Shares -->
+                  <li class="list-inline-item"><i class="icon-users"></i> Shares: {{agent_info["num_users"]}} / {{ agent_info["agent_share_limit"] }}</li>
                 </ul>
               </div>
             </div>

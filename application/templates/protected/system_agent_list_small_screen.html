@@ -7,6 +7,7 @@
         <tr>
           <th scope="col">Agent Info</th>
           <th scope="col">Owner </th>
+          <th scope="col">Shares</th>
           <th scope="col">Status</th>
           <th scope="col">Action</th>
         </tr>
@@ -14,47 +15,70 @@
       <tbody>
 
         {% for agent in all_agents_list %}
-        <tr class="bg-white agent-info-link-{{agent['agent_id']}}" data-agent-id="{{agent['agent_id']}}">
-          <td class="clickable-cell">
-            <a class="align-items-center">
-              {% if current_user.user_id == agent['owner_id'] %}
+          {% set agent_active = agent['active'] %}
+          {% set agent_active_clickable = 'clickable-cell' if agent_active else '' %}
+          {% set agent_bg_active = 'bg-white' if agent_active else 'bg-dark' %}
+          <tr class="{{agent_bg_active}} agent-info-link-{{agent['agent_id']}}" data-agent-id="{{agent['agent_id']}}">
+            <td class="{{agent_active_clickable}}">
+              <a class="align-items-center">
+                {% if current_user.user_id == agent['owner_id'] %}
+                  <a>
+                    {% if agent_active %}
+                      <img alt="I own this Agent"  src="{{ url_for('static', filename='assets/img/agent-black.svg') }}" class="avatar rounded avatar-sm" />
+                    {% else %}
+                      <div class="text-red">Inactive</div>
+                    {% endif %}
+                  </a>
+                {% else %}
                 <a>
-                  <img alt="I own this Agent"  src="{{ url_for('static', filename='assets/img/agent-black.svg') }}" class="avatar rounded avatar-sm" />
+                  <img alt="Shared Agent" src="{{ url_for('static', filename='assets/img/agent-green.png') }}" class="avatar rounded avatar-sm" style="fill:#204829"/>
                 </a>
-              {% else %}
-              <a>
-                <img alt="Shared Agent" src="{{ url_for('static', filename='assets/img/agent-green.png') }}" class="avatar rounded avatar-sm" style="fill:#204829"/>
+                {% endif %}
               </a>
-              {% endif %}
-            </a>
-          </td>
-          <td class="clickable-cell">{{ '(Me)' if current_user.user_id == agent['owner_id'] else agent['owner']['username'] }}</td>
-          <td class="clickable-cell">
-            <div class="spinner-border text-success agent-spinner-id-{{agent['agent_id']}}" role="status">
-              <span class="sr-only">Pending...</span>
-            </div>
-            <span class="badge badge-warning agent-smallscreen-status-badge agent-id-{{agent['agent_id']}}" id="{{agent['agent_id']}}">Pending</span>
-          </td>
-          <td>
-            <div class="dropdown">
-              {% set is_disabled = "disabled='true'" if current_user.user_id != agent['owner_id'] else "" %}
-              <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{is_disabled}}>
-                <i class="icon-dots-three-horizontal"></i>
-              </button>
-              <div class="dropdown-menu dropdown-menu-sm">
-                <a class="dropdown-item update-agent" onclick="showUpdateAgentModal({{agent['agent_id']}})">Update Agent</a>
-                <a class="dropdown-item share-to-group" onclick="showShareAgentToGroupModal({{agent['agent_id']}})">Share with Group</a>
-                <a class="dropdown-item share-to-friend" onclick="showShareAgentToFriendModal({{agent['agent_id']}})">Share with Friend</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item delete-agent" id="{{agent['agent_id']}}">Delete</a>
+            </td>
+            <td class="{{agent_active_clickable}}">{{ '(Me)' if current_user.user_id == agent['owner_id'] else agent['owner']['username'] }}</td>
+            <td class="{{agent_active_clickable}}">
+              {{agent["num_users"]}} / {{ agent["agent_share_limit"] }}
+            </td>
+            <td class="{{agent_active_clickable}}">
+              <div class="spinner-border text-success agent-spinner-id-{{agent['agent_id']}}" role="status">
+                <span class="sr-only">Pending...</span>
               </div>
-            </div>
-          </td>
-        </tr>
-        <tr class="table-divider">
-          <th></th>
-          <td></td>
-        </tr>
+              <span class="badge badge-warning agent-smallscreen-status-badge agent-id-{{agent['agent_id']}}" id="{{agent['agent_id']}}">Pending</span>
+            </td>
+            <td>
+              <div class="dropdown">
+                {% set is_disabled = "disabled='true'" if current_user.user_id != agent['owner_id'] else "" %}
+                {% set num_users = agent["num_users"] | int %}
+                {% set share_limit = agent["agent_share_limit"] | int %}
+                {% set num_groups = agent["num_groups"] | int %}
+                {% set is_sharing_disabled = num_users >= share_limit %}
+                <button class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-no-arrow" type="button" id="dropdownMenuButton-1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{is_disabled}}>
+                  <i class="icon-dots-three-horizontal"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-sm">
+                  {% if agent_active %}
+                    <a class="dropdown-item update-agent" onclick="showUpdateAgentModal({{agent['agent_id']}})">Update Agent</a>
+                    {% if num_groups < 1 %}
+                    <a class="dropdown-item share-to-group" onclick="showShareAgentToGroupModal({{agent['agent_id']}}, '{{is_sharing_disabled}}')">Share with Group</a>
+                    {% endif %}
+                    <a class="dropdown-item share-to-friend" onclick="showShareAgentToFriendModal({{agent['agent_id']}}, '{{is_sharing_disabled}}')">Share with Friend</a>
+                    <div class="dropdown-divider"></div>
+                  {% else %}
+                    {% if current_user.subscribed %}
+                      <a class="dropdown-item reactivate-agent" id="{{agent['agent_id']}}">Reactivate</a>
+                      <div class="dropdown-divider"></div>
+                    {% endif %}
+                  {% endif %}
+                  <a class="dropdown-item delete-agent" id="{{agent['agent_id']}}">Delete</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr class="table-divider">
+            <th></th>
+            <td></td>
+          </tr>
         {% endfor %}
 
       </tbody>
@@ -65,10 +89,27 @@
 <!--end of row-->
 <div class="row">
   <div class="col">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div></div>
+
+    {% if num_owned_inactive_agents | int > 0 %}
+      <p class="text-muted mb-0">Owned Active Agents: {{num_owned_active_agents}} of {{num_allowed_agents}} limit, {{num_owned_inactive_agents}} inactive.</p>
+    {% else %}
+      <p class="text-muted mb-0">Owned Active Agents: {{num_owned_active_agents}} of {{num_allowed_agents}} limit.</p>
+    {% endif %}
+
+    <p class="text-muted mb-2">Shared Agents: {{num_shared_agents}}</p>
+
+    <div class="d-flex justify-content-center align-items-center mb-4">
       <div class="d-flex align-items-center">
-        <button class="btn btn-success btn-lg" onclick="showNewAgentModal()">Add New Agent</button>
+        {% if num_owned_active_agents >= num_allowed_agents %}
+          <!-- Send user to pricing page -->
+          {% if current_user.subscribed %}
+            <button class="btn btn-success btn-lg" onclick="showNewAgentModal()" disabled>Limit reached</button>
+          {% else %}
+            <a class="btn btn-success btn-lg" href="{{url_for('protected.pricing_internal')}}">Upgrade</a>
+          {% endif %}
+        {% else %}
+          <button class="btn btn-success btn-lg" onclick="showNewAgentModal()">Add New Agent</button>
+        {% endif %}
       </div>
     </div>
   </div>
