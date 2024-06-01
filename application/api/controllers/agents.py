@@ -63,7 +63,9 @@ def get_associated_agents() -> dict:
         membership_objs = AgentGroupMembers.query.filter_by(group_member_id=group["group_id"]).all()
         for membership in membership_objs:
             agent_id = membership.agent_id
-            if agent_id not in combined_agent_list:
+            this_agent_obj = Agents.query.filter_by(agent_id=agent_id).first()
+            is_own_agent = this_agent_obj.owner_id == current_user.user_id
+            if agent_id not in combined_agent_list and not is_own_agent:
                 combined_agent_list.append(membership.agent_id)
 
     # Check on direct agents from friends. Build list first, get the agents owned by friends,
@@ -88,7 +90,9 @@ def get_associated_agents() -> dict:
         ).all()
         for membership in membership_objs:
             agent_id = membership.agent_id
-            if agent_id not in combined_agent_list:
+            this_agent_obj = Agents.query.filter_by(agent_id=agent_id).first()
+            is_own_agent = this_agent_obj.owner_id == current_user.user_id
+            if agent_id not in combined_agent_list and not is_own_agent:
                 combined_agent_list.append(membership.agent_id)
 
     # Get all agents with ids matching the list.
