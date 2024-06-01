@@ -10,8 +10,6 @@ from flask import (
 from flask import session as flask_session
 from flask_login import login_user, logout_user, current_user
 from kombu.exceptions import OperationalError
-from random import getrandbits
-from uuid import uuid1, getnode
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from application.api.controllers import agents as agent_control
@@ -35,7 +33,7 @@ def _create_new_user(email, password):
 
     new_user.password = generate_password_hash(password)
     new_user.friend_code = toolbox.generate_friend_code(email)
-    new_user.session_id = uuid1(node=getnode(), clock_seq=getrandbits(14))
+    new_user.session_id = flask_session["_id"]
     new_user.last_message_read_time = datetime.now(timezone.utc)
 
     try:
@@ -89,7 +87,6 @@ def signin(request):
         logger.error("SIGNIN: Bad Password")
         return False
 
-    # session_id = uuid1(node=getnode(), clock_seq=getrandbits(14))
     session_id = flask_session["_id"]
 
     update_dict = {"authenticated": True, "active": True, "session_id": session_id}
