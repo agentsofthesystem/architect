@@ -89,7 +89,8 @@ def signin(request):
         logger.error("SIGNIN: Bad Password")
         return False
 
-    session_id = uuid1(node=getnode(), clock_seq=getrandbits(14))
+    # session_id = uuid1(node=getnode(), clock_seq=getrandbits(14))
+    session_id = flask_session["_id"]
 
     update_dict = {"authenticated": True, "active": True, "session_id": session_id}
 
@@ -107,8 +108,6 @@ def signin(request):
     login_user(
         user_obj, remember=lm_remember, duration=current_app.config["PERMANENT_SESSION_LIFETIME"]
     )
-
-    flask_session["session_id"] = session_id
 
     return True
 
@@ -149,7 +148,7 @@ def signup(request):
             return False
         new_user = _create_new_user(email, password)
 
-    login_user(new_user)
+    login_user(new_user, duration=current_app.config["PERMANENT_SESSION_LIFETIME"])
 
     now = datetime.now(timezone.utc)
 
