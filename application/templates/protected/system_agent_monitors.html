@@ -113,13 +113,15 @@
   {% set monitor_disabled = '' if (is_owner_subscribed and is_owner_viewing) or is_current_user_subscribed else 'disabled' %}
 
   <div class="card-header">
-    <button class="btn btn-success dropdown-toggle h6" type="button" id="monitor-select" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{monitor_disabled}}>
-      Agent Health
-    </button>
-    <div class="dropdown-menu" aria-labelledby="monitor-select">
-      <a class="dropdown-item" onclick="updateMonitorSection('agent_health')">Agent Health</a>
-      <a class="dropdown-item" onclick="updateMonitorSection('ds_health')">Dedicated Server Health</a>
-      <a class="dropdown-item" onclick="updateMonitorSection('ds_updates')">Dedicated Server Updates</a>
+    <div class="d-flex justify-content-start">
+      <button class="btn btn-success dropdown-toggle h6" type="button" id="monitor-select" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{monitor_disabled}}>
+        Agent Health
+      </button>
+      <div class="dropdown-menu" aria-labelledby="monitor-select">
+        <a class="dropdown-item" onclick="updateMonitorSection('agent_health')">Agent Health</a>
+        <a class="dropdown-item" onclick="updateMonitorSection('ds_health')">Dedicated Server Health</a>
+        <a class="dropdown-item" onclick="updateMonitorSection('ds_updates')">Dedicated Server Updates</a>
+      </div>
     </div>
   </div>
 
@@ -265,6 +267,13 @@
 
     </div>
 
+  </div>
+
+  <div class="card-footer">
+    <!-- A button when clicked opens a web page-->
+    <div class="d-flex justify-content-end">
+      <a href="https://docs.agentsofthesystem.com/build/html/architect/monitors.html" target="_blank" class="btn btn-success"><span>&nbsp;<i class="icon-info text-grey"></i></span></a>
+    </div>
   </div>
 
 </div>

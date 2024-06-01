@@ -73,8 +73,9 @@
               <i class="icon-dots-three-horizontal"></i>
               <span class="sr-only">Toggle Dropdown</span>
             </button>
+            {% set is_enabled = '' if current_user.user_id == agent_info['agent']['owner_id'] else 'disabled' %}
             <div class="dropdown-menu dropdown-menu-right dropdown-menu-sm">
-              <a class="dropdown-item" onclick="clearAgentLogs()">Clear Logs</a>
+              <a class="dropdown-item {{is_enabled}}" onclick="clearAgentLogs()">Clear Logs</a>
             </div>
           </div>
         </div>

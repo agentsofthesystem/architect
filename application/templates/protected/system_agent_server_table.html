@@ -22,11 +22,15 @@
                 </tbody>
             </table>
         </div>
-        {% if not agent_info['is_owner_subscribed'] %}
         <div class="card-footer">
-            <span class="h6 text-muted">Limited to one server without subscription.</span>
+            {% if agent_info['is_owner_subscribed'] %}
+                <div class="d-flex justify-content-end">
+                    <a href="https://docs.agentsofthesystem.com/build/html/architect/agents.html#dedicated-server-controls-status" target="_blank" class="btn btn-success"><span>&nbsp;<i class="icon-info text-grey"></i></span></a>
+                </div>
+            {% else %}
+                <span class="h6 text-muted">Limited to one server without subscription.</span>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 
     <!-- Condensed version of the table shows for small screens -->
@@ -48,11 +52,15 @@
                 </tbody>
             </table>
         </div>
-        {% if not agent_info['is_owner_subscribed'] %}
         <div class="card-footer">
-            <span class="h6 text-muted">Limited to one server without subscription.</span>
+            {% if agent_info['is_owner_subscribed'] %}
+                <div class="d-flex justify-content-end">
+                    <a href="https://docs.agentsofthesystem.com/build/html/architect/agents.html#dedicated-server-controls-status" target="_blank" class="btn btn-success"><span>&nbsp;<i class="icon-info text-grey"></i></span></a>
+                </div>
+            {% else %}
+                <span class="h6 text-muted">Limited to one server without subscription.</span>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 
 </div>
