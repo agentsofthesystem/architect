@@ -37,26 +37,26 @@
                 </td>
               </tr>
               <tr>
-                <th scope="row"># Managed Agents</th>
+                <th scope="row"># Managed Agents<a href="https://docs.agentsofthesystem.com/build/html/architect/subscriptions.html#maximum-number-of-agents" target="_blank" class="btn btn-sm btn-success ml-1"><span><i class="icon-info text-grey"></i></span></a></th>
                 <td>1</td>
                 <td>6</td>
               </tr>
               <tr>
-                <th scope="row" class="text-right">Dedicated Servers / Agent</th>
+                <th scope="row" class="text-right">Dedicated Servers / Agent<a href="https://docs.agentsofthesystem.com/build/html/architect/subscriptions.html#dedicated-server-limits" target="_blank" class="btn btn-sm btn-success ml-1"><span><i class="icon-info text-grey"></i></span></a></th>
                 <td>1</td>
                 <td>Unlimited</td>
               </tr>
               <tr>
-                <th scope="row" class="text-right">Agent Sharing</th>
+                <th scope="row" class="text-right">Agent Sharing<a href="https://docs.agentsofthesystem.com/build/html/architect/subscriptions.html#agent-share-limits" target="_blank" class="btn btn-sm btn-success ml-1"><span><i class="icon-info text-grey"></i></span></a></th>
                 <td>2 Users / Agent</td>
                 <td>10 Users / Agent</td>
               </tr>
               <tr>
-                <th scope="row" class="text-right">Activity Logs</th>
+                <th scope="row" class="text-right">Activity Logs<a href="https://docs.agentsofthesystem.com/build/html/architect/subscriptions.html#activity-logs" target="_blank" class="btn btn-sm btn-success ml-1"><span><i class="icon-info text-grey"></i></span></a></th>
                 <td>Last 3</td>
                 <td>Unlimited</td>
               <tr>
-                <th scope="row" class="text-right">Manual Control</th>
+                <th scope="row" class="text-right">Manual Server Control</th>
                 <td><i class="icon-check text-green"></i>
                 </td>
                 <td><i class="icon-check text-green"></i>
@@ -77,7 +77,7 @@
                 </td>
               </tr>
               <tr>
-                <th scope="row" class="text-right">Agent & Server Monitoring</th>
+                <th scope="row" class="text-right">Agent & Server Monitoring<a href="https://docs.agentsofthesystem.com/build/html/architect/subscriptions.html#agent-server-monitors" target="_blank" class="btn btn-sm btn-success ml-1"><span><i class="icon-info text-grey"></i></span></a></th>
                 <td><i class="icon-circle-with-cross text-red"></i>
                 </td>
                 <td><i class="icon-check text-green"></i>
@@ -90,7 +90,7 @@
                 <td></td>
                 <td>
                   {% if current_user.subscribed %}
-                  <a class="btn btn-lg btn-success" disabled>Select this plan</a>
+                  <a class="btn btn-lg btn-success" disabled>Already Subscribed!</a>
                   {% else%}
                   <a class="btn btn-lg btn-success" href="{{url_for('protected.account',tab='billing')}}">Upgrade</a>
                   {% endif %}

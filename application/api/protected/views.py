@@ -263,6 +263,8 @@ def system_agent_logs(agent_id: int):
         "agent": agent_dict,
         "num_groups": num_groups,
         "num_friends": num_friends,
+        "is_owner_subscribed": owner_obj.subscribed,
+        "agent_owner_id": agent_obj.owner_id,
     }
 
     agent_logs_list = agent_logs.get_all_agent_logs(agent_id)
