@@ -87,6 +87,15 @@ def signin(request):
         logger.error("SIGNIN: Bad Password")
         return False
 
+    # Login Manager - Remember User
+    lm_remember = False
+    if "remember" in data.keys():
+        lm_remember = True
+
+    login_user(
+        user_obj, remember=lm_remember, duration=current_app.config["PERMANENT_SESSION_LIFETIME"]
+    )
+
     session_id = flask_session["_id"]
 
     update_dict = {"authenticated": True, "active": True, "session_id": session_id}
@@ -96,15 +105,6 @@ def signin(request):
         DATABASE.session.commit()
     except Exception as error:
         logger.error(error)
-
-    # Login Manager - Remember User
-    lm_remember = False
-    if "remember" in data.keys():
-        lm_remember = True
-
-    login_user(
-        user_obj, remember=lm_remember, duration=current_app.config["PERMANENT_SESSION_LIFETIME"]
-    )
 
     return True
 
