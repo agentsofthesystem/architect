@@ -231,6 +231,25 @@ SYSTEM_SETTINGS = {
         "category": "monitor",
         "type": "bool",
     },
+    # Google Signin
+    "GOOGLE_SIGNUP_ENABLED": {
+        "pretty": "Google Signup Enabled",
+        "description": "Enables sign in with google credentials.",
+        "category": "google",
+        "type": "bool",
+    },
+    "GOOGLE_CLIENT_ID": {
+        "pretty": "Google App Oauth Client ID",
+        "description": "Google App Oauth Client ID",
+        "category": "google",
+        "type": "str",
+    },
+    "GOOGLE_CLIENT_SECRET": {
+        "pretty": "Google App Oauth Client secret",
+        "description": "Google App Oauth Client Secret",
+        "category": "google",
+        "type": "str",
+    },
     # This one is special so the factory.py only runs the init code once.
     "IS_SEEDED": {
         "pretty": "System Settings are Seeded.",

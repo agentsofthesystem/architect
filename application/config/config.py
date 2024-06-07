@@ -79,6 +79,13 @@ class DefaultConfig:
     STRIPE_PRICE_ID_1 = "price_id1"
     STRIPE_WEBHOOK_SECRET = "whsec_abc123"
 
+    # Google login Configuration
+    GOOGLE_SIGNUP_ENABLED = False
+    GOOGLE_CLIENT_ID = "REPLACEME"
+    GOOGLE_CLIENT_SECRET = "REPLACEME"
+    GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+    OAUTHLIB_INSECURE_TRANSPORT = ""  # Set to '1' to disable HTTPS requirement for testing.
+
     # Admin Stuff
     ADMIN_USER = "Global Admin"
     ADMIN_PASSWORD = "password"  # Default password

@@ -18,6 +18,11 @@ x-common-variables: &common-variables
   AWS_ACCESS_KEY_ID: REPLACEME
   AWS_SECRET_ACCESS_KEY: REPLACEME
 
+  # For google signin testing
+  OAUTHLIB_INSECURE_TRANSPORT: '1'
+  GOOGLE_CLIENT_ID: REPLACEME
+  GOOGLE_CLIENT_SECRET: REPLACEME
+
   # Or uncomment and use these two to simulate using STS Task IAM Role
   #CELERY_SQS_PREDEFINED_QUEUE: REPLACEME
   #AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: /creds

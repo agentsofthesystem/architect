@@ -19,7 +19,15 @@ from application.common.toolbox import MyAdminIndexView, _get_application_path
 from application.common.seed_data import update_system_settings, _handle_default_records
 from application.config.config import DefaultConfig
 from application.debugger import init_debugger
-from application.extensions import ADMIN, CELERY, CSRF, DATABASE, LOGIN_MANAGER, SOCKETIO
+from application.extensions import (
+    ADMIN,
+    CELERY,
+    CSRF,
+    DATABASE,
+    LOGIN_MANAGER,
+    SOCKETIO,
+    OAUTH_CLIENT,
+)
 from application.models.beta_user import BetaUser
 from application.models.user import UserSql
 from application.models.setting import SettingsSql
@@ -233,7 +241,14 @@ def create_app(config=None, init_db=True, init_celery=True):
             test_str = request.endpoint
 
         # Ignore updating settings for static back endpoints, public pages, and the favicon.
-        if "favicon" not in test_str and "static" != test_str and "public." not in test_str:
+        if test_str == "static" or test_str == "favicon":
+            return
+        elif "public." in test_str:
+            if test_str == "public.signin" or test_str == "public.signup":
+                logger.debug(f"*** Updating System Settings for -> {test_str}")
+                update_system_settings()
+            return
+        else:
             logger.debug(f"*** Updating System Settings for -> {test_str}")
             update_system_settings()
 
@@ -243,6 +258,9 @@ def create_app(config=None, init_db=True, init_celery=True):
 
     # Initialize SocketIO
     SOCKETIO.init_app(flask_app)
+
+    # Initialize OAuth Client
+    OAUTH_CLIENT.client_id = flask_app.config["GOOGLE_CLIENT_ID"]
 
     # Import socket endpoints
     # Intentionally imported here after socketio initializes.

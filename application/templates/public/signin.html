@@ -46,9 +46,23 @@
                             {{ form.remember(class="form-check0-input", type="checkbox", value="", id="check-remember") }}
                             <label class="form-check-label text-small" for="check-remember"> Remember me next time</label>
                           </div>
-                          <div class="text-center mt-3">
-                            <button type="submit" class="btn btn-lg btn-success">Log in</button>
+                          <div class="form-group mt-3">
+                            <div class="container">
+                              <div class="row">
+                                <button type="submit" class="btn btn-block btn-success">Log in</button>
+                              </div>
+                            </div>
                           </div>
+                          {% if google_signin_enabled %}
+                          <div class="form-group mb-1 border-top">
+                          </div>
+                          <div class="row no-gutters justify-content-center">
+                            <button class="btn btn-block btn-outline-success" onclick="location.href='{{google_signin_uri}}'">
+                             <img alt="Google Sign In Icon" loading="lazy" src="https://public-static-website-content.s3.us-east-2.amazonaws.com/marketingSiteAssets/googleLogo.svg">
+                             <span>Login With Google</span>
+                            </button>
+                          </div>
+                          {% endif %}
                         </form>
                       </div>
                       <!--end of row-->

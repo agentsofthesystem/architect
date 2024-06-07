@@ -1,4 +1,5 @@
 import json
+import requests
 import stripe
 
 from datetime import datetime, timezone
@@ -23,7 +24,7 @@ from application.api.public.forms import (
 )
 from application.common import logger
 from application.common.toolbox import _get_setting
-from application.extensions import CSRF, DATABASE
+from application.extensions import CSRF, DATABASE, OAUTH_CLIENT
 from application.models.user import UserSql
 from application.models.setting import SettingsSql
 from application.workers.email import send_email
@@ -67,7 +68,6 @@ def support():
     return render_template("public/support.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
 
 
-# TODO - Add privacy policy page
 @public.route("/privacy/policy")
 def privacy_policy():
     return render_template(
@@ -75,7 +75,6 @@ def privacy_policy():
     )
 
 
-# TODO - Add T&C page
 @public.route("/terms")
 def terms_and_conditions():
     return render_template(
@@ -84,9 +83,28 @@ def terms_and_conditions():
     )
 
 
+def _get_google_provider_cfg():
+    discovery_url = current_app.config["GOOGLE_DISCOVERY_URL"]
+    return requests.get(discovery_url).json()
+
+
 @public.route("/signup", methods=["GET", "POST"])
 def signup():
     form = SignupForm()
+
+    # Find out what URL to hit for Google login
+    google_provider_cfg = _get_google_provider_cfg()
+    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+
+    # Use library to construct the request for Google login and provide
+    # scopes that let you retrieve user's profile from Google
+    request_uri = OAUTH_CLIENT.prepare_request_uri(
+        authorization_endpoint,
+        redirect_uri=url_for("public.signin_google", _external=True),
+        scope=["openid", "email", "profile"],
+    )
+
+    google_signin_enabled = current_app.config["GOOGLE_SIGNUP_ENABLED"]
 
     # If already signed in, got to main app page.
     if current_user.is_authenticated:
@@ -102,18 +120,108 @@ def signup():
                 "public/signup.html",
                 form=form,
                 pretty_name=current_app.config["APP_PRETTY_NAME"],
+                google_signin_uri=request_uri,
+                google_signin_enabled=google_signin_enabled,
             )
     else:
         return render_template(
             "public/signup.html",
             form=form,
             pretty_name=current_app.config["APP_PRETTY_NAME"],
+            google_signin_uri=request_uri,
+            google_signin_enabled=google_signin_enabled,
+        )
+
+
+@public.route("/signin/google", methods=["GET", "POST"])
+def signin_google():
+    # Get authorization code Google sent back to you
+    code = request.args.get("code")
+    google_provider_cfg = _get_google_provider_cfg()
+
+    token_endpoint = google_provider_cfg["token_endpoint"]
+    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+
+    google_client_id = current_app.config["GOOGLE_CLIENT_ID"]
+    google_client_secret = current_app.config["GOOGLE_CLIENT_SECRET"]
+
+    # Use library to construct the request for Google login and provide
+    # scopes that let you retrieve user's profile from Google
+    request_uri = OAUTH_CLIENT.prepare_request_uri(
+        authorization_endpoint,
+        redirect_uri=url_for("public.signin_google", _external=True),
+        scope=["openid", "email", "profile"],
+    )
+
+    # Prepare and send a request to get tokens! Yay tokens!
+    token_url, headers, body = OAUTH_CLIENT.prepare_token_request(
+        token_endpoint, authorization_response=request.url, redirect_url=request.base_url, code=code
+    )
+    token_response = requests.post(
+        token_url,
+        headers=headers,
+        data=body,
+        auth=(google_client_id, google_client_secret),
+    )
+
+    # Parse the tokens!
+    OAUTH_CLIENT.parse_request_body_response(json.dumps(token_response.json()))
+
+    # Now that you have tokens (yay) let's find and hit the URL
+    # from Google that gives you the user's profile information,
+    # including their Google profile image and email
+    uri, headers, body = OAUTH_CLIENT.add_token(userinfo_endpoint)
+    userinfo_response = requests.get(uri, headers=headers, data=body)
+
+    # You want to make sure their email is verified.
+    # The user authenticated with Google, authorized your
+    # app, and now you've verified their email through Google!
+    if userinfo_response.json().get("email_verified"):
+        users_email = userinfo_response.json()["email"]
+        if user_control.signin_with_google(users_email):
+            return redirect(url_for("protected.dashboard"))
+        else:
+            flash("Incorrect Username or Password!", "danger")
+            form = SignInForm()
+            return render_template(
+                "public/signin.html",
+                form=form,
+                pretty_name=current_app.config["APP_PRETTY_NAME"],
+                email_enabled=current_app.config["APP_ENABLE_EMAIL"],
+                google_signin_uri=request_uri,
+            )
+    else:
+        flash("Incorrect Username or Password!", "danger")
+        form = SignInForm()
+        return render_template(
+            "public/signin.html",
+            form=form,
+            pretty_name=current_app.config["APP_PRETTY_NAME"],
+            email_enabled=current_app.config["APP_ENABLE_EMAIL"],
+            google_signin_uri=request_uri,
         )
 
 
 @public.route("/signin", methods=["GET", "POST"])
 def signin():
     form = SignInForm()
+
+    # Find out what URL to hit for Google login
+    google_provider_cfg = _get_google_provider_cfg()
+    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+
+    # Use library to construct the request for Google login and provide
+    # scopes that let you retrieve user's profile from Google
+    request_uri = OAUTH_CLIENT.prepare_request_uri(
+        authorization_endpoint,
+        redirect_uri=url_for("public.signin_google", _external=True),
+        scope=["openid", "email", "profile"],
+    )
+
+    google_signin_enabled = current_app.config["GOOGLE_SIGNUP_ENABLED"]
+
+    logger.debug(f"Google Signin Enabled: {google_signin_enabled}")
 
     # If already signed in, got to main app page.
     if current_user.is_authenticated:
@@ -130,6 +238,8 @@ def signin():
                 form=form,
                 pretty_name=current_app.config["APP_PRETTY_NAME"],
                 email_enabled=current_app.config["APP_ENABLE_EMAIL"],
+                google_signin_uri=request_uri,
+                google_signin_enabled=google_signin_enabled,
             )
     else:
         return render_template(
@@ -137,6 +247,8 @@ def signin():
             form=form,
             pretty_name=current_app.config["APP_PRETTY_NAME"],
             email_enabled=current_app.config["APP_ENABLE_EMAIL"],
+            google_signin_uri=request_uri,
+            google_signin_enabled=google_signin_enabled,
         )
 
 
