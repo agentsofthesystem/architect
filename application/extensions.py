@@ -4,6 +4,7 @@ from flask_login import LoginManager
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
+from oauthlib.oauth2 import WebApplicationClient
 
 task_modules = [
     "application.workers.monitor_agent",
@@ -25,3 +26,5 @@ DATABASE = SQLAlchemy()
 LOGIN_MANAGER = LoginManager()
 
 SOCKETIO = SocketIO()
+
+OAUTH_CLIENT = WebApplicationClient("")

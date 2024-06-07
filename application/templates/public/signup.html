@@ -28,6 +28,7 @@
                                     <h1 class="h2 mb-2">Join The System!</h1>
                                 </div>
                                 <div class="row no-gutters justify-content-center">
+
                                     <form class="password-strength" action="{{url_for('public.signup')}}" method="post">
                                         {{ form.csrf_token }}
                                         <div class="form-row form-group">
@@ -60,12 +61,25 @@
                                                 <button class="btn btn-block btn-success btn-lg password-strength__submit" type="submit" disabled="disabled">Create Free Account</button>
                                             </div>
                                         </div>
-                                        <div class="text-center">
-                                            <span class="text-small text-muted">By clicking 'Create Free Account' you affirm you have read and agree to our <a href="{{url_for('public.terms_and_conditions')}}">Terms of Use</a>, and <a href="{{url_for('public.privacy_policy')}}">Privacy Policy</a></span>
-                                        </div>
+
                                     </form>
                                 </div>
                                 <!--end of row-->
+                                {% if google_signin_enabled %}
+                                <div class="form-group mb-1 border-top">
+                                </div>
+
+                                <div class="row no-gutters justify-content-center mb-1">
+                                    <button class="btn btn-block btn-outline-success" onclick="location.href='{{google_signin_uri}}'">
+                                     <img alt="Google Sign Up Icon" loading="lazy" src="https://public-static-website-content.s3.us-east-2.amazonaws.com/marketingSiteAssets/googleLogo.svg">
+                                     <span>Sign Up With Google</span>
+                                    </button>
+                                </div>
+                                {% endif %}
+
+                                <div class="text-center">
+                                    <span class="text-small text-muted">By clicking 'Create Free Account' or 'Sign Up With Google' you affirm you have read and agree to our <a href="{{url_for('public.terms_and_conditions')}}">Terms of Use</a>, and <a href="{{url_for('public.privacy_policy')}}">Privacy Policy</a></span>
+                                </div>
                             </div>
                         </div>
                         <div class="text-center">

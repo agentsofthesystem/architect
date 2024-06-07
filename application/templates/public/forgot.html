@@ -12,7 +12,7 @@
             <div class="row mb-5">
               <div class="col text-center">
                 <a href="#">
-                  <img alt="Image" src="{{ url_for('static', filename='assets/img/logo-gray.svg') }}" />
+                  <img alt="Image" class="img-fluid w-50" src="{{ url_for('static', filename='assets/img/city-skyline-silhouette.png') }}" />
                 </a>
               </div>
               <!--end of col-->
@@ -34,7 +34,7 @@
                           {{ form.email(class="form-control form-control-lg", type="email", id="reset-email", placeholder="Email Address") }}
                         </div>
                         <div class="text-center mb-4">
-                          <button type="submit" class="btn btn-primary btn-lg">Reset password</button>
+                          <button type="submit" class="btn btn-success btn-block">Reset password</button>
                         </div>
                       </form>
                     </div>

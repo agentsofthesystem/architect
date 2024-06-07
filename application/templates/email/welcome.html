@@ -5,9 +5,11 @@
 <h1>You are now an Agent of the System!</h1>
 <h2>The Architect Welcomes You.</h2>
 
+{% if verify_link %}
 <p>
     <a class="btn btn-primary" href="{{verify_link}}">Click here to verify your email.</a>
 </p>
+{% endif %}
 
 <p></p>
 

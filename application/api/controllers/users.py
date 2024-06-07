@@ -25,7 +25,7 @@ def _get_session_id(session):
     return session["_id"]
 
 
-def _create_new_user(email, password):
+def _create_new_user(email: str, password: str = None, oauth_signup: bool = False):
     new_user = UserSql()
 
     new_user.active = True
@@ -35,10 +35,17 @@ def _create_new_user(email, password):
     new_user.username = email.split("@")[0]
     new_user.email = email
 
-    new_user.password = generate_password_hash(password)
+    if password:
+        new_user.password = generate_password_hash(password)
+    else:
+        new_user.password = ""
+
     new_user.friend_code = toolbox.generate_friend_code(email)
     new_user.session_id = _get_session_id(flask_session)
     new_user.last_message_read_time = datetime.now(timezone.utc)
+
+    if oauth_signup:
+        new_user.verified = True
 
     try:
         DATABASE.session.add(new_user)
@@ -55,16 +62,8 @@ def _user_exists(email):
     return False if check_user_obj is None else True
 
 
-def signin(request):
-    data = request.form
-
-    try:
-        email = data["email"]
-        password = data["password"]
-
-    except KeyError:
-        logger.error("SIGNIN: Missing Data")
-        return False
+def _handle_sign_in(email: str, password: str = None, remember_me: bool = False):
+    is_successful = False
 
     user_qry = UserSql.query.filter_by(email=email)
     user_obj = user_qry.first()
@@ -85,19 +84,15 @@ def signin(request):
             flash("User is not in the Beta User Group and not allowed to sign in", "danger")
             return False
 
-    check = check_password_hash(user_obj.password, password)
+    if password is not None:
+        check = check_password_hash(user_obj.password, password)
 
-    if not check:
-        logger.error("SIGNIN: Bad Password")
-        return False
-
-    # Login Manager - Remember User
-    lm_remember = False
-    if "remember" in data.keys():
-        lm_remember = True
+        if not check:
+            logger.error("SIGNIN: Bad Password")
+            return False
 
     login_user(
-        user_obj, remember=lm_remember, duration=current_app.config["PERMANENT_SESSION_LIFETIME"]
+        user_obj, remember=remember_me, duration=current_app.config["PERMANENT_SESSION_LIFETIME"]
     )
 
     session_id = flask_session["_id"]
@@ -107,10 +102,128 @@ def signin(request):
     try:
         user_qry.update(update_dict)
         DATABASE.session.commit()
+        is_successful = True
     except Exception as error:
+        is_successful = False
         logger.error(error)
 
+    return is_successful
+
+
+def _handle_sign_up(
+    email: str, password: str = None, origin_host: str = None, oauth_signup: bool = False
+):
+    # If beta mode is enabled, restrict signup form.
+    beta_mode_enable = SettingsSql.query.filter_by(name="APP_ENABLE_BETA").first()
+
+    if beta_mode_enable.value == "True" or beta_mode_enable.value == "true":
+        # Only allowed and active beta users.
+        if BetaUser.query.filter_by(email=email, active=True).first():
+            if _user_exists(email):
+                flash("Email already exists!", "danger")
+                return False
+            new_user = _create_new_user(email, password, oauth_signup)
+        else:
+            flash("User is not in the Beta User Group and not allowed to sign up", "danger")
+            return False
+    else:
+        if _user_exists(email):
+            flash("Email already exists!", "danger")
+            return False
+        new_user = _create_new_user(email, password, oauth_signup)
+
+    login_user(new_user, duration=current_app.config["PERMANENT_SESSION_LIFETIME"])
+
+    # Update user session id.
+    session_id = flask_session["_id"]
+    update_dict = {"authenticated": True, "active": True, "session_id": session_id}
+    user_qry = UserSql.query.filter_by(email=email)
+    user_qry.update(update_dict)
+    DATABASE.session.commit()
+
+    # User is signing up without oauth/google in this case.
+    if origin_host is not None:
+        try:
+            # If emails are disabled, return true at this point
+            # However, since emails are disabled, email verification does not work upstream.
+            # Mark user verified regardless.
+            if not current_app.config["APP_ENABLE_EMAIL"]:
+                logger.info(
+                    "Application emails are disabled - Marking this user verified by default."
+                )
+                new_user_qry = UserSql.query.filter_by(email=email)
+                new_user_qry.update({"verified": True})
+                DATABASE.session.commit()
+                return True
+
+            # Get a new token
+            now = datetime.now(timezone.utc)
+            payload = {"exp": now + timedelta(days=1), "iat": now, "sub": str(new_user.user_id)}
+            token = jwt.encode(payload, current_app.config.get("SECRET_KEY"), algorithm="HS256")
+
+            # Sender, Subject, recipient, html
+            if isinstance(token, str):
+                verify_link = f"http://{origin_host}/verify?token={token}"
+            else:
+                verify_link = f"http://{origin_host}/verify?token={token.decode()}"
+
+            # Send welcome email with verification link
+            subject = "Welcome to Agents of the System!"
+            msg = render_template(
+                "email/welcome.html",
+                verify_link=verify_link,
+                pretty_name=current_app.config["APP_PRETTY_NAME"],
+                app_site=origin_host,
+            )
+        except OperationalError as error:
+            logger.error("SIGNUP: Unable to communicate with Celery Backend.")
+            logger.error(error)
+    else:
+        # Send welcome email without verification link
+        subject = "Welcome to Agents of the System!"
+        msg = render_template(
+            "email/welcome.html",
+            verify_link=None,
+            pretty_name=current_app.config["APP_PRETTY_NAME"],
+            app_site=current_app.config["APP_WEBSITE"],
+        )
+
+    send_email.apply_async(
+        [current_app.config["DEFAULT_MAIL_SENDER"], subject, [new_user.email], msg],
+        countdown=constants.DEFAULT_EMAIL_DELAY_SECONDS,
+    )
+
     return True
+
+
+def signin_with_google(email):
+    # Check if the user exists.
+    user_obj = UserSql.query.filter_by(email=email).first()
+
+    if user_obj:
+        return _handle_sign_in(email, None, remember_me=False)
+    else:
+        logger.debug("Signin with Google: User does not exists.")
+        return _handle_sign_up(email, None, None, oauth_signup=True)
+
+
+def signin(request):
+    data = request.form
+
+    # Login Manager - Remember User
+    lm_remember = False
+    if "remember" in data.keys():
+        lm_remember = True
+
+    try:
+        email = data["email"]
+        password = data["password"]
+
+    except KeyError:
+        logger.error("SIGNIN: Missing Data")
+        return False
+
+    return _handle_sign_in(email, password, lm_remember)
 
 
 def signup(request):
@@ -130,77 +243,14 @@ def signup(request):
         flash("Invalid Email Address Format. Try Again...", "danger")
         return False
 
-    # If beta mode is enabled, restrict signup form.
-    beta_mode_enable = SettingsSql.query.filter_by(name="APP_ENABLE_BETA").first()
-
-    if beta_mode_enable.value == "True" or beta_mode_enable.value == "true":
-        # Only allowed and active beta users.
-        if BetaUser.query.filter_by(email=email, active=True).first():
-            if _user_exists(email):
-                flash("Email already exists!", "danger")
-                return False
-            new_user = _create_new_user(email, password)
-        else:
-            flash("User is not in the Beta User Group and not allowed to sign up", "danger")
-            return False
-    else:
-        if _user_exists(email):
-            flash("Email already exists!", "danger")
-            return False
-        new_user = _create_new_user(email, password)
-
-    login_user(new_user, duration=current_app.config["PERMANENT_SESSION_LIFETIME"])
-
-    now = datetime.now(timezone.utc)
-
-    payload = {"exp": now + timedelta(days=1), "iat": now, "sub": str(new_user.user_id)}
-
-    token = jwt.encode(payload, current_app.config.get("SECRET_KEY"), algorithm="HS256")
-
-    try:
-        # If emails are disabled, return true at this point
-        # However, since emails are disabled, email verification does not work upstream.
-        # Mark user verified regardless.
-        if not current_app.config["APP_ENABLE_EMAIL"]:
-            logger.info("Application emails are disabled - Marking this user verified by default.")
-            new_user_qry = UserSql.query.filter_by(email=email)
-            new_user_qry.update({"verified": True})
-            DATABASE.session.commit()
-            return True
-
-        # Sender, Subject, recipient, html
-        origin_host = request.host
-
-        if isinstance(token, str):
-            verify_link = f"http://{origin_host}/verify?token={token}"
-        else:
-            verify_link = f"http://{origin_host}/verify?token={token.decode()}"
-
-        # Send welcome email with verification link
-        subject = "Welcome to Agents of the System!"
-        msg = render_template(
-            "email/welcome.html",
-            verify_link=verify_link,
-            pretty_name=current_app.config["APP_PRETTY_NAME"],
-            app_site=origin_host,
-        )
-        send_email.apply_async(
-            [current_app.config["DEFAULT_MAIL_SENDER"], subject, [new_user.email], msg],
-            countdown=constants.DEFAULT_EMAIL_DELAY_SECONDS,
-        )
-
-    except OperationalError as error:
-        logger.error("SIGNUP: Unable to communicate with Celery Backend.")
-        logger.error(error)
-
-    return True
+    return _handle_sign_up(email, password, request.host)
 
 
 def signout(user):
     # The Anonymous User object does not have a user_id attribute if the session times out.
     if hasattr(user, "user_id"):
         user_qry = UserSql.query.filter_by(user_id=user.user_id)
-        update_dict = {"active": False, "authenticated": False}
+        update_dict = {"active": False, "authenticated": False, "session_id": None}
         user_qry.update(update_dict)
         DATABASE.session.commit()
 
@@ -227,8 +277,13 @@ def update_profile_password(request):
         logger.error("UPDATE_PROFILE: User does not exist? This should not happen")
         return
 
+    # Only update the password if the user_obj password string isn't empty.
+    if user_obj.password == "":
+        logger.warning("User signed up with Google, so cannot change password.")
+        flash("You have signed up with Google, so cannot change password.", "warning")
+        return False
     # Only update the password if the user entered something into those fields.
-    if current_password != "":
+    elif current_password != "":
         logger.error("UPDATE_PROFILE: Changing Password.")
 
         check = check_password_hash(user_obj.password, current_password)
@@ -326,6 +381,11 @@ def forgot_password(request):
     user_obj = UserSql.query.filter_by(email=data["email"]).first()
 
     if user_obj is None:
+        return False
+
+    if user_obj.password == "":
+        logger.error("User signed up with Google, so cannot reset password.")
+        flash("You have signed up with Google, so cannot reset password.", "warning")
         return False
 
     # This token gets a short lifespan

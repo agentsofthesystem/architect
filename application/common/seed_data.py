@@ -1,7 +1,7 @@
 from flask import current_app, Flask
 from werkzeug.security import generate_password_hash
 
-from application.extensions import DATABASE
+from application.extensions import DATABASE, OAUTH_CLIENT
 from application.common import logger
 from application.common.constants import SYSTEM_SETTINGS, SYSTEM_DEFAULT_PROPERTIES
 from application.common.toolbox import _get_setting
@@ -134,3 +134,6 @@ def update_system_settings():
             raise TypeError
 
         current_app.config[setting] = output
+
+    # Update the OAuth Client ID
+    OAUTH_CLIENT.client_id = current_app.config["GOOGLE_CLIENT_ID"]
