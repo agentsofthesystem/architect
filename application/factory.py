@@ -237,7 +237,9 @@ def create_app(config=None, init_db=True, init_celery=True):
             logger.debug(f"*** Updating System Settings for -> {test_str}")
             update_system_settings()
 
-    _handle_default_records(flask_app)
+    # If not in test mode, run this.
+    if not flask_app.config["TESTING"]:
+        _handle_default_records(flask_app)
 
     # Initialize SocketIO
     SOCKETIO.init_app(flask_app)

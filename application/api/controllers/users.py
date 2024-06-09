@@ -21,6 +21,10 @@ from application.models.user import UserSql
 from application.workers.email import send_email
 
 
+def _get_session_id(session):
+    return session["_id"]
+
+
 def _create_new_user(email, password):
     new_user = UserSql()
 
@@ -33,7 +37,7 @@ def _create_new_user(email, password):
 
     new_user.password = generate_password_hash(password)
     new_user.friend_code = toolbox.generate_friend_code(email)
-    new_user.session_id = flask_session["_id"]
+    new_user.session_id = _get_session_id(flask_session)
     new_user.last_message_read_time = datetime.now(timezone.utc)
 
     try:

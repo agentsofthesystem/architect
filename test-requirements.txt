@@ -4,5 +4,5 @@ debugpy
 flake8
 flower
 pytest
-pytest - mock
+pytest-mock
 selenium

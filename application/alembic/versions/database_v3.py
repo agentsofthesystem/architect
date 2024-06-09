@@ -5,6 +5,7 @@ Revises:
 Create Date: 2023-10-08 14:10:31.088339
 
 """
+
 from alembic import op
 from application.common.constants import GroupInviteStates
 import sqlalchemy as sa
@@ -33,29 +34,27 @@ def upgrade():
         sa.PrimaryKeyConstraint("group_invite_id"),
     )
 
-    op.create_foreign_key(
-        op.f("fk_group_invites_groups_group_id"),
-        "group_invites",
-        "groups",
-        ["group_id"],
-        ["group_id"],
-    )
+    with op.batch_alter_table("group_invites", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            op.f("fk_group_invites_groups_group_id"),
+            "groups",
+            ["group_id"],
+            ["group_id"],
+        )
 
-    op.create_foreign_key(
-        op.f("fk_group_invites_groups_invite_id"),
-        "group_invites",
-        "users",
-        ["invite_id"],
-        ["user_id"],
-    )
+        batch_op.create_foreign_key(
+            op.f("fk_group_invites_groups_invite_id"),
+            "users",
+            ["invite_id"],
+            ["user_id"],
+        )
 
-    op.create_foreign_key(
-        op.f("fk_group_invites_groups_requestor_id"),
-        "group_invites",
-        "users",
-        ["requestor_id"],
-        ["user_id"],
-    )
+        batch_op.create_foreign_key(
+            op.f("fk_group_invites_groups_requestor_id"),
+            "users",
+            ["requestor_id"],
+            ["user_id"],
+        )
 
     op.create_index(
         "ix_group_invites_group_invite_id", "group_invites", ["group_invite_id"], unique=False

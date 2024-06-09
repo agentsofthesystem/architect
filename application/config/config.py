@@ -53,6 +53,7 @@ class DefaultConfig:
     # Flask specific configs
     DEBUG = False
     ENV = "production"
+    TESTING = False
     FLASK_RUN_HOST = "0.0.0.0"
     FLASK_RUN_PORT = "3000"
     SECRET_KEY = "CHANGE_ME"

@@ -6,6 +6,7 @@ Docs:
 2. https://socket.io/docs/v3/listening-to-events/
 
 """
+
 from flask import current_app
 from flask_socketio import emit
 
