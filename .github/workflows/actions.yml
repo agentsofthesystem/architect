@@ -50,7 +50,7 @@ jobs:
       with:
         options: "--check --verbose"
         src: "."
-        version: "~= 22.0"
+        version: "~= 24.0"
 
     - name: flake8 Lint
       uses: py-actions/flake8@v2

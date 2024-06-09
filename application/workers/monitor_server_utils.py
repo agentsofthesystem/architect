@@ -1,4 +1,5 @@
 """This module is for utility functions for monitors interacting with dedicated servers."""
+
 import time
 
 from application.common import logger

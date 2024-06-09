@@ -1,4 +1,5 @@
 """Common Tools Go Here."""
+
 import os
 import re
 import sys
@@ -94,5 +95,5 @@ def is_friend(left_side_id, right_side_id) -> bool:
 
 
 @staticmethod
-def generate_friend_code(email: str):
-    return uuid.uuid5(uuid.NAMESPACE_DNS, email)
+def generate_friend_code(email: str) -> str:
+    return str(uuid.uuid5(uuid.NAMESPACE_DNS, email))

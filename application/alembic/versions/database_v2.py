@@ -5,6 +5,7 @@ Revises:
 Create Date: 2023-10-08 14:10:31.088339
 
 """
+
 from alembic import op
 from application.common.constants import AGENT_SMITH_DEFAULT_PORT, FriendRequestStates
 from datetime import datetime, timezone
@@ -36,16 +37,17 @@ def upgrade():
         sa.Column("port", sa.Integer(), nullable=False, default=AGENT_SMITH_DEFAULT_PORT),
         sa.Column("access_token", sa.String(length=256), nullable=True),
         sa.Column("owner_id", sa.Integer(), nullable=False),
+        sa.Column("ssl_public_cert", sa.String(length=2048), nullable=True),
         sa.PrimaryKeyConstraint("agent_id"),
     )
 
-    op.create_foreign_key(
-        op.f("fk_agents_owner_user_id"),
-        "agents",
-        "users",
-        ["owner_id"],
-        ["user_id"],
-    )
+    with op.batch_alter_table("agents", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            op.f("fk_agents_owner_user_id"),
+            "users",
+            ["owner_id"],
+            ["user_id"],
+        )
 
     # -----------------------------------------------------------------
     # GROUPS
@@ -62,13 +64,13 @@ def upgrade():
         sa.PrimaryKeyConstraint("group_id"),
     )
 
-    op.create_foreign_key(
-        op.f("fk_groups_owner_user_id"),
-        "groups",
-        "users",
-        ["owner_id"],
-        ["user_id"],
-    )
+    with op.batch_alter_table("groups", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            op.f("fk_groups_owner_user_id"),
+            "users",
+            ["owner_id"],
+            ["user_id"],
+        )
 
     # -----------------------------------------------------------------
     # FRIENDS
@@ -84,21 +86,20 @@ def upgrade():
         sa.PrimaryKeyConstraint("friend_id"),
     )
 
-    op.create_foreign_key(
-        op.f("fk_friends_users_initiator_id"),
-        "friends",
-        "users",
-        ["initiator_id"],
-        ["user_id"],
-    )
+    with op.batch_alter_table("friends", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            op.f("fk_friends_users_initiator_id"),
+            "users",
+            ["initiator_id"],
+            ["user_id"],
+        )
 
-    op.create_foreign_key(
-        op.f("fk_friends_users_receiver_id"),
-        "friends",
-        "users",
-        ["receiver_id"],
-        ["user_id"],
-    )
+        batch_op.create_foreign_key(
+            op.f("fk_friends_users_receiver_id"),
+            "users",
+            ["receiver_id"],
+            ["user_id"],
+        )
 
     # -----------------------------------------------------------------
     # FRIEND REQUESTS
@@ -113,20 +114,19 @@ def upgrade():
         sa.PrimaryKeyConstraint("request_id"),
     )
 
-    op.create_foreign_key(
-        op.f("fk_friend_requests_sender_user_id"),
-        "friend_requests",
-        "users",
-        ["sender_id"],
-        ["user_id"],
-    )
-    op.create_foreign_key(
-        op.f("fk_friend_requests_recipient_user_id"),
-        "friend_requests",
-        "users",
-        ["recipient_id"],
-        ["user_id"],
-    )
+    with op.batch_alter_table("friend_requests", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            op.f("fk_friend_requests_sender_user_id"),
+            "users",
+            ["sender_id"],
+            ["user_id"],
+        )
+        batch_op.create_foreign_key(
+            op.f("fk_friend_requests_recipient_user_id"),
+            "users",
+            ["recipient_id"],
+            ["user_id"],
+        )
 
     # -----------------------------------------------------------------
     # GROUP MEMBERS
@@ -143,21 +143,20 @@ def upgrade():
         sa.PrimaryKeyConstraint("group_member_id"),
     )
 
-    op.create_foreign_key(
-        op.f("fk_group_members_groups_group_id"),
-        "group_members",
-        "groups",
-        ["group_id"],
-        ["group_id"],
-    )
+    with op.batch_alter_table("group_members", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            op.f("fk_group_members_groups_group_id"),
+            "groups",
+            ["group_id"],
+            ["group_id"],
+        )
 
-    op.create_foreign_key(
-        op.f("fk_group_members_groups_member_id"),
-        "group_members",
-        "users",
-        ["member_id"],
-        ["user_id"],
-    )
+        batch_op.create_foreign_key(
+            op.f("fk_group_members_groups_member_id"),
+            "users",
+            ["member_id"],
+            ["user_id"],
+        )
 
     # -----------------------------------------------------------------
     # AGENT GROUP MEMBERS
@@ -174,21 +173,20 @@ def upgrade():
         sa.PrimaryKeyConstraint("agent_group_member_id"),
     )
 
-    op.create_foreign_key(
-        op.f("fk_agent_group_members_agents_agent_id"),
-        "agent_group_members",
-        "agents",
-        ["agent_id"],
-        ["agent_id"],
-    )
+    with op.batch_alter_table("agent_group_members", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            op.f("fk_agent_group_members_agents_agent_id"),
+            "agents",
+            ["agent_id"],
+            ["agent_id"],
+        )
 
-    op.create_foreign_key(
-        op.f("fk_agent_group_members_group_member_id"),
-        "agent_group_members",
-        "groups",
-        ["group_member_id"],
-        ["group_id"],
-    )
+        batch_op.create_foreign_key(
+            op.f("fk_agent_group_members_group_member_id"),
+            "groups",
+            ["group_member_id"],
+            ["group_id"],
+        )
 
     # -----------------------------------------------------------------
     # AGENT FRIEND MEMBERS
@@ -205,21 +203,20 @@ def upgrade():
         sa.PrimaryKeyConstraint("agent_friend_member_id"),
     )
 
-    op.create_foreign_key(
-        op.f("fk_agent_friend_members_agents_agent_id"),
-        "agent_friend_members",
-        "agents",
-        ["agent_id"],
-        ["agent_id"],
-    )
+    with op.batch_alter_table("agent_friend_members", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            op.f("fk_agent_friend_members_agents_agent_id"),
+            "agents",
+            ["agent_id"],
+            ["agent_id"],
+        )
 
-    op.create_foreign_key(
-        op.f("fk_agent_friend_members_friend_member_id"),
-        "agent_friend_members",
-        "users",
-        ["friend_member_id"],
-        ["user_id"],
-    )
+        batch_op.create_foreign_key(
+            op.f("fk_agent_friend_members_friend_member_id"),
+            "users",
+            ["friend_member_id"],
+            ["user_id"],
+        )
 
     # -----------------------------------------------------------------
     # INDEXES
@@ -242,9 +239,6 @@ def upgrade():
         ["agent_friend_member_id"],
         unique=False,
     )
-
-    op.add_column("users", sa.Column("friend_code", sa.String(length=256)))
-    op.add_column("users", sa.Column("session_id", sa.String(length=130)))
     # ### end Alembic commands ###
 
 
@@ -286,7 +280,4 @@ def downgrade():
     op.drop_table("friends")
     op.drop_table("agent_group_members")
     op.drop_table("agent_friend_members")
-
-    op.drop_column("users", "friend_code")
-    op.drop_column("users", "session_id")
     # ### end Alembic commands ###

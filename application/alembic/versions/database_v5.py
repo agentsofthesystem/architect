@@ -5,6 +5,7 @@ Revises:
 Create Date: 2023-10-08 14:10:31.088339
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
@@ -37,21 +38,20 @@ def upgrade():
         sa.PrimaryKeyConstraint("property_id"),
     )
 
-    op.create_foreign_key(
-        op.f("fk_properties_users_user_id"),
-        "properties",
-        "users",
-        ["user_id"],
-        ["user_id"],
-    )
+    with op.batch_alter_table("properties", schema=None) as batch_op:
+        batch_op.create_foreign_key(
+            op.f("fk_properties_users_user_id"),
+            "users",
+            ["user_id"],
+            ["user_id"],
+        )
 
-    op.create_foreign_key(
-        op.f("fk_properties_default_properties_default_property_id"),
-        "properties",
-        "default_properties",
-        ["default_property_id"],
-        ["default_property_id"],
-    )
+        batch_op.create_foreign_key(
+            op.f("fk_properties_default_properties_default_property_id"),
+            "default_properties",
+            ["default_property_id"],
+            ["default_property_id"],
+        )
 
     op.create_index(
         "ix_default_properties_default_property_name",
