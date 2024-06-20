@@ -114,10 +114,13 @@ def _handle_migrations(flask_app: Flask) -> None:
 
     alembic_cfg = Config(alembic_init)
 
+    # Alembic safe URI does a replace ON TOP OF the quote_plus fix already done in the config.py
+    # This is because Alembic does not like the % character in the URI.
+    alembic_safe_uri = flask_app.config["SQLALCHEMY_DATABASE_URI"].replace("%", "%%")
     alembic_cfg.set_section_option(
         alembic_cfg.config_ini_section,
         "sqlalchemy.url",
-        flask_app.config["SQLALCHEMY_DATABASE_URI"],
+        alembic_safe_uri,
     )
 
     alembic_cfg.set_section_option(

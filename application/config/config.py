@@ -4,6 +4,7 @@ import logging
 import os
 
 from datetime import timedelta
+from urllib.parse import quote_plus
 
 from application.common import logger, constants
 
@@ -69,7 +70,7 @@ class DefaultConfig:
     SQL_DATABASE_SERVER = "localhost"
     SQL_DATABASE_PORT = "3306"
     SQL_DATABASE_NAME = "app"
-    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{SQL_DATABASE_USER}:{SQL_DATABASE_PASS}@{SQL_DATABASE_SERVER}:{SQL_DATABASE_PORT}/{SQL_DATABASE_NAME}?charset=utf8mb4&use_unicode=1"  # noqa: E501
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{SQL_DATABASE_USER}:{SQL_DATABASE_PASS}@{SQL_DATABASE_SERVER}:{SQL_DATABASE_PORT}/{SQL_DATABASE_NAME}"  # noqa: E501
     SQL_DEPLOY_SECRET = None
 
     # Stripe Payment configs
@@ -144,6 +145,9 @@ class DefaultConfig:
             cls.SQL_DATABASE_USER = unpack_string["username"]
             cls.SQL_DATABASE_PASS = unpack_string["password"]
 
-        cls.SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{cls.SQL_DATABASE_USER}:{cls.SQL_DATABASE_PASS}@{cls.SQL_DATABASE_SERVER}:{cls.SQL_DATABASE_PORT}/{cls.SQL_DATABASE_NAME}?charset=utf8mb4&use_unicode=1"  # noqa: E501
+        # Update the password string to escape special characters.
+        password_string_final = quote_plus(cls.SQL_DATABASE_PASS)
+
+        cls.SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{cls.SQL_DATABASE_USER}:{password_string_final}@{cls.SQL_DATABASE_SERVER}:{cls.SQL_DATABASE_PORT}/{cls.SQL_DATABASE_NAME}"  # noqa: E501
 
         cls.DEFAULT_MAIL_SENDER = f"architect@{cls.APP_DOMAIN}"
