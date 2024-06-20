@@ -69,7 +69,7 @@ class DefaultConfig:
     SQL_DATABASE_SERVER = "localhost"
     SQL_DATABASE_PORT = "3306"
     SQL_DATABASE_NAME = "app"
-    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{SQL_DATABASE_USER}:{SQL_DATABASE_PASS}@{SQL_DATABASE_SERVER}:{SQL_DATABASE_PORT}/{SQL_DATABASE_NAME}"  # noqa: E501
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{SQL_DATABASE_USER}:{SQL_DATABASE_PASS}@{SQL_DATABASE_SERVER}:{SQL_DATABASE_PORT}/{SQL_DATABASE_NAME}?charset=utf8mb4"  # noqa: E501
     SQL_DEPLOY_SECRET = None
 
     # Stripe Payment configs
@@ -144,6 +144,6 @@ class DefaultConfig:
             cls.SQL_DATABASE_USER = unpack_string["username"]
             cls.SQL_DATABASE_PASS = unpack_string["password"]
 
-        cls.SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{cls.SQL_DATABASE_USER}:{cls.SQL_DATABASE_PASS}@{cls.SQL_DATABASE_SERVER}:{cls.SQL_DATABASE_PORT}/{cls.SQL_DATABASE_NAME}"  # noqa: E501
+        cls.SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{cls.SQL_DATABASE_USER}:{cls.SQL_DATABASE_PASS}@{cls.SQL_DATABASE_SERVER}:{cls.SQL_DATABASE_PORT}/{cls.SQL_DATABASE_NAME}?charset=utf8mb4"  # noqa: E501
 
         cls.DEFAULT_MAIL_SENDER = f"architect@{cls.APP_DOMAIN}"
