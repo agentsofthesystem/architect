@@ -108,6 +108,7 @@ DEFAULT_EMAIL_DELAY_SECONDS = 10
 # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html
 CONTAINER_CREDENTIALS_API_IP = "169.254.170.2"
 AGENT_SMITH_DEFAULT_PORT = 3000
+NO_SESSION_ID = "NO_SESSION_ID"
 
 # Logging
 DEFAULT_LOG_LEVEL = logging.NOTSET

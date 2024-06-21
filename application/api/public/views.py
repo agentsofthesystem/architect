@@ -158,10 +158,21 @@ def signin_google():
         scope=["openid", "email", "profile"],
     )
 
+    if current_app.config["DEBUG"] is False:
+        auth_response_url = request.url.replace("http://", "https://")
+        redirect_url = request.base_url.replace("http://", "https://")
+    else:
+        auth_response_url = request.url
+        redirect_url = request.base_url
+
     # Prepare and send a request to get tokens! Yay tokens!
     token_url, headers, body = OAUTH_CLIENT.prepare_token_request(
-        token_endpoint, authorization_response=request.url, redirect_url=request.base_url, code=code
+        token_endpoint,
+        authorization_response=auth_response_url,
+        redirect_url=redirect_url,
+        code=code,
     )
+
     token_response = requests.post(
         token_url,
         headers=headers,
