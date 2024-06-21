@@ -96,11 +96,13 @@ def signup():
     google_provider_cfg = _get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
+    use_scheme = "https" if current_app.config["DEBUG"] is False else "http"
+
     # Use library to construct the request for Google login and provide
     # scopes that let you retrieve user's profile from Google
     request_uri = OAUTH_CLIENT.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=url_for("public.signin_google", _external=True),
+        redirect_uri=url_for("public.signin_google", _external=True, _scheme=use_scheme),
         scope=["openid", "email", "profile"],
     )
 
@@ -146,11 +148,13 @@ def signin_google():
     google_client_id = current_app.config["GOOGLE_CLIENT_ID"]
     google_client_secret = current_app.config["GOOGLE_CLIENT_SECRET"]
 
+    use_scheme = "https" if current_app.config["DEBUG"] is False else "http"
+
     # Use library to construct the request for Google login and provide
     # scopes that let you retrieve user's profile from Google
     request_uri = OAUTH_CLIENT.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=url_for("public.signin_google", _external=True),
+        redirect_uri=url_for("public.signin_google", _external=True, _scheme=use_scheme),
         scope=["openid", "email", "profile"],
     )
 
@@ -211,11 +215,13 @@ def signin():
     google_provider_cfg = _get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
+    use_scheme = "https" if current_app.config["DEBUG"] is False else "http"
+
     # Use library to construct the request for Google login and provide
     # scopes that let you retrieve user's profile from Google
     request_uri = OAUTH_CLIENT.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=url_for("public.signin_google", _external=True),
+        redirect_uri=url_for("public.signin_google", _external=True, _scheme=use_scheme),
         scope=["openid", "email", "profile"],
     )
 

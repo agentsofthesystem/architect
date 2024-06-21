@@ -21,8 +21,14 @@ from application.models.user import UserSql
 from application.workers.email import send_email
 
 
-def _get_session_id(session):
-    return session["_id"]
+def _get_session_id(current_session):
+    session = constants.NO_SESSION_ID
+    try:
+        return current_session["_id"]
+    except KeyError:
+        logger.error("Session ID not found in flask session for user.")
+
+    return session
 
 
 def _create_new_user(email: str, password: str = None, oauth_signup: bool = False):
