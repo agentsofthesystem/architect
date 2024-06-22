@@ -225,11 +225,11 @@ def create_app(config=None, init_db=True, init_celery=True):
     # Error Routes
     @flask_app.errorhandler(404)
     def not_found(e):
-        return render_template("public/404.html")
+        return render_template("public/404.html"), 404
 
     @flask_app.errorhandler(500)
     def server_error(e):
-        return render_template("public/500.html")
+        return render_template("public/500.html"), 500
 
     @flask_app.errorhandler(CSRFError)
     def handle_csrf_error(e):
