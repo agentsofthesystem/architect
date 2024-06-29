@@ -12,6 +12,7 @@ from flask import (
     flash,
     current_app,
     jsonify,
+    send_from_directory,
 )
 from flask_login import current_user
 
@@ -36,6 +37,12 @@ public = Blueprint("public", __name__)
 @public.route("/health")
 def health():
     return jsonify("Alive")
+
+
+# Robots.txt file
+@public.route("/robots.txt")
+def robots():
+    return send_from_directory(current_app.static_folder, "files/robots.txt")
 
 
 # Public Routes
