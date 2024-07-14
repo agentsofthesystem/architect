@@ -19,7 +19,7 @@ class DefaultConfig:
     APP_DOMAIN = "agentsofthesystem.com"
     APP_NAME = "TheArchitect"
     APP_WEBSITE = f"www.{APP_DOMAIN}"
-    APP_PRETTY_NAME = "The Architect"
+    APP_PRETTY_NAME = "Agents of the System"
     DEPLOYMENT_TYPE = "docker_compose"  # also supports kubernetes
 
     # Top-level App Controls

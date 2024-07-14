@@ -1,12 +1,12 @@
-FROM python:3.11-alpine as base
-FROM base as builder
+FROM python:3.11-alpine AS base
+FROM base AS builder
 
 # Setup temp install dir.
 RUN mkdir /install
 WORKDIR /install
 
 # Install requirements for pycurl package
-RUN apk update && apk add gcc libc-dev curl-dev openssl-dev git
+RUN apk update && apk add gcc libc-dev curl-dev openssl-dev git libffi-dev
 
 # Copy install requirements file.
 COPY requirements.txt /tmp/requirements.txt
