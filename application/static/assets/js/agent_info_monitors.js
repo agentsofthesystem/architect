@@ -176,9 +176,17 @@ function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
 
     switch(monitor_type){
         case "AGENT":
-            enable_toggle = "#AGENT_HEALTH_ENABLE"
+            enable_toggle = "#AGENT_HEALTH_ENABLE";
             if(active){
-                $(enable_toggle).bootstrapToggle('on', disable_event_propagation)
+                var is_disabled = $(enable_toggle)[0].disabled;
+                if(is_disabled){
+                    $(enable_toggle)[0].disabled = false;
+                    $(enable_toggle).bootstrapToggle('on', disable_event_propagation);
+                    $(enable_toggle)[0].disabled = true;
+                }
+                else{
+                    $(enable_toggle).bootstrapToggle('on', disable_event_propagation);
+                }
                 setSettingsButtonEnable("#monitor-settings-1", true);
             }
             if('interval' in attributes_data){
@@ -320,6 +328,16 @@ function updateFaultsSection(fault_section_id, fault_list_id, faults_data, monit
     var all_list_items = '';
     var count = 1;
 
+    var is_owner_subscribed = $('meta[name=is_owner_subscribed]').attr('content')
+    var is_owner_viewing = $('meta[name=is_owner_viewing]').attr('content')
+    var is_current_user_subscribed = $('meta[name=is_current_user_subscribed]').attr('content')
+
+    is_owner_subscribed = is_owner_subscribed == 'True' ? true : false;
+    is_owner_viewing = is_owner_viewing == 'True' ? true : false;
+    is_current_user_subscribed = is_current_user_subscribed == 'True' ? true : false;
+
+    var monitor_disabled = ((is_owner_subscribed && is_owner_viewing) || is_current_user_subscribed) ? '' : 'disabled';
+
     Object.entries(faults_data).forEach(([key, value]) => {
         fault_id = value['monitor_fault_id']
         fault_description = value['fault_description']
@@ -328,7 +346,7 @@ function updateFaultsSection(fault_section_id, fault_list_id, faults_data, monit
                 <div class="d-flex justify-content-between">
                     <a class="mr-2">${key}</a>
                     <span class="mr-2">${fault_description}</span>
-                    <button type="button" class="close" aria-label="Close" onclick="setFaultAcknowledge('fault_${count}', '${monitor_type}','${fault_id}')">
+                    <button type="button" class="close" aria-label="Close" onclick="setFaultAcknowledge('fault_${count}', '${monitor_type}','${fault_id}')" ${monitor_disabled}>
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>

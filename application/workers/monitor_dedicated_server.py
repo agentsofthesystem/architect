@@ -37,6 +37,11 @@ def dedicated_server_monitor(self, monitor_id: int):
         logger.error(f"Agent ID {monitor_obj.agent_id} not found.")
         return {"status": "Agent ID not found."}
 
+    # Get the owner associated with the monitor
+    owner_obj = monitor_utils._get_monitor_owner(monitor_obj.monitor_id)
+
+    logger.debug(f"Agent Health Monitor owned by: {owner_obj.username}({owner_obj.user_id})")
+
     if monitor_utils.is_monitor_testing_enabled():
         logger.debug("Monitor Testing is enabled. Using Default Test Interval Constant.")
         next_interval = constants.DEFAULT_MONITOR_TESTING_INTERVAL

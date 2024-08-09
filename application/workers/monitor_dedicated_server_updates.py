@@ -39,6 +39,11 @@ def dedicated_server_update_monitor(self, monitor_id: int):
         logger.error(f"Agent ID {monitor_obj.agent_id} not found.")
         return {"status": "Agent ID not found."}
 
+    # Get the owner associated with the monitor
+    owner_obj = monitor_utils._get_monitor_owner(monitor_obj.monitor_id)
+
+    logger.debug(f"Agent Health Monitor owned by: {owner_obj.username}({owner_obj.user_id})")
+
     # Get the owner's maintenance window preference or assume the default.
     owner_id = agent_obj.owner_id
     maintenance_hour = monitor_utils.get_user_property(owner_id, "USER_MAINTENANCE_HOUR")
