@@ -24,6 +24,9 @@
                     <li class="nav-item">
                         <a href="{{url_for('protected.system_friends')}}" class="nav-link">Friends</a>
                     </li>
+                    <li class="nav-item">
+                        <a href="https://docs.agentsofthesystem.com" target="_blank" class="nav-link">Documentation</a>
+                    </li>
                     <!--
                     <li class="nav-item">
                         <a href="{url_for('protected.example_verified_page')}" class="nav-link">Example Verified User Page</a>
@@ -71,7 +74,11 @@
                                 <span>Feedback&nbsp;<i class="icon-ticket text-grey"></i></span>
                             </a>
                             <a href="{{url_for('protected.pricing_internal')}}" class="dropdown-item">
-                                <span>Pricing</i></span>
+                                <span>Pricing</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="https://github.com/agentsofthesystem/agent-smith/releases" target="_blank" class="dropdown-item">
+                                <span>Download Agent</span>
                             </a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{url_for('public.signout')}}">Sign out</a>
