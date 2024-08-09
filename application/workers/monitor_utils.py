@@ -40,6 +40,13 @@ def _get_agent_obj(agent_id: int) -> Agents:
     return Agents.query.filter_by(agent_id=agent_id).first()
 
 
+# Get the owner of the monitor.
+def _get_monitor_owner(monitor_id: int) -> UserSql:
+    monitor_obj = _get_monitor_obj(monitor_id)
+    agent_obj = _get_agent_obj(monitor_obj.agent_id)
+    return _get_user_object(agent_obj.owner_id)
+
+
 # Get the value of a user preference based on the user_id and preference name.
 def get_user_property(user_id: int, property_name: str) -> str:
     user_obj = _get_user_object(user_id)
