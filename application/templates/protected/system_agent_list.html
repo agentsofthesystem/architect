@@ -69,6 +69,8 @@
                     {% endif %}
                     <a class="dropdown-item share-to-friend" onclick="showShareAgentToFriendModal({{agent['agent_id']}}, '{{is_sharing_disabled}}')">Share with Friend</a>
                     <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="https://docs.agentsofthesystem.com/build/html/agent_smith.html" target="_blank" >Documentation</a>
+                    <div class="dropdown-divider"></div>
                   {% else %}
                     {% if current_user.subscribed %}
                       <a class="dropdown-item reactivate-agent" id="{{agent['agent_id']}}">Reactivate</a>
@@ -94,7 +96,7 @@
 <!--end of row-->
 <div class="row">
   <div class="col">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
 
       {% if num_owned_inactive_agents | int > 0 %}
         <p class="text-muted mb-0">Owned Active Agents: {{num_owned_active_agents}} of {{num_allowed_agents}} limit, {{num_owned_inactive_agents}} inactive.</p>
@@ -103,6 +105,8 @@
       {% endif %}
 
       <p class="text-muted mb-0">Shared Agents: {{num_shared_agents}}</p>
+
+
 
       {% if num_owned_active_agents >= num_allowed_agents %}
         <!-- Send user to pricing page -->
