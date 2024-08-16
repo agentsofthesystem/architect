@@ -1,4 +1,5 @@
 from datetime import datetime
+from flask_admin.contrib.sqla import ModelView
 
 from application.common import logger
 from application.common.pagination import PaginatedApi
@@ -186,3 +187,9 @@ class UserSql(PaginatedApi, DATABASE.Model):
             output_dict[property[0].property_name] = value
 
         return output_dict
+
+
+class UserView(ModelView):
+    column_display_pk = True
+    column_hide_backrefs = False
+    column_list = UserSql.__table__.columns.keys()

@@ -1,3 +1,5 @@
+from flask_admin.contrib.sqla import ModelView
+
 from application.common import constants
 from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
@@ -27,7 +29,7 @@ class Monitor(PaginatedApi, DATABASE.Model):
     has_fault = DATABASE.Column(DATABASE.Boolean, nullable=False, default=False)
     active = DATABASE.Column(DATABASE.Boolean, nullable=False, default=True)
 
-    # Useful as a bacref... other property function is used to get all attributes as a dict.
+    # Useful as a backref... other property function is used to get all attributes as a dict.
     monitor_attributes = DATABASE.relationship(
         "MonitorAttribute",
         foreign_keys="MonitorAttribute.monitor_id",
@@ -76,3 +78,9 @@ class Monitor(PaginatedApi, DATABASE.Model):
             "has_fault": self.has_fault,
             "active": self.active,
         }
+
+
+class MonitorView(ModelView):
+    column_display_pk = True
+    column_hide_backrefs = False
+    column_list = Monitor.__table__.columns.keys()

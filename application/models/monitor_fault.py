@@ -1,3 +1,5 @@
+from flask_admin.contrib.sqla import ModelView
+
 from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
 
@@ -25,3 +27,9 @@ class MonitorFault(PaginatedApi, DATABASE.Model):
             "fault_description": self.fault_description,
             "active": self.active,
         }
+
+
+class MonitorFaultView(ModelView):
+    column_display_pk = True
+    column_hide_backrefs = False
+    column_list = MonitorFault.__table__.columns.keys()

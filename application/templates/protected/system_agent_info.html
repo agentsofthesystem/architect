@@ -10,7 +10,7 @@
 
 {% block area %}
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<meta name="agent-info-id" content="{{ agent_info['agent']['agent_id'] }}">
+<meta name="agent-id" content="{{ agent_info['agent']['agent_id'] }}">
 
 <!-- Modal -->
 <div class="modal fade" id="commingSoonModal" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
@@ -84,9 +84,11 @@
                   <!-- Friends -->
                   <li class="list-inline-item"><i class="icon-game-controller"></i> Friends: {{agent_info['num_friends']}}</li>
                   <!-- Groups -->
-                  <li class="list-inline-item"><i class="icon-globe"></i> Groups: {{agent_info['num_groups']}} / 1</li>
+                  <li class="list-inline-item"><i class="icon-globe"></i> Groups: {{agent_info['num_groups']}} </li>
                   <!-- Shares -->
                   <li class="list-inline-item"><i class="icon-users"></i> Shares: {{agent_info["num_users"]}} / {{ agent_info["agent_share_limit"] }}</li>
+                  <!-- Timezone -->
+                  <li class="list-inline-item"><i class="icon-clock"></i> Timezone: {{agent_info["timezone"]}}</li>
                 </ul>
               </div>
             </div>
@@ -209,7 +211,7 @@
       console.log("Refreshing Agent Information...");
 
       // get agent id
-      var agent_id = $("meta[name='agent-info-id']").attr("content");
+      var agent_id = $("meta[name='agent-id']").attr("content");
       var all_agent_monitor_section = $("#all-agent-monitor-section")[0];
       var agent_activity_section = $("#agent-activity-section")[0];
 

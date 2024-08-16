@@ -1,0 +1,167 @@
+{% extends "layout/base.html" %}
+
+{% block head %}
+
+{{super()}}
+
+<link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+
+{% endblock %}
+
+{% block area %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="agent-id" content="{{ agent_info['agent']['agent_id'] }}">
+
+<div class="container">
+
+  <!--Agent Info Header-->
+  <section class="bg-white space-sm">
+    <div class="container">
+      <div class="row justify-content-between">
+        <div class="col">
+          <div class="media align-items-center">
+            {% if current_user.user_id == agent_info['agent']['owner_id'] %}
+            <img alt="I own this Agent" src="{{ url_for('static', filename='assets/img/agent-black.svg') }}"
+              class="avatar avatar-lg avatar-square rounded" />
+            {% else %}
+            <img alt="Shared Agent" src="{{ url_for('static', filename='assets/img/agent-green.png') }}"
+              class="avatar avatar-lg avatar-square rounded" />
+            {% endif %}
+            <div class="media-body">
+              <h1 class="mb-0"><strong>Agent Name:</strong> {{agent_info['agent']['name']}} </h1>
+              <h2 class="lead mb-2">Agent URL/Port: {{agent_info['agent']['hostname']}}:{{agent_info['agent']['port']}}
+              </h2>
+              <div class="d-flex align-items-center">
+                <span class="badge badge-secondary mr-3">Owned By: {{agent_info['agent']['owner']['username']}}</span>
+                <ul class="list-inline text-small d-inline-block">
+                  <!-- Active Monitors -->
+                  <li class="list-inline-item"><i class="icon-globe"></i> Active Monitors: {{monitor_info['num_active_monitors']}}</li>
+                  <li class="list-inline-item"><i class="icon-clock"></i> Agent Timezone: {{agent_info['timezone']}}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--end of col-->
+        <div class="col-auto">
+          <div class="btn-group mb-2">
+            <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split dropdown-toggle-no-arrow"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="icon-dots-three-horizontal"></i>
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            {% set is_enabled = '' if current_user.user_id == agent_info['agent']['owner_id'] else 'disabled' %}
+            <div class="dropdown-menu dropdown-menu-right dropdown-menu-sm">
+              <div class="dropdown-item" onclick="goToAgent()">Agent Details</div>
+              <div class="dropdown-item" onclick="refreshPage()">Update Page</div>
+            </div>
+          </div>
+        </div>
+        <!--end of col-->
+      </div>
+      <!--end of row-->
+    </div>
+    <!--end of container-->
+  </section>
+  <!--end of section-->
+
+  <section class="bg-white space-sm flush-with-above">
+
+    <div class="container">
+      <div class="card" id="monitor-info-section">
+        <div class="card-header">
+          <span class="h4">Monitor Quick Reference</span>
+        </div>
+        <div class="card-body">
+          {% if monitor_info['num_monitors'] == 0 %}
+            <h6>No monitors associated with this Agent. Go enable a Monitor!</h6>
+          {% else %}
+          <table class="table table-bordered table-hover align-items-center display">
+            <thead>
+              <tr>
+                <th role="col">Monitor Type</th>
+                <th role="col">Last Check</th>
+                <th role="col">Next Check</th>
+                <th role="col">Active</th>
+                <th role="col">Has Faults</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              {% for monitor in monitor_info['monitors']%}
+              <tr>
+                <td>{{monitor['monitor_type']}}</td>
+                <td>{{monitor['last_check']}}</td>
+                <td>{{monitor['next_check']}}</td>
+                <td>{{'Yes' if monitor['active'] else 'No'}}</td>
+                <td>{{'Yes' if monitor['has_fault'] else 'No'}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </section>
+  <!--end of section-->
+
+  <section class="bg-white flush-with-above">
+
+    <div class="container">
+      <div class="row">
+          <div class="col">
+            {% include 'protected/system_agent_monitors.html' %}
+          </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+{{super()}}
+
+<script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+
+<!-- Handles Monitor functionality -->
+<script type="text/javascript" src="{{ url_for('static', filename='assets/js/agent_info_monitors.js') }}"></script>
+
+<script>
+
+  var agent_monitors_base_url = "/app/system/agent/monitors"
+
+  $(document).ready(function () {
+    var csrftoken = $('meta[name=csrf-token]').attr('content');
+
+    // Takes out the agent id. So it doesn't show up in URL and give people ideas.
+    window.history.replaceState(null, "", agent_monitors_base_url);
+
+    $.ajaxSetup({
+      beforeSend: function (xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrftoken)
+          }
+      }
+    });
+
+  });
+
+  function goToAgent(){
+    var agent_id = $('meta[name=agent-id]').attr('content');
+    var agent_info_base_url = "/app/system/agent/info";
+    window.location.href = agent_info_base_url + "/" + agent_id;
+  }
+
+  function refreshPage(){
+    var agent_id = $('meta[name=agent-id]').attr('content');
+    var agent_monitors_base_url = "/app/system/agent/monitors";
+    window.location.href = agent_monitors_base_url + "/" + agent_id;
+  }
+
+</script>
+
+
+{% endblock %}

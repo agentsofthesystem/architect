@@ -6,19 +6,6 @@ from application.extensions import SOCKETIO
 from application.models.monitor import Monitor
 
 
-def get_timezone_offset(tz_label: str) -> int:
-    tz_dict = constants.TIME_ZONE_DICT
-    offset = None
-
-    # Match label to timezone label in tz_dict and return offset.
-    for key, value in tz_dict.items():
-        if value["label"] == tz_label:
-            offset = value["utcoffset"]
-            break
-
-    return offset
-
-
 @SOCKETIO.on("get_monitor_status", namespace="/system/agent/monitor")
 def get_monitor_status(input_dict):
     logger.debug(f"Received get_monitor_status request: {input_dict}")
@@ -60,7 +47,7 @@ def get_monitor_status(input_dict):
 
         if "USER_TIMEZONE" in user_properties:
             user_timezone = user_properties["USER_TIMEZONE"]
-            user_offset = get_timezone_offset(user_timezone)
+            user_offset = timezones._get_timezone_offset(user_timezone)
             offset_available = True
         else:
             user_timezone = constants.DEFAULT_USER_TIMEZONE
@@ -84,9 +71,17 @@ def get_monitor_status(input_dict):
             {"monitor": monitor_dict, "attributes": {}, "faults": {}, "status": "Success"}
         )
 
+        # Set to empty dictionaries.
+        response["attributes"] = {}
+        response["faults"] = {}
+
         attributes = monitor_obj.attributes
         for key, value in attributes.items():
             response["attributes"].update({key: value})
+
+        # In the event, no attribute exists for interval, then set the default.
+        if "interval" not in response["attributes"]:
+            response["attributes"].update({"interval": constants.DEFAULT_MONITOR_INTERVAL})
 
         for fault in monitor_obj.faults(time_format_str=format_str):
             response["faults"].update({fault["name"]: fault})

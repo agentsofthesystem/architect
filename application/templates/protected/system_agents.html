@@ -376,6 +376,11 @@
         }
     }
 
+    function goToMonitorsPage(agent_id){
+        var agent_monitors_base_url = "/app/system/agent/monitors";
+        window.location.href = agent_monitors_base_url + "/" + agent_id;
+    }
+
     // Goes with system_agent_list[_small_screen].html
     $('.delete-agent').click(function(){
 
