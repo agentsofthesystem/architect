@@ -2,7 +2,7 @@ var agent_monitor_socket = io("/system/agent/monitor");
 
 $(document).ready(function () {
 
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
 
     var agent_health_monitor_section = $("#monitoring-agent-health")[0];
     var dedicated_server_monitor_section = $("#monitoring-dedicated-servers")[0];
@@ -40,6 +40,11 @@ $(document).ready(function () {
         var faults = data['faults'];
 
         updateMonitorUserInterface(monitor, attributes, faults);
+
+        // If the main section is still hidden at this point, show it.
+        if($(all_agent_monitor_section).is(":hidden")){
+            $(all_agent_monitor_section).show();
+        }
     });
 
 });
@@ -47,7 +52,7 @@ $(document).ready(function () {
 $(".monitor-control").change(function() {
 
     var control_id = $(this).data("name");
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
 
     console.log("Monitor Control ID: " + control_id);
 
@@ -131,7 +136,7 @@ $(".monitor-control").change(function() {
 
 $(".monitor-control-settings").click(function() {
 
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
     var control_id = $(this).data("name");
 
     switch(control_id){
@@ -173,6 +178,7 @@ function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
     }
 
     console.log("Monitor Type: " + monitor_type);
+    console.log(monitor_data);
 
     switch(monitor_type){
         case "AGENT":
@@ -285,7 +291,7 @@ function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
 
 function updateMonitorSection(current_monitor){
 
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
     var agent_health_monitor_section = $("#monitoring-agent-health")[0];
     var dedicated_server_monitor_section = $("#monitoring-dedicated-servers")[0];
     var update_monitoring_section = $("#monitoring-ds-updates")[0];
@@ -364,7 +370,7 @@ function updateFaultsSection(fault_section_id, fault_list_id, faults_data, monit
 }
 
 function updateStatusBadge(monitor_type){
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
     var monitor_enable_tag = null;
     var health_status_tag = null;
 
@@ -436,7 +442,7 @@ function updateMonitorAttribute(agent_id, monitor_type, attribute_name, attribut
 
 function setFaultAcknowledge(list_item_id, monitor_type, fault_id){
 
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
     console.log("Fault ID: " + fault_id + " Marking as Acknowledged...");
 
     // Deactivate the current fault

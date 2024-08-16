@@ -12,6 +12,19 @@ def get_default_property(property_name):
     return DefaultProperty.query.filter_by(property_name=property_name).first()
 
 
+def get_property(user_id, property_name):
+
+    default_property = get_default_property(property_name)
+
+    property_check = Property.query.filter_by(
+        user_id=user_id, default_property_id=default_property.default_property_id
+    ).first()
+
+    return (
+        property_check.property_value if property_check else default_property.property_default_value
+    )
+
+
 def create_property(user_id, property_name, payload):
     logger.info("Creating property...")
 

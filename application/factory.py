@@ -28,9 +28,8 @@ from application.extensions import (
     SOCKETIO,
     OAUTH_CLIENT,
 )
-from application.models.beta_user import BetaUser
-from application.models.user import UserSql
-from application.models.setting import SettingsSql
+
+from application import models as orm
 from application.api.backend.views import backend
 from application.api.public.views import public
 from application.api.protected.views import protected
@@ -194,9 +193,21 @@ def create_app(config=None, init_db=True, init_celery=True):
     CSRF.init_app(flask_app)
 
     # Initialize Flask Admin Panel
-    ADMIN.add_view(ModelView(UserSql, DATABASE.session, "Users"))
-    ADMIN.add_view(ModelView(BetaUser, DATABASE.session, "Beta Users"))
-    ADMIN.add_view(ModelView(SettingsSql, DATABASE.session, "Settings"))
+    ADMIN.add_view(orm.user.UserView(orm.user.UserSql, DATABASE.session, "Users"))
+    ADMIN.add_view(ModelView(orm.beta_user.BetaUser, DATABASE.session, "Beta Users"))
+    ADMIN.add_view(ModelView(orm.setting.SettingsSql, DATABASE.session, "Settings"))
+    ADMIN.add_view(orm.agent.AgentView(orm.agent.Agents, DATABASE.session, "Agents"))
+    ADMIN.add_view(orm.monitor.MonitorView(orm.monitor.Monitor, DATABASE.session, "Monitors"))
+    ADMIN.add_view(
+        orm.monitor_attribute.MonitorAttrView(
+            orm.monitor_attribute.MonitorAttribute, DATABASE.session, "Monitor Settings"
+        )
+    )
+    ADMIN.add_view(
+        orm.monitor_fault.MonitorFaultView(
+            orm.monitor_fault.MonitorFault, DATABASE.session, "Faults"
+        )
+    )
     ADMIN.init_app(flask_app, index_view=MyAdminIndexView(url="/app/flask_admin"))
     ADMIN.add_link(MenuLink(name="Return", url="/app/admin", category="Links"))
     ADMIN.add_link(MenuLink(name="Signout", url="/signout", category="Links"))

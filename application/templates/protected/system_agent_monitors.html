@@ -10,9 +10,9 @@
           <div class="form-check form-check-inline">
             <label for="interval-select-1" class="form-check-label"><h6>Polling Interval</h6></label>
             <select id="interval-select-1" class="form-control ml-2 monitor-control" data-name="AGENT_HEALTH_INTERVAL">
-              <option value="900">15 Minutes</option>
-              <option value="1800">30 Minutes</option>
               <option value="3600">1 Hour</option>
+              <option value="1800">30 Minutes</option>
+              <option value="900">15 Minutes</option>
             </select>
           </div>
           <div class="form-check form-check-inline">
@@ -37,9 +37,9 @@
           <div class="form-check form-check-inline">
             <label for="interval-select-2" class="form-check-label"><h6>Polling Interval</h6></label>
             <select id="interval-select-2" class="form-control ml-2 monitor-control" data-name="DS_HEALTH_INTERVAL">
-              <option value="900">15 Minutes</option>
-              <option value="1800">30 Minutes</option>
               <option value="3600">1 Hour</option>
+              <option value="1800">30 Minutes</option>
+              <option value="900">15 Minutes</option>
             </select>
           </div>
           <div class="form-check form-check-inline">
@@ -70,9 +70,9 @@
           <div class="form-check form-check-inline">
             <label for="interval-select-3" class="form-check-label"><h6>Polling Interval</h6></label>
             <select id="interval-select-3" class="form-control ml-2 monitor-control" data-name="DS_UPDATES_CHECK_INTERVAL">
-              <option value="900">15 Minutes</option>
-              <option value="1800">30 Minutes</option>
               <option value="3600">1 Hour</option>
+              <option value="1800">30 Minutes</option>
+              <option value="900">15 Minutes</option>
             </select>
           </div>
           <div class="form-check form-check-inline">
@@ -275,9 +275,16 @@
 
   <div class="card-footer">
     <!-- A button when clicked opens a web page-->
+    {% if show_monitor_status_button %}
+    <div class="d-flex justify-content-between">
+      <a href="{{url_for('protected.system_agent_monitors', agent_id=agent_info['agent']['agent_id'])}}" class="btn btn-success">Monitoring Status</a>
+      <a href="https://docs.agentsofthesystem.com/build/html/architect/monitors.html" target="_blank" class="btn btn-success"><span>&nbsp;<i class="icon-info text-grey"></i></span></a>
+    </div>
+    {% else %}
     <div class="d-flex justify-content-end">
       <a href="https://docs.agentsofthesystem.com/build/html/architect/monitors.html" target="_blank" class="btn btn-success"><span>&nbsp;<i class="icon-info text-grey"></i></span></a>
     </div>
+    {% endif %}
   </div>
 
 </div>

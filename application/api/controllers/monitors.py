@@ -111,3 +111,33 @@ def disable_monitor(agent_id, monitor_type):
         return False
 
     return True
+
+
+def get_num_monitors(agent_id: int):
+    return Monitor.query.filter_by(agent_id=agent_id).count()
+
+
+def get_num_active_monitors(agent_id: int):
+    return Monitor.query.filter_by(agent_id=agent_id, active=True).count()
+
+
+def get_monitors(agent_id: int) -> list:
+
+    monitor_list = []
+
+    # Only ever up to three...
+    monitors = Monitor.query.filter_by(agent_id=agent_id).all()
+
+    for monitor in monitors:
+        mon = monitor.to_dict()
+        mon_type = constants.monitor_type_from_string(mon["monitor_type"])
+        if mon_type == constants.MonitorTypes.AGENT:
+            mon["monitor_type"] = "Agent Health Monitor"
+        elif mon_type == constants.MonitorTypes.DEDICATED_SERVER:
+            mon["monitor_type"] = "Dedicated Server Health Monitor"
+        elif mon_type == constants.MonitorTypes.UPDATES:
+            mon["monitor_type"] = "Dedicated Server Update Monitor"
+
+        monitor_list.append(mon)
+
+    return monitor_list

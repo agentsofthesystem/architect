@@ -8,7 +8,7 @@
 
 {% block area %}
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<meta name="agent-info-id" content="{{ agent_info['agent']['agent_id'] }}">
+<meta name="agent-id" content="{{ agent_info['agent']['agent_id'] }}">
 
 <!-- Modal -->
 <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
@@ -147,7 +147,7 @@
 
   document.addEventListener('keydown', function (event) {
     // Check if F5 key was pressed
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
 
     if (event.keyCode === 116) {
         // Prevent the default behavior of the F5 key (page reload)
@@ -177,7 +177,7 @@
   });
 
   function clearAgentLogs(){
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
 
     $.ajax({
       url: '/app/backend/agent/logs/clear/' + agent_id ,

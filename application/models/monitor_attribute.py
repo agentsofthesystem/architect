@@ -1,3 +1,5 @@
+from flask_admin.contrib.sqla import ModelView
+
 from application.common.pagination import PaginatedApi
 from application.extensions import DATABASE
 
@@ -21,3 +23,9 @@ class MonitorAttribute(PaginatedApi, DATABASE.Model):
             "attribute_name": self.attribute_name,
             "attribute_value": self.attribute_value,
         }
+
+
+class MonitorAttrView(ModelView):
+    column_display_pk = True
+    column_hide_backrefs = False
+    column_list = MonitorAttribute.__table__.columns.keys()

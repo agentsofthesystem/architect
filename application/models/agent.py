@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from flask_admin.contrib.sqla import ModelView
 
 from application.common import logger
 from application.common.constants import AGENT_SMITH_DEFAULT_PORT
@@ -27,6 +28,10 @@ class Agents(PaginatedApi, DATABASE.Model):
 
     owner_id = DATABASE.Column(
         DATABASE.Integer, DATABASE.ForeignKey("users.user_id"), nullable=False
+    )
+
+    monitors = DATABASE.relationship(
+        "Monitor", foreign_keys="Monitor.agent_id", backref="monitors", lazy="dynamic"
     )
 
     groups_with_access = DATABASE.relationship(
@@ -100,3 +105,9 @@ class Agents(PaginatedApi, DATABASE.Model):
             "ssl_public_cert": self.ssl_public_cert,
             "owner_id": self.owner_id,
         }
+
+
+class AgentView(ModelView):
+    column_display_pk = True
+    column_hide_backrefs = False
+    column_list = Agents.__table__.columns.keys()

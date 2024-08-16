@@ -22,6 +22,11 @@ def dedicated_server_update_monitor(self, monitor_id: int):
         logger.error(f"Monitor ID {monitor_id} not found.")
         return {"status": "Monitor ID not found."}
 
+    if not monitor_obj.active:
+        logger.error(f"Monitor ID {monitor_id} - Monitor Not Active.")
+        logger.debug("This means the monitor was disabled since the last run.")
+        return {"status": "Monitor Not Active."}
+
     # Compare the task_id to the task_id in the monitor object. If they do not match, then
     # this task is stale and should be revoked.
     if monitor_obj.task_id != self.request.id:

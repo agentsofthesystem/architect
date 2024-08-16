@@ -17,8 +17,10 @@ from application.api.controllers import agent_logs
 from application.api.controllers import friends
 from application.api.controllers import groups
 from application.api.controllers import messages
+from application.api.controllers import monitors
+from application.api.controllers import properties
 from application.api.controllers import users
-from application.common import logger, constants, toolbox
+from application.common import logger, constants, toolbox, timezones
 from application.common.decorators import admin_required
 from application.common.decorators import agent_permission_required
 from application.common.decorators import verified_required
@@ -177,7 +179,15 @@ def system_agent_info_catch():
 @login_required
 @verified_required
 def system_agent_logs_catch():
-    """This will take the user back to the system agents list page."""
+    """This will take the user back to the agent's logs page."""
+    return redirect(url_for("protected.system_agents"))
+
+
+@protected.route("/system/agent/monitors", methods=["GET"])
+@login_required
+@verified_required
+def system_agent_monitors_catch():
+    """This will take the user back to the agent's monitor list page."""
     return redirect(url_for("protected.system_agents"))
 
 
@@ -222,8 +232,11 @@ def system_agent_info(agent_id: int):
         else constants.DEFAULT_USERS_PER_AGENT_FREE
     )
 
+    owner_timezone = properties.get_property(owner_obj.user_id, "USER_TIMEZONE")
+
     agent_info = {
         "agent": agent_dict,
+        "timezone": owner_timezone,
         "num_groups": num_groups,
         "num_users": agent_obj.num_users,
         "num_friends": num_friends,
@@ -239,6 +252,7 @@ def system_agent_info(agent_id: int):
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         agent_info=agent_info,
         recent_logs=recent_logs,
+        show_monitor_status_button=True,
     )
 
 
@@ -274,6 +288,75 @@ def system_agent_logs(agent_id: int):
         pretty_name=current_app.config["APP_PRETTY_NAME"],
         agent_info=agent_info,
         agent_logs=agent_logs_list,
+    )
+
+
+@protected.route("/system/agent/monitors/<int:agent_id>", methods=["GET", "POST"])
+@login_required
+@verified_required
+@agent_permission_required
+def system_agent_monitors(agent_id: int):
+    agent_obj = agents.get_agent_by_id(agent_id, as_obj=True)
+    agent_dict = agent_obj.to_dict()
+
+    owner_obj = users.get_user_by_id(agent_obj.owner_id)
+    agent_dict["owner"] = owner_obj.to_dict()
+
+    owner_timezone = properties.get_property(owner_obj.user_id, "USER_TIMEZONE")
+
+    # User properties to determine whether or not to apply offset
+    user_properties = current_user.properties
+    format_str = timezones._apply_time_format_preference(user_properties)
+    offset_available = False
+
+    if "USER_TIMEZONE" in user_properties:
+        user_timezone = user_properties["USER_TIMEZONE"]
+        user_offset = timezones._get_timezone_offset(user_timezone)
+        offset_available = True
+    else:
+        user_timezone = constants.DEFAULT_USER_TIMEZONE
+        user_offset = 0
+
+    logger.debug(f"User's timezone is {user_timezone}, offset: {user_offset}")
+
+    monitor_data = monitors.get_monitors(agent_id)
+
+    # Update check times to represent the timezone of the user.
+    for monitor in monitor_data:
+        next_check = monitor["next_check"]
+        last_check = monitor["last_check"]
+
+        if next_check is not None:
+            if offset_available:
+                next_check = timezones._apply_offset_to_datetime(next_check, user_offset)
+            next_check_time_str = next_check.strftime(format_str)
+            monitor["next_check"] = next_check_time_str
+
+        if last_check is not None:
+            if offset_available:
+                last_check = timezones._apply_offset_to_datetime(last_check, user_offset)
+            last_check_time_str = last_check.strftime(format_str)
+            monitor["last_check"] = last_check_time_str
+
+    agent_info = {
+        "agent": agent_dict,
+        "timezone": owner_timezone,
+        "is_owner_subscribed": owner_obj.subscribed,
+        "agent_owner_id": agent_obj.owner_id,
+    }
+
+    monitor_info = {
+        "num_active_monitors": monitors.get_num_active_monitors(agent_id),
+        "num_monitors": monitors.get_num_monitors(agent_id),
+        "monitors": monitor_data,
+    }
+
+    return render_template(
+        "protected/system_agent_monitor_info.html",
+        pretty_name=current_app.config["APP_PRETTY_NAME"],
+        agent_info=agent_info,
+        monitor_info=monitor_info,
+        show_monitor_status_button=False,
     )
 
 

@@ -7,7 +7,7 @@ function reloadAgentInfo(agent_id) {
 
 document.addEventListener('keydown', function (event) {
     // Check if F5 key was pressed
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
 
     if (event.keyCode === 116) {
         // Prevent the default behavior of the F5 key (page reload)
@@ -20,7 +20,7 @@ document.addEventListener('keydown', function (event) {
 $(document).ready(function () {
 
     var csrftoken = $('meta[name=csrf-token]').attr('content');
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
 
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
@@ -310,7 +310,7 @@ function updateGameServer(game_name) {
 
     console.log("Updating Game Server for " + game_name);
 
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
     var json_data = `{"agent_id": ${agent_id}, "game_name": "${game_name}"}`;
 
     $.ajax({
@@ -335,7 +335,7 @@ function startupGameServer(game_name) {
 
     console.log("Starting Game Server for " + game_name);
 
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
     var json_data = `{"agent_id": ${agent_id}, "game_name": "${game_name}"}`;
 
     $.ajax({
@@ -359,7 +359,7 @@ function shutdownGameServer(game_name) {
 
     console.log("Stopping Game Server for " + game_name);
 
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
     var json_data = `{"agent_id": ${agent_id}, "game_name": "${game_name}"}`;
 
     $.ajax({
@@ -384,7 +384,7 @@ function restartGameServer(game_name) {
 
     console.log("Restarting Game Server for " + game_name);
 
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
     var json_data = `{"agent_id": ${agent_id}, "game_name": "${game_name}"}`;
 
     $.ajax({
@@ -441,7 +441,7 @@ function handleActionResult(agent_id, action, game_name) {
 $(".remove-group-from-agent").click(function () {
 
     console.log("Removing Agent Group Membership ID: " + this.id)
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
 
     $.ajax({
         type: "DELETE",
@@ -463,7 +463,7 @@ $(".remove-group-from-agent").click(function () {
 $(".remove-friend-from-agent").click(function () {
 
     console.log("Removing Agent Friend Membership ID: " + this.id)
-    var agent_id = $('meta[name=agent-info-id]').attr('content');
+    var agent_id = $('meta[name=agent-id]').attr('content');
 
     $.ajax({
         type: "DELETE",

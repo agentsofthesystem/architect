@@ -4,6 +4,20 @@ import pytz
 from application.common import constants
 
 
+# Get the offset from the label
+def _get_timezone_offset(tz_label: str) -> int:
+    tz_dict = constants.TIME_ZONE_DICT
+    offset = None
+
+    # Match label to timezone label in tz_dict and return offset.
+    for key, value in tz_dict.items():
+        if value["label"] == tz_label:
+            offset = value["utcoffset"]
+            break
+
+    return offset
+
+
 # Check user properties and return the time format string which is appropriate.
 def _apply_time_format_preference(properties: dict) -> str:
     if "USER_HOUR_FORMAT" in properties:
