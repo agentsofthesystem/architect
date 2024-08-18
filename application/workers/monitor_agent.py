@@ -12,14 +12,19 @@ def agent_health_monitor(self, monitor_id: int):
     logger.debug(f"Agent Health Monitor Task Running at {datetime.now(timezone.utc)}")
 
     monitor_obj = monitor_utils._get_monitor_obj(monitor_id)
+    monitor_active = False
 
     if monitor_obj is None:
         logger.error(f"Monitor ID {monitor_id} not found.")
+        self.update_state(state="FAILURE")
         return {"status": "Monitor ID not found."}
 
-    if not monitor_obj.active:
+    monitor_active = monitor_obj.active
+
+    if not monitor_active:
         logger.error(f"Monitor ID {monitor_id} - Monitor Not Active.")
         logger.debug("This means the monitor was disabled since the last run.")
+        self.update_state(state="FAILURE")
         return {"status": "Monitor Not Active."}
 
     # Compare the task_id to the task_id in the monitor object. If they do not match, then
@@ -30,6 +35,7 @@ def agent_health_monitor(self, monitor_id: int):
             f"Task ID Mismatch: {monitor_obj.task_id} != {self.request.id}"
         )
         logger.debug("This means the container restarted and the revoked task list reset.")
+        self.update_state(state="FAILURE")
         return {"status": "Task ID Mismatch."}
 
     # Get the agent object associated with the monitor
@@ -37,6 +43,7 @@ def agent_health_monitor(self, monitor_id: int):
 
     if agent_obj is None:
         logger.error(f"Agent ID {monitor_obj.agent_id} not found.")
+        self.update_state(state="FAILURE")
         return {"status": "Agent ID not found."}
 
     # Get the owner associated with the monitor
@@ -81,18 +88,9 @@ def agent_health_monitor(self, monitor_id: int):
         if health_status is None:
             health_status = "Unreachable Agent."
 
-        monitor_utils.create_monitor_fault(
-            monitor_obj.monitor_id, f"Health Check Failed: {health_status}"
-        )
-
-        # Set the fault flag
-        monitor_utils.set_monitor_fault_flag(monitor_obj.monitor_id, has_fault=True)
-
-        # Update the monitor check times
-        monitor_utils.update_monitor_check_times(monitor_obj.monitor_id, is_stopped=True)
-
-        # Disabled the monitor automatically
-        monitor_utils.disable_monitor(monitor_obj.monitor_id)
+        fault_string = f"Health Check Failed: {health_status}"
+        monitor_utils.add_fault_and_disable(monitor_obj.monitor_id, fault_string)
+        monitor_active = False
 
         # Email users attached to agent.
         if alert_enable:
@@ -111,11 +109,13 @@ def agent_health_monitor(self, monitor_id: int):
                 agent_obj.owner_id, user_list, message, subject, constants.MessageCategories.MONITOR
             )
 
+        self.update_state(state="SUCCESS")
         return {"status": "Invalid Health Status."}
+
     else:
         logger.debug(f"Agent ID {agent_obj.agent_id} - Health Status: {health_status} - Healthy!")
 
-    if monitor_obj.active:
+    if monitor_active:
         logger.debug(f"Monitor ID {monitor_id} is active. Scheduling next health check.")
         monitor_utils.update_monitor_check_times(monitor_obj.monitor_id)
         new_task = self.apply_async(
@@ -128,4 +128,5 @@ def agent_health_monitor(self, monitor_id: int):
         monitor_utils.update_monitor_task_id(monitor_obj.monitor_id, None)
         logger.debug(f"Monitor ID {monitor_id} is not active. Stopping further health checks..")
 
+    self.update_state(state="SUCCESS")
     return {"status": "Task Completed!"}

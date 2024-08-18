@@ -1,4 +1,24 @@
 <!-- Modal -->
+<div class="modal fade" id="cannotEnableMonitor" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Monitor: Warning</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Unable to start up monitor, if there are faults, please clear them out and try again.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
 <div class="modal fade" id="monitorSettingsModal-1" tabindex="-1" role="dialog" aria-labelledby="message-title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -185,7 +205,7 @@
             <div class="media-body">
                 <div class="d-flex justify-content-between mb-2">
                     <div>
-                        <a class="mb-1"><h4>Dedicated Server Monitor</h4></a>
+                        <a class="mb-1"><h4>Dedicated Server Health Monitor</h4></a>
                         <span>Checks if the dedicated game servers are running as expected, periodically.</span>
                     </div>
                     <div class="dropdown">

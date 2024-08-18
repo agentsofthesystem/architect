@@ -26,13 +26,20 @@ def _send_email(
     address_mode="ToAddresses",
 ) -> bool:
     aws_region = None
+    setting_objs = None
 
     try:
         setting_objs = SettingsSql.query.filter_by(category="aws").all()
+    except Exception as error:
+        logger.critical("Unable to read database settings table.")
+        logger.critical(error)
+        return False
 
-        if setting_objs is None:
-            logger.critical("emailer: Not Settings Objects for AWS category.")
-            return False
+    if setting_objs is None:
+        logger.critical("emailer: Not Settings Objects for AWS category.")
+        return False
+
+    try:
 
         # Region is stored as database item.
         aws_region = _get_setting("AWS_REGION", setting_objs)
@@ -76,6 +83,7 @@ def _send_email(
             return False
 
     except Exception as error:
+        logger.critical("There was an error")
         logger.critical(error)
         return False
 

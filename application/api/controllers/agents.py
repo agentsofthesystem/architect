@@ -11,6 +11,7 @@ from application.extensions import DATABASE
 from application.models.agent import Agents
 from application.models.agent_group_member import AgentGroupMembers
 from application.models.agent_friend_member import AgentFriendMembers
+from application.models.monitor import Monitor
 
 
 def get_agent_by_id(agent_id: int, as_obj: bool = False) -> dict:
@@ -166,6 +167,22 @@ def create_agent(request) -> bool:
     except Exception as error:
         logger.critical(error)
         flash("Could Create new Agent. Database Error!", "danger")
+        return False
+
+    # At minimum, create an agent health monitor.
+    agent_health_monitor = Monitor()
+    agent_health_monitor.agent_id = new_agent.agent_id
+    agent_health_monitor.monitor_type = constants.monitor_type_to_string(
+        constants.MonitorTypes.AGENT
+    )
+    agent_health_monitor.has_fault = False
+    agent_health_monitor.active = False
+
+    try:
+        DATABASE.session.add(agent_health_monitor)
+        DATABASE.session.commit()
+    except Exception as error:
+        logger.critical(error)
         return False
 
     return True

@@ -14,17 +14,21 @@ def dedicated_server_update_monitor(self, monitor_id: int):
     logger.debug(f"Dedicated Server Update Monitor Task Running at {datetime.now(timezone.utc)}")
 
     monitor_obj = monitor_utils._get_monitor_obj(monitor_id)
-    alert_fmt_str = None
     owner_id = None
     final_server_state = None
+    monitor_active = False
 
     if monitor_obj is None:
         logger.error(f"Monitor ID {monitor_id} not found.")
+        self.update_state(state="FAILURE")
         return {"status": "Monitor ID not found."}
 
-    if not monitor_obj.active:
+    monitor_active = monitor_obj.active
+
+    if not monitor_active:
         logger.error(f"Monitor ID {monitor_id} - Monitor Not Active.")
         logger.debug("This means the monitor was disabled since the last run.")
+        self.update_state(state="FAILURE")
         return {"status": "Monitor Not Active."}
 
     # Compare the task_id to the task_id in the monitor object. If they do not match, then
@@ -35,6 +39,7 @@ def dedicated_server_update_monitor(self, monitor_id: int):
             f"Task ID Mismatch: {monitor_obj.task_id} != {self.request.id}"
         )
         logger.debug("This means the container restarted and the revoked task list reset.")
+        self.update_state(state="FAILURE")
         return {"status": "Task ID Mismatch."}
 
     # Get the agent object associated with the monitor
@@ -42,7 +47,11 @@ def dedicated_server_update_monitor(self, monitor_id: int):
 
     if agent_obj is None:
         logger.error(f"Agent ID {monitor_obj.agent_id} not found.")
+        self.update_state(state="FAILURE")
         return {"status": "Agent ID not found."}
+
+    # This cannot be None because the monitor record is created at the time of agent creation.
+    agent_health_monitor = monitor_utils._get_agent_health_monitor_obj(agent_obj.agent_id)
 
     # Get the owner associated with the monitor
     owner_obj = monitor_utils._get_monitor_owner(monitor_obj.monitor_id)
@@ -86,6 +95,15 @@ def dedicated_server_update_monitor(self, monitor_id: int):
         timeout=constants.AGENT_SMITH_TIMEOUT,
     )
 
+    # If the agent health monitor has a fault... back out now.
+    if agent_health_monitor.has_fault:
+        fault_string = "Agent Health Monitor has detected a fault. Disabling this monitor."
+        logger.error(fault_string)
+        self.update_state(state="FAILURE")
+        monitor_utils.add_fault_and_disable(monitor_obj.monitor_id, fault_string)
+        monitor_active = False
+        return {"status": "Agent Health Monitor Fault."}
+
     # Get the health status of the agent
     health_status = client.architect.get_health(secure_version=True)
 
@@ -97,20 +115,13 @@ def dedicated_server_update_monitor(self, monitor_id: int):
         if health_status is None:
             health_status = "Unreachable Agent."
 
-        monitor_utils.create_monitor_fault(
-            monitor_obj.monitor_id, f"Health Check Failed: {health_status}"
-        )
+        fault_string = f"Health Check Failed: {health_status}"
+        monitor_utils.add_fault_and_disable(monitor_obj.monitor_id, fault_string)
+        monitor_active = False
 
-        # Set the fault flag
-        monitor_utils.set_monitor_fault_flag(monitor_obj.monitor_id, has_fault=True)
-
-        # Update the monitor check times
-        monitor_utils.update_monitor_check_times(monitor_obj.monitor_id, is_stopped=True)
-
-        # Disabled the monitor automatically
-        monitor_utils.disable_monitor(monitor_obj.monitor_id)
-
+        self.update_state(state="SUCCESS")
         return {"status": "Invalid Agent Health Status."}
+
     else:
         logger.debug(
             f"Agent ID {agent_obj.agent_id} - Health Status for (DS): {health_status} - Healthy!"
@@ -122,6 +133,8 @@ def dedicated_server_update_monitor(self, monitor_id: int):
         # If the agent is healthy, then obtain all currently installed games on the agent.
         installed_servers = client.game.get_games()
         installed_servers = installed_servers["items"]  # This is the server list.
+
+        alert_fmt_str_list = []  # One or more possible total message
 
         # Loop through all the servers and check if they are running, and take actions if necessary.
         for server in installed_servers:
@@ -143,12 +156,20 @@ def dedicated_server_update_monitor(self, monitor_id: int):
             current_version = update_info["current_version"]
             target_version = update_info["target_version"]
 
+            # Package input into dict for emails later, if needed.
+            alert_fmt_inputs = {}
+            alert_fmt_inputs["server_name"] = server_name
+            alert_fmt_inputs["current_version"] = current_version
+            alert_fmt_inputs["target_version"] = target_version
+            alert_fmt_inputs["format_string_dict"] = {}
+
             logger.debug(
                 f"Server {server_name} - Current Version: {current_version}, "
                 f"Target Version: {target_version}, Update Required: {is_required}"
             )
 
             if is_required:
+
                 # If the user has enabled auto-restart, then the server will be stopped, updated,
                 # and restarted.
                 if monitor_utils.has_monitor_attribute(monitor_obj, "server_auto_update"):
@@ -175,7 +196,10 @@ def dedicated_server_update_monitor(self, monitor_id: int):
 
                         monitor_utils.create_monitor_fault(monitor_obj.monitor_id, fault_string_3)
                         monitor_utils.set_monitor_fault_flag(monitor_obj.monitor_id, has_fault=True)
-                        alert_fmt_str = monitor_constants.ALERT_MESSAGES_FMT_STR["DS_UPDATE_3"]
+                        alert_fmt_inputs["format_string_dict"] = (
+                            monitor_constants.ALERT_MESSAGES_FMT_STR["DS_UPDATE_3"]
+                        )
+                        alert_fmt_str_list.append(alert_fmt_inputs)
                     else:
                         logger.debug("Inside Maintenance Window. Updating Server.")
 
@@ -221,8 +245,10 @@ def dedicated_server_update_monitor(self, monitor_id: int):
                         # Set the fault flag on the monitor overall.
                         monitor_utils.create_monitor_fault(monitor_obj.monitor_id, fault_string_2)
                         monitor_utils.set_monitor_fault_flag(monitor_obj.monitor_id, has_fault=True)
-
-                        alert_fmt_str = monitor_constants.ALERT_MESSAGES_FMT_STR["DS_UPDATE_2"]
+                        alert_fmt_inputs["format_string_dict"] = (
+                            monitor_constants.ALERT_MESSAGES_FMT_STR["DS_UPDATE_2"]
+                        )
+                        alert_fmt_str_list.append(alert_fmt_inputs)
 
                         log_message = f"Monitor: Auto-Update: {server_name}"
                         create_agent_log(
@@ -250,29 +276,36 @@ def dedicated_server_update_monitor(self, monitor_id: int):
 
                     # Set the fault flag on the monitor overall.
                     monitor_utils.set_monitor_fault_flag(monitor_obj.monitor_id, has_fault=True)
+                    alert_fmt_inputs["format_string_dict"] = (
+                        monitor_constants.ALERT_MESSAGES_FMT_STR["DS_UPDATE_1"]
+                    )
+                    alert_fmt_str_list.append(alert_fmt_inputs)
 
-                    alert_fmt_str = monitor_constants.ALERT_MESSAGES_FMT_STR["DS_UPDATE_1"]
+        # Send alert to users, if enabled and a format str was set.
+        if alert_enable and len(alert_fmt_str_list) > 0:
+            user_list = monitor_utils.get_agent_users(agent_obj.agent_id)
+            subject = f"Server Update Required: {agent_obj.hostname}"
+            message = f"<p><h3>Agent: {agent_obj.hostname}</h3></p>"
 
-            # Send alert to users, if enabled and a format str was set.
-            if alert_enable and alert_fmt_str is not None:
-                user_list = monitor_utils.get_agent_users(agent_obj.agent_id)
-                subject = alert_fmt_str["subject"].format(hostname=agent_obj.hostname)
-                message = alert_fmt_str["message"].format(
-                    hostname=agent_obj.hostname,
-                    game_name=server_name,
-                    current_version=current_version,
-                    target_version=target_version,
+            # Only send one email combined.
+            for alert in alert_fmt_str_list:
+                message += alert["format_string_dict"]["message"].format(
+                    game_name=alert["server_name"],
+                    current_version=alert["current_version"],
+                    target_version=alert["target_version"],
                 )
-                # The message sender_id shall be the owner of the agent.
-                messages.message_user_list(
-                    agent_obj.owner_id,
-                    user_list,
-                    message,
-                    subject,
-                    constants.MessageCategories.MONITOR,
-                )
+                message += "<p>************************************</p>"
 
-    if monitor_obj.active:
+            # The message sender_id shall be the owner of the agent.
+            messages.message_user_list(
+                agent_obj.owner_id,
+                user_list,
+                message,
+                subject,
+                constants.MessageCategories.MONITOR,
+            )
+
+    if monitor_active:
         logger.debug(f"Monitor ID {monitor_id} is active. Scheduling next health check.")
         monitor_utils.update_monitor_check_times(monitor_obj.monitor_id)
         new_task = self.apply_async(
@@ -285,4 +318,5 @@ def dedicated_server_update_monitor(self, monitor_id: int):
         monitor_utils.update_monitor_task_id(monitor_obj.monitor_id, None)
         logger.debug(f"Monitor ID {monitor_id} is not active. Stopping further health checks..")
 
+    self.update_state(state="SUCCESS")
     return {"status": "Task Completed!"}
