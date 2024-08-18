@@ -18,7 +18,7 @@ ALERT_MESSAGES_FMT_STR = {
         "subject": "Dedicated Server Health Check Failed: {hostname}",
         "message": (
             "<p><h3>Agent: {hostname}</h3></p>"
-            "<p>Dedicated Server Health Check Failed: {game_name}.</p>"
+            "<p>The following servers were found to be offline: {game_name}.</p>"
             "<p></p>"
             "<p>This dedicated server was found to be offline when it should be online, and an"
             " attempt will be made to restart the server automatically.</p>"
@@ -28,16 +28,14 @@ ALERT_MESSAGES_FMT_STR = {
         "subject": "Dedicated Server Health Check Failed: {hostname}",
         "message": (
             "<p><h3>Agent: {hostname}</h3></p>"
-            "<p>Dedicated Server Health Check Failed: {game_name}.</p>"
+            "<p>The following servers were found to be offline: {game_name}.</p>"
             "<p></p>"
             "<p>This dedicated server was found to be offline when it should be online. A user"
             " must manually restart the server.</p>"
         ),
     },
     "DS_UPDATE_1": {
-        "subject": "Update Required: {hostname}",
         "message": (
-            "<p><h3>Agent: {hostname}</h3></p>"
             "<p>Server: {game_name} requires an update.</p>"
             "<p></p>"
             "<p>Current Ver: {current_version}, Target Ver: {target_version}.</p>"
@@ -46,18 +44,14 @@ ALERT_MESSAGES_FMT_STR = {
         ),
     },
     "DS_UPDATE_2": {
-        "subject": "Update Required: {hostname}",
         "message": (
-            "<p><h3>Agent: {hostname}</h3></p>"
             "<p>Server: {game_name} requires an update.</p>"
             "<p></p>"
             "<p>The server will be stopped, updated, and restarted automatically.</p>"
         ),
     },
     "DS_UPDATE_3": {
-        "subject": "Update Required: {hostname}",
         "message": (
-            "<p><h3>Agent: {hostname}</h3></p>"
             "<p>Server: {game_name} requires an update.</p>"
             "<p></p>"
             "<p>The server will be updated at the next maintenance window of in the agent owner's "

@@ -187,7 +187,9 @@ def message_user_list(
                 subject,
                 final_user_list,
                 message,
-            ]
+            ],
+            # Wait a second before running.
+            countdown=1,
         )
     except OperationalError as error:
         logger.error("ERROR: Unable to communicate with Celery Backend.")

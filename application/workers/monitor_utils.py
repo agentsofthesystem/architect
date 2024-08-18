@@ -35,6 +35,14 @@ def _get_monitor_obj(monitor_id: int) -> Monitor:
     return Monitor.query.filter_by(monitor_id=monitor_id).first()
 
 
+# Specifically get the agent's health monitor object from the agent_id
+def _get_agent_health_monitor_obj(agent_id: int) -> Monitor:
+    return Monitor.query.filter_by(
+        agent_id=agent_id,
+        monitor_type=constants.monitor_type_to_string(constants.MonitorTypes.AGENT),
+    ).first()
+
+
 # Get the agent object from the agent_id
 def _get_agent_obj(agent_id: int) -> Agents:
     return Agents.query.filter_by(agent_id=agent_id).first()
@@ -203,6 +211,25 @@ def get_agent_users(agent_id: int, return_objects=False) -> list:
         return _get_user_objects(agent_users)
     else:
         return agent_users
+
+
+# A function to group function calls.  Throw faults and bail out.
+def add_fault_and_disable(monitor_id: int, fault_string: str) -> None:
+
+    # Create the fault object
+    create_monitor_fault(monitor_id, fault_string)
+
+    # Set the fault flag
+    set_monitor_fault_flag(monitor_id, has_fault=True)
+
+    # Update the monitor check times
+    update_monitor_check_times(monitor_id, is_stopped=True)
+
+    # Null out the task id. Not coming back until user turns back on.
+    update_monitor_task_id(monitor_id, None)
+
+    # Disabled the monitor automatically
+    disable_monitor(monitor_id)
 
 
 # Determine whether or not the current time is within the maintenance window.

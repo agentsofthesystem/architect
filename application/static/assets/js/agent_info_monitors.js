@@ -178,7 +178,6 @@ function updateMonitorUserInterface(monitor_data, attributes_data, faults_data){
     }
 
     console.log("Monitor Type: " + monitor_type);
-    console.log(monitor_data);
 
     switch(monitor_type){
         case "AGENT":
@@ -485,14 +484,17 @@ function enableMonitor(agent_id, monitor_type){
             // Toggle the switch back to off
             if(monitor_type == "AGENT"){
                 $("#AGENT_HEALTH_ENABLE").bootstrapToggle('off');
+                $('#cannotEnableMonitor').modal('show');
                 setSettingsButtonEnable("#monitor-settings-1", false, be_silent);
             }
             else if(monitor_type == "DEDICATED_SERVER"){
                 $("#DS_HEALTH_ENABLE").bootstrapToggle('off');
+                $('#cannotEnableMonitor').modal('show');
                 setSettingsButtonEnable("#monitor-settings-2", false, be_silent);
             }
             else if(monitor_type == "UPDATES"){
                 $("#DS_UPDATE_ENABLE").bootstrapToggle('off');
+                $('#cannotEnableMonitor').modal('show');
                 setSettingsButtonEnable("#monitor-settings-3", false, be_silent);
             }
         }

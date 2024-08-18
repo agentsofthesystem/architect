@@ -53,6 +53,7 @@ class Agents(PaginatedApi, DATABASE.Model):
         foreign_keys="Monitor.agent_id",
         backref="attached_monitors",
         lazy="dynamic",
+        overlaps="monitors,monitors",
     )
 
     @property
