@@ -88,7 +88,12 @@ def dedicated_server_monitor(self, monitor_id: int):
         fault_string = "Agent Health Monitor has detected a fault. Disabling this monitor."
         logger.error(fault_string)
         self.update_state(state="FAILURE")
-        monitor_utils.add_fault_and_disable(monitor_obj.monitor_id, fault_string)
+
+        if monitor_utils.is_fault_description_matching(monitor_obj.monitor_id, fault_string):
+            logger.debug("Fault already exists for this Agent. Skipping.")
+        else:
+            monitor_utils.add_fault_and_disable(monitor_obj.monitor_id, fault_string)
+
         monitor_active = False
         return {"status": "Agent Health Monitor Fault."}
 
@@ -105,7 +110,12 @@ def dedicated_server_monitor(self, monitor_id: int):
             health_status = "Unreachable Agent."
 
         fault_string = f"Health Check Failed: {health_status}"
-        monitor_utils.add_fault_and_disable(monitor_obj.monitor_id, fault_string)
+
+        if monitor_utils.is_fault_description_matching(monitor_obj.monitor_id, fault_string):
+            logger.debug("Fault already exists for this Agent. Skipping.")
+        else:
+            monitor_utils.add_fault_and_disable(monitor_obj.monitor_id, fault_string)
+
         monitor_active = False
 
         self.update_state(state="SUCCESS")

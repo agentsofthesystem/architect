@@ -79,6 +79,13 @@ def agent_health_monitor(self, monitor_id: int):
 
     # Get the health status of the agent
     health_status = client.architect.get_health(secure_version=True)
+    fault_string = f"Health Check Failed: {health_status}"
+
+    if monitor_utils.is_fault_description_matching(monitor_obj.monitor_id, fault_string):
+        logger.debug("Fault already exists for this Agent. Skipping.")
+        monitor_active = False
+        self.update_state(state="SUCCESS")
+        return {"status": "Agent has fault already."}
 
     # If a fault is detected, create a fault object. Alert the users if the alert is enabled.
     # Also, disable the monitor.
@@ -88,7 +95,6 @@ def agent_health_monitor(self, monitor_id: int):
         if health_status is None:
             health_status = "Unreachable Agent."
 
-        fault_string = f"Health Check Failed: {health_status}"
         monitor_utils.add_fault_and_disable(monitor_obj.monitor_id, fault_string)
         monitor_active = False
 
