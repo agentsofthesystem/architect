@@ -14,7 +14,7 @@ ALERT_MESSAGES_FMT_STR = {
             " must login and acknowledge the detected fault before resuming.</p>"
         ),
     },
-    "DEDICATED_SERVER_1": {
+    "DS_HEALTH_1": {
         "subject": "Dedicated Server Health Check Failed: {hostname}",
         "message": (
             "<p><h3>Agent: {hostname}</h3></p>"
@@ -24,7 +24,7 @@ ALERT_MESSAGES_FMT_STR = {
             " attempt will be made to restart the server automatically.</p>"
         ),
     },
-    "DEDICATED_SERVER_2": {
+    "DS_HEALTH_2": {
         "subject": "Dedicated Server Health Check Failed: {hostname}",
         "message": (
             "<p><h3>Agent: {hostname}</h3></p>"
