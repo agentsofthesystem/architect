@@ -48,7 +48,14 @@ def robots():
 # Public Routes
 @public.route("/")
 def index():
-    return render_template("public/index.html", pretty_name=current_app.config["APP_PRETTY_NAME"])
+    setting_objs = SettingsSql.query.all()
+    is_beta_mode_str = _get_setting("APP_ENABLE_BETA", setting_objs)
+    is_beta_mode = True if is_beta_mode_str.upper() == "TRUE" else False
+    return render_template(
+        "public/index.html",
+        is_beta_mode=is_beta_mode,
+        pretty_name=current_app.config["APP_PRETTY_NAME"],
+    )
 
 
 @public.route("/about")

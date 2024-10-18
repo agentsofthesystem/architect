@@ -7,7 +7,7 @@ class TestIndex:
     def teardown_class(cls):
         pass
 
-    def test_index(self, app):
+    def test_index(self, app, session):
 
         with app.test_client() as client:
             response = client.get("/")
