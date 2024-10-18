@@ -1,11 +1,30 @@
 <!doctype html>
 <html lang="en">
+
     {% include 'layout/head.html' %}
+
+    <link href="{{ url_for('static', filename='assets/css/timeline.css') }}" rel="stylesheet" type="text/css" media="all" />
+
     {% include 'layout/google_analytics.html' %}
+
     <body>
     {% include 'layout/landing_topbar.html' %}
 
     <div class="main-container">
+
+        {% if is_beta_mode %}
+
+        <section class="space-xxs bg-white">
+        </section>
+        <section class="space-xxs bg-dark">
+          <div class="container">
+            <div class="row align-items-center justify-content-around">
+              <h2>We are in <strong>Open Beta</strong>, sign up <a href="https://docs.google.com/forms/d/1WrmUsZFE1Tyt_zqPTQdEczb-kl_hGJwMEk-dHs2fZPU" target="_blank">here</a>!!!</h2>
+            </div>
+          </div>
+        </section>
+
+        {% endif %}
 
         <section class="space-lg bg-white">
             <div class="container">
@@ -13,8 +32,9 @@
                 <div class="col-12 col-md-6 col-lg-5 text-center text-md-left section-intro">
                   <h1 class="display-5"><strong>Agents of the System</strong></h1>
                   <span class="lead">
-                    Agents of the System is an ecosystem of free, open-source dedicated game server
-                    control panel built with Python.  Designed with a distributed approach in mind,
+                    Agents of the System is an ecosystem of free & open-source software.  Deploy
+                    dedicated game servers and use our online control panel.  Everything is built
+                    with Python.  Designed with a distributed approach in mind,
                     Agent Smith securely runs all dedicated game servers while The Architect
                     provides collaborative and simple UI to end users.
                   </span>
@@ -22,7 +42,6 @@
                 </div>
                 <!--end of col-->
                 <div class="col-12 col-md-6 col-lg-6">
-                  <!--<img alt="Image" class="img-fluid w-100" src="{{ url_for('static', filename='assets/img/graphic-golden-gate-bridge.svg') }}" />-->
                   <img alt="Image" class="img-fluid w-100" src="{{ url_for('static', filename='assets/img/city-skyline-silhouette.png') }}" />
                 </div>
                 <!--end of col-->
@@ -33,12 +52,13 @@
         </section>
         <!--end of section-->
 
+
         <section>
           <div class="container">
             <div class="row justify-content-center text-center section-intro">
               <div class="col-12 col-md-9 col-lg-8">
                 <h2 class="display-4 aos-init aos-animate" data-aos="fade-up" data-aos-delay="100">What are the Agents of the System?</h2>
-                <span class="lead aos-init aos-animate" data-aos="fade-up" data-aos-delay="200">The Architect is a browser-based web application <strong>&</strong> Agent Smith is a system tray application.</span>
+                <span class="lead aos-init aos-animate" data-aos="fade-up" data-aos-delay="200">The Architect is a browser-based web application control panel & Agent Smith is a system tray application.</span>
               </div>
               <!--end of col-->
             </div>
@@ -150,6 +170,25 @@
           <!--end of container-->
         </section>
         <!--end of section-->
+
+        <!--timeline section-->
+        <section class="space-xxs bg-dark">
+        </section>
+
+        <section class="space-xxs">
+          {% include 'public/timeline.html' %}
+          <div class="container">
+            <div class="row align-items-center justify-content-around">
+              <div class="col">
+                <h3>Are you a gamer? Interested in the project? Join our <strong>email list</strong> <a href="https://docs.google.com/forms/d/1sqIDZFigz5TP40lqB8jMSxGO9mpA8Yjybq9GU49RRYk" target="_blank">here</a>!</h3>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="space-xxs bg-dark">
+        </section>
+        <!--end of timeline section-->
 
         <section>
 
